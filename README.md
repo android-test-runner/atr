@@ -30,12 +30,16 @@ atr test --device="abcjekrjkdfj43r"
 
 * `.atr` file to set default options like apk-test, apk-under-test, filter device, record-screen etc. for project or user
 
+* adb retries to stabalize adb
+
 
 ## Dependencies
 * adb
 * aapt
 
 
-## Notes
-Find Packgaename:
+## Notes / Links
+* [Run tests through adb](https://developer.android.com/studio/test/command-line) `adb shell am instrument -w <test_package_name>/<runner_class>`
+* [Find Packgaename](https://stackoverflow.com/questions/6289149/read-the-package-name-of-an-android-apk):
 `aapt dump badging <path-to-apk> | grep package:\ name`
+
