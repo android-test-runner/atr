@@ -23,7 +23,7 @@ fi
 
 version=$("${dir}/print-version.sh")
 build_dir="${root}/build"
-build_atr_dir="${build_dir}/src/atr"
+build_atr_dir="${build_dir}/src/github.com/ybonjour/atr"
 arch=${GOARCH:-}
 os=${GOOS:-}
 
