@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"github.com/urfave/cli"
+	"github.com/ybonjour/atr/apk"
 )
 
 var testCommand = cli.Command{
@@ -21,9 +23,21 @@ var testCommand = cli.Command{
 }
 
 func test(c *cli.Context) error {
-	config := TestConfig{
-		Apk:     c.String("apk"),
-		TestApk: c.String("testapk"),
+	apkPath := c.String("apk")
+	apkUnderTest, apkGetError := apk.GetApk(apkPath)
+	if apkGetError != nil {
+		return cli.NewExitError(fmt.Sprintf("Could not get apk %v", apkPath), 1)
 	}
-	return executeTests(config)
+
+	testApkPath := c.String("testapk")
+	testApk, apkGetError := apk.GetApk(testApkPath)
+	if apkGetError != nil {
+		return cli.NewExitError(fmt.Sprintf("Could not get apk %v", testApkPath), 1)
+	}
+
+	config := TestConfig{
+		Apk:     apkUnderTest,
+		TestApk: testApk,
+	}
+	return ExecuteTests(config)
 }
