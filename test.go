@@ -36,8 +36,9 @@ func test(c *cli.Context) error {
 	}
 
 	config := TestConfig{
-		Apk:     apkUnderTest,
-		TestApk: testApk,
+		Apk:        apkUnderTest,
+		TestApk:    testApk,
+		TestRunner: "ch.ergon.mws.ergoneo.framework.ErgoNeoTestRunner",
 	}
 	return ExecuteTests(config)
 }

@@ -7,8 +7,9 @@ import (
 )
 
 type TestConfig struct {
-	Apk     *apk.Apk
-	TestApk *apk.Apk
+	Apk        *apk.Apk
+	TestApk    *apk.Apk
+	TestRunner string
 }
 
 func ExecuteTests(testConfig TestConfig) error {
@@ -21,7 +22,11 @@ func ExecuteTests(testConfig TestConfig) error {
 		return testApkInstallError
 	}
 
-	return nil
+	return executeTests(testConfig)
+}
+
+func executeTests(testConfig TestConfig) error {
+	return adb.ExecuteAllTests(testConfig.TestApk.PackageName, testConfig.TestRunner)
 }
 
 func reinstall(apk *apk.Apk) error {
