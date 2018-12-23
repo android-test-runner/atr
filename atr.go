@@ -11,15 +11,15 @@ var version string //needs to be set when compiling using ldflags (-ldflags "-X 
 var testCommand = cli.Command{
 	Name:   "test",
 	Usage:  "Execute an android instrumentation test",
-	Action: executeTest,
+	Action: test,
 	Flags: []cli.Flag{
 		cli.StringFlag{
-			Name:  "apk-under-test",
-			Usage: "The apk under test",
+			Name:  "apk",
+			Usage: "APK under test",
 		},
 		cli.StringFlag{
-			Name:  "apk-test",
-			Usage: "The test apk",
+			Name:  "testapk",
+			Usage: "APK containing instrumentation tests",
 		},
 	},
 }
@@ -29,6 +29,7 @@ func main() {
 	app.Name = "atr"
 	app.Usage = "Android Test Runner"
 	app.Version = version
+	app.EnableBashCompletion = true
 	app.Commands = []cli.Command{
 		testCommand,
 	}
@@ -36,9 +37,8 @@ func main() {
 	app.Run(os.Args)
 }
 
-func executeTest(c *cli.Context) error {
-	apk := c.String("apk-under-test")
-	fmt.Sprintf("Apk under test %v", apk)
-
+func test(c *cli.Context) error {
+	fmt.Printf("%v\n", c.String("apk"))
+	fmt.Printf("%v\n", c.String("testapk"))
 	return nil
 }
