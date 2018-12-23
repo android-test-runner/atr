@@ -5,7 +5,7 @@ A utility to run Android instrumentation tests from command line.
 Android Test Runner shall support he following functionality
 
 * Run all tests in apk-test against apk-under-test
-`atr test --apk-test=test.apk --apk-under-test=under-test.apk` 
+`atr test --apk=under-test.apk --testapk=test.apk` 
 
 * Run a single test
 `atr test --test="MyTest#test"`
@@ -28,7 +28,7 @@ atr devices
 * Run tests on a specific device
 atr test --device="abcjekrjkdfj43r"
 
-* `.atr` file to set default options like apk-test, apk-under-test, filter device, record-screen etc. for project or user
+* `.atr` file to set default options like apk, testapk, filter device, record-screen etc. for project or user
 
 * adb retries to stabalize adb
 
