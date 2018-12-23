@@ -14,6 +14,12 @@ if [ -z "${go:-}" ]; then
 	exit 127
 fi
 
+rsync=$(which rsync || true)
+if [ -z "${rsync:-}" ]; then
+	(>&2 echo "ERROR: rsync not found")
+	(>&2 echo "Please install rsync and make it available on your PATH.")
+	exit 127
+fi
 
 version=$("${dir}/print-version.sh")
 build_dir="${root}/build"
@@ -23,6 +29,8 @@ os=${GOOS:-}
 
 rm -rf "${build_dir}"
 mkdir -p "${build_atr_dir}"
+# copy all go files (including directory structure to build directory)
+${rsync} -avm --include '*.go' -f 'hide,! */' "${root}" "${build_atr_dir}"
 cp "${root}"/*.go "${build_atr_dir}"
 (
 	export GOPATH=${build_dir}
