@@ -14,12 +14,16 @@ var testCommand = cli.Command{
 	Action: test,
 	Flags: []cli.Flag{
 		cli.StringFlag{
-			Name:  "apk",
+			Name:  "apk, a",
 			Usage: "APK under test",
 		},
 		cli.StringFlag{
-			Name:  "testapk",
+			Name:  "testapk, ta",
 			Usage: "APK containing instrumentation tests",
+		},
+		cli.StringSliceFlag{
+			Name:  "test, t",
+			Usage: "Test to execute",
 		},
 	},
 }
@@ -40,5 +44,6 @@ func main() {
 func test(c *cli.Context) error {
 	fmt.Printf("%v\n", c.String("apk"))
 	fmt.Printf("%v\n", c.String("testapk"))
+	fmt.Printf("%v\n", c.String("test"))
 	return nil
 }
