@@ -19,6 +19,11 @@ var testCommand = cli.Command{
 			Name:  "testapk, ta",
 			Usage: "APK containing instrumentation tests",
 		},
+		cli.StringFlag{
+			Name:  "testrunner, tr",
+			Value: "AndroidJUnitRunner",
+			Usage: "Test Runner to run instrumentation tests",
+		},
 	},
 }
 
@@ -38,7 +43,7 @@ func test(c *cli.Context) error {
 	config := TestConfig{
 		Apk:        apkUnderTest,
 		TestApk:    testApk,
-		TestRunner: "ch.ergon.mws.ergoneo.framework.ErgoNeoTestRunner",
+		TestRunner: c.String("testrunner"),
 	}
 	return ExecuteTests(config)
 }
