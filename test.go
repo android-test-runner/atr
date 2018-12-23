@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/urfave/cli"
 	"github.com/ybonjour/atr/apk"
+	"github.com/ybonjour/atr/device"
 )
 
 var testCommand = cli.Command{
@@ -28,6 +29,10 @@ var testCommand = cli.Command{
 			Name:  "test, t",
 			Usage: "Test to run formatted as TestClass#test",
 		},
+		cli.StringSliceFlag{
+			Name:  "device, d",
+			Usage: "Id of device on which the test shall run",
+		},
 	},
 }
 
@@ -50,5 +55,6 @@ func test(c *cli.Context) error {
 		TestRunner: c.String("testrunner"),
 		Tests:      c.StringSlice("test"),
 	}
-	return ExecuteTests(config)
+
+	return ExecuteTests(config, device.FromSerials(c.StringSlice("device")))
 }

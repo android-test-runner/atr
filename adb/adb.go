@@ -6,16 +6,18 @@ import (
 	"os/exec"
 )
 
-func Install(apkPath string) error {
-	return command.Execute(exec.Command("adb", "install", apkPath))
+func Install(apkPath string, deviceSerial string) error {
+	return command.Execute(exec.Command("adb", "-s", deviceSerial, "install", apkPath))
 }
 
-func Uninstall(name string) error {
-	return command.Execute(exec.Command("adb", "uninstall", name))
+func Uninstall(packageName string, deviceSerial string) error {
+	return command.Execute(exec.Command("adb", "-s", deviceSerial, "uninstall", packageName))
 }
 
-func Execute(packageName string, testRunner string, test string) error {
+func ExecuteTest(packageName string, testRunner string, test string, deviceSerial string) error {
 	arguments := []string{
+		"-s",
+		deviceSerial,
 		"shell",
 		"am",
 		"instrument",
