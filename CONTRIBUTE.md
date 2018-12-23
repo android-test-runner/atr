@@ -1,10 +1,12 @@
 # Contribute
+For development you can either put the  *atr* sources under your local `GOPATH` directory  or build it independently using the build scripts.
+
 ## Clone
 ```
 git clone git@github.com:ybonjour/atr.git
 ```
 
-## Build
+## Build independently
 atr can be built from source using the `./scripts/build.sh` script:
 ```
 ./scripts/build.sh
