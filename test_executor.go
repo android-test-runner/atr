@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/ybonjour/atr/adb"
 	"github.com/ybonjour/atr/apk"
 )
@@ -26,7 +27,7 @@ func ExecuteTests(testConfig TestConfig) error {
 func reinstall(apk *apk.Apk) error {
 	apkUninstallError := adb.Uninstall(apk.PackageName)
 	if apkUninstallError != nil {
-		return apkUninstallError
+		fmt.Println("Could not uninstall apk. Try to install it anyways.")
 	}
 
 	apkInstallError := adb.Install(apk.Path)
