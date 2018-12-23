@@ -56,5 +56,19 @@ func test(c *cli.Context) error {
 		Tests:      c.StringSlice("test"),
 	}
 
-	return ExecuteTests(config, device.FromSerials(c.StringSlice("device")))
+	devices := []device.Device{}
+	deviceSerials := c.StringSlice("device")
+	if len(deviceSerials) == 0 {
+		allDevices, err := device.AllConnectedDevices()
+		if err != nil {
+			return err
+		}
+
+		devices = allDevices
+
+	} else {
+		devices = device.FromSerials(deviceSerials)
+	}
+
+	return ExecuteTests(config, devices)
 }
