@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/urfave/cli"
 )
 
@@ -22,7 +21,9 @@ var testCommand = cli.Command{
 }
 
 func test(c *cli.Context) error {
-	fmt.Printf("%v\n", c.String("apk"))
-	fmt.Printf("%v\n", c.String("testapk"))
-	return nil
+	config := TestConfig{
+		Apk:     c.String("apk"),
+		TestApk: c.String("testapk"),
+	}
+	return executeTests(config)
 }
