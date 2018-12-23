@@ -14,7 +14,14 @@ func Uninstall(name string) error {
 	return command.Execute(exec.Command("adb", "uninstall", name))
 }
 
-func ExecuteAllTests(packageName string, testRunner string) error {
-	packageArgument := fmt.Sprintf("%v/%v", packageName, testRunner)
-	return command.Execute(exec.Command("adb", "shell", "am", "instrument", "-w", packageArgument))
+func Execute(packageName string, testRunner string, test string) error {
+	arguments := []string{
+		"shell",
+		"am",
+		"instrument",
+		"-w",
+		fmt.Sprintf("-e class %v", test),
+		fmt.Sprintf("%v/%v", packageName, testRunner),
+	}
+	return command.Execute(exec.Command("adb", arguments...))
 }

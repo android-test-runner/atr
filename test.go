@@ -24,6 +24,10 @@ var testCommand = cli.Command{
 			Value: "AndroidJUnitRunner",
 			Usage: "Test Runner to run instrumentation tests",
 		},
+		cli.StringSliceFlag{
+			Name:  "test, t",
+			Usage: "Test to run formatted as TestClass#test",
+		},
 	},
 }
 
@@ -44,6 +48,7 @@ func test(c *cli.Context) error {
 		Apk:        apkUnderTest,
 		TestApk:    testApk,
 		TestRunner: c.String("testrunner"),
+		Tests:      c.StringSlice("test"),
 	}
 	return ExecuteTests(config)
 }

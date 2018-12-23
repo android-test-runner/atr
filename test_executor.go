@@ -10,6 +10,7 @@ type TestConfig struct {
 	Apk        *apk.Apk
 	TestApk    *apk.Apk
 	TestRunner string
+	Tests      []string
 }
 
 func ExecuteTests(testConfig TestConfig) error {
@@ -21,12 +22,17 @@ func ExecuteTests(testConfig TestConfig) error {
 	if testApkInstallError != nil {
 		return testApkInstallError
 	}
-
 	return executeTests(testConfig)
 }
 
 func executeTests(testConfig TestConfig) error {
-	return adb.ExecuteAllTests(testConfig.TestApk.PackageName, testConfig.TestRunner)
+	for _, test := range testConfig.Tests {
+		testError := adb.Execute(testConfig.TestApk.PackageName, testConfig.TestRunner, test)
+		if testError != nil {
+			return testError
+		}
+	}
+	return nil
 }
 
 func reinstall(apk *apk.Apk) error {
