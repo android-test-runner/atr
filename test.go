@@ -22,7 +22,7 @@ var testCommand = cli.Command{
 		},
 		cli.StringFlag{
 			Name:  "testrunner, tr",
-			Value: "AndroidJUnitRunner",
+			Value: "android.support.test.runner.AndroidJUnitRunner",
 			Usage: "Test Runner to run instrumentation tests",
 		},
 		cli.StringSliceFlag{
