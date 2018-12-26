@@ -42,6 +42,7 @@ atr test --device="abcjekrjkdfj43r"
 * [Run tests through adb](https://developer.android.com/studio/test/command-line) `adb shell am instrument -w <test_package_name>/<runner_class>`
 * [Find Packgaename](https://stackoverflow.com/questions/6289149/read-the-package-name-of-an-android-apk):
 `aapt dump badging <path-to-apk> | grep package:\ name`
-* [Parse tests in APK (JVM required)](https://github.com/linkedin/dex-test-parser)
+* [Parse tests in APK (JVM required)](https://github.com/linkedin/dex-test-parser): Download jar from https://dl.bintray.com/linkedin/maven/com/linkedin/dextestparser/parser/2.0.1/parser-2.0.1-all.jar
+`java -jar parser-2.0.1-all.jar test.apk output-file`
 
 
