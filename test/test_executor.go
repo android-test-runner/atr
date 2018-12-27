@@ -1,4 +1,4 @@
-package main
+package test
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ type TestConfig struct {
 	Apk        *apk.Apk
 	TestApk    *apk.Apk
 	TestRunner string
-	Tests      []string
+	Tests      []Test
 }
 
 func ExecuteTests(testConfig TestConfig, devices []device.Device) error {
@@ -33,8 +33,8 @@ func ExecuteTests(testConfig TestConfig, devices []device.Device) error {
 }
 
 func executeTests(testConfig TestConfig, device device.Device) error {
-	for _, test := range testConfig.Tests {
-		testError := adb.ExecuteTest(testConfig.TestApk.PackageName, testConfig.TestRunner, test, device.Serial)
+	for _, t := range testConfig.Tests {
+		testError := adb.ExecuteTest(testConfig.TestApk.PackageName, testConfig.TestRunner, FullName(t), device.Serial)
 		if testError != nil {
 			return testError
 		}

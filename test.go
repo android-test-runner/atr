@@ -1,18 +1,18 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"github.com/urfave/cli"
+	"github.com/ybonjour/atr/aapt"
 	"github.com/ybonjour/atr/apk"
 	"github.com/ybonjour/atr/device"
-	"os"
+	"github.com/ybonjour/atr/test"
 )
 
 var testCommand = cli.Command{
 	Name:   "test",
 	Usage:  "Execute an android instrumentation test",
-	Action: test,
+	Action: testAction,
 	Flags: []cli.Flag{
 		cli.StringFlag{
 			Name:  "apk, a",
@@ -21,11 +21,6 @@ var testCommand = cli.Command{
 		cli.StringFlag{
 			Name:  "testapk, ta",
 			Usage: "APK containing instrumentation tests",
-		},
-		cli.StringFlag{
-			Name:  "testrunner, tr",
-			Value: "android.support.test.runner.AndroidJUnitRunner",
-			Usage: "Test Runner to run instrumentation tests",
 		},
 		cli.StringSliceFlag{
 			Name:  "test, t",
@@ -42,7 +37,7 @@ var testCommand = cli.Command{
 	},
 }
 
-func test(c *cli.Context) error {
+func testAction(c *cli.Context) error {
 	apkPath := c.String("apk")
 	apkUnderTest, apkGetError := apk.GetApk(apkPath)
 	if apkGetError != nil {
@@ -65,14 +60,19 @@ func test(c *cli.Context) error {
 		return cli.NewExitError(fmt.Sprintf("Invalid devices: %v", devicesError), 1)
 	}
 
-	config := TestConfig{
+	testRunner, testRunnerError := aapt.TestRunner(testApk.Path)
+	if testRunnerError != nil {
+		return cli.NewExitError(fmt.Sprintf("Invalid test runner: %v", testRunnerError), 1)
+	}
+
+	config := test.TestConfig{
 		Apk:        apkUnderTest,
 		TestApk:    testApk,
-		TestRunner: c.String("testrunner"),
+		TestRunner: testRunner,
 		Tests:      allTests,
 	}
 
-	return ExecuteTests(config, devices)
+	return test.ExecuteTests(config, devices)
 }
 
 func devices(c *cli.Context) ([]device.Device, error) {
@@ -85,37 +85,18 @@ func devices(c *cli.Context) ([]device.Device, error) {
 	return device.ConnectedDevices(d)
 }
 
-func allTests(c *cli.Context) ([]string, error) {
-	var tests []string
-
-	if path := c.String("testfile"); path != "" {
-		testsFromFile, err := testsFromFile(path)
+func allTests(c *cli.Context) ([]test.Test, error) {
+	var tests []test.Test
+	testFile := c.String("testfile")
+	if testFile != "" {
+		testsFromFile, err := test.ParseTestsFromFile(testFile)
 		if err != nil {
 			return nil, err
 		}
 		tests = append(tests, testsFromFile...)
 	}
 
-	testsFromFlags := c.StringSlice("test")
-	tests = append(tests, testsFromFlags...)
+	tests = append(tests, test.ParseTests(c.StringSlice("test"))...)
 
 	return tests, nil
-}
-
-func testsFromFile(path string) ([]string, error) {
-	_, err := os.Stat(path)
-	if err != nil {
-		return nil, err
-	}
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	var tests []string
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		tests = append(tests, scanner.Text())
-	}
-
-	return tests, scanner.Err()
 }
