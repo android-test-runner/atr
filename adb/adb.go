@@ -16,7 +16,7 @@ func Uninstall(packageName string, deviceSerial string) error {
 	return command.Execute(exec.Command("adb", "-s", deviceSerial, "uninstall", packageName))
 }
 
-func ExecuteTest(packageName string, testRunner string, test string, deviceSerial string) error {
+func ExecuteTest(packageName string, testRunner string, test string, deviceSerial string) (string, error) {
 	arguments := []string{
 		"-s",
 		deviceSerial,
@@ -27,7 +27,7 @@ func ExecuteTest(packageName string, testRunner string, test string, deviceSeria
 		fmt.Sprintf("-e class %v", test),
 		fmt.Sprintf("%v/%v", packageName, testRunner),
 	}
-	return command.Execute(exec.Command("adb", arguments...))
+	return command.ExecuteOutput(exec.Command("adb", arguments...))
 }
 
 func ConnectedDevices() ([]string, error) {
