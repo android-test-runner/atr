@@ -11,7 +11,15 @@ type TestResult struct {
 	Output    string
 }
 
-func isTestSuccessful(output string) bool {
+func TestResultFromOutput(test Test, err error, output string) TestResult {
+	return TestResult{
+		Test:      test,
+		HasPassed: err == nil && hasPassed(output),
+		Output:    output,
+	}
+}
+
+func hasPassed(output string) bool {
 	// A test was successful if we find "OK (1 test)" in the output
 	// This is needed because the am process does not fail if the test fails.
 	lines := strings.Split(output, "\n")

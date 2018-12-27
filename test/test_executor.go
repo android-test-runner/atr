@@ -35,15 +35,8 @@ func ExecuteTests(testConfig TestConfig, devices []device.Device) error {
 func executeTests(testConfig TestConfig, device device.Device) []TestResult {
 	var results []TestResult
 	for _, t := range testConfig.Tests {
-		output, testError := adb.ExecuteTest(testConfig.TestApk.PackageName, testConfig.TestRunner, FullName(t), device.Serial)
-
-		hasPassed := testError == nil && isTestSuccessful(output)
-		result := TestResult{
-			Test:      t,
-			HasPassed: hasPassed,
-			Output:    output,
-		}
-		results = append(results, result)
+		output, err := adb.ExecuteTest(testConfig.TestApk.PackageName, testConfig.TestRunner, FullName(t), device.Serial)
+		results = append(results, TestResultFromOutput(t, err, output))
 	}
 
 	return results
