@@ -76,21 +76,13 @@ func test(c *cli.Context) error {
 }
 
 func devices(c *cli.Context) ([]device.Device, error) {
-	devices := []device.Device{}
-	deviceSerials := c.StringSlice("device")
-	if len(deviceSerials) == 0 {
-		allDevices, err := device.AllConnectedDevices()
-		if err != nil {
-			return nil, err
-		}
-
-		devices = allDevices
-
-	} else {
-		devices = device.FromSerials(deviceSerials)
+	deviceFlag := c.StringSlice("device")
+	// ensure no filter (=> all connected devices) if no devices provided
+	var d []string
+	if len(deviceFlag) > 0 {
+		d = deviceFlag
 	}
-
-	return devices, nil
+	return device.ConnectedDevices(d)
 }
 
 func allTests(c *cli.Context) ([]string, error) {
