@@ -5,8 +5,6 @@ import (
 	"github.com/ybonjour/atr/adb"
 	"github.com/ybonjour/atr/apk"
 	"github.com/ybonjour/atr/device"
-	"regexp"
-	"strings"
 )
 
 type TestConfig struct {
@@ -15,12 +13,6 @@ type TestConfig struct {
 	TestRunner   string
 	Tests        []Test
 	OutputFolder string
-}
-
-type TestResult struct {
-	Test      Test
-	HasPassed bool
-	Output    string
 }
 
 func ExecuteTests(testConfig TestConfig, devices []device.Device) error {
@@ -45,7 +37,7 @@ func executeTests(testConfig TestConfig, device device.Device) []TestResult {
 	for _, t := range testConfig.Tests {
 		output, testError := adb.ExecuteTest(testConfig.TestApk.PackageName, testConfig.TestRunner, FullName(t), device.Serial)
 
-		hasPassed := testError == nil && testSuccessful(output)
+		hasPassed := testError == nil && isTestSuccessful(output)
 		result := TestResult{
 			Test:      t,
 			HasPassed: hasPassed,
@@ -55,20 +47,6 @@ func executeTests(testConfig TestConfig, device device.Device) []TestResult {
 	}
 
 	return results
-}
-
-func testSuccessful(output string) bool {
-	// A test was successful if we find "OK (1 test)" in the output
-	// This is needed because the am process does not fail if the test fails.
-	lines := strings.Split(output, "\n")
-	for _, line := range lines {
-		regexOk := regexp.MustCompile(`^OK \(1 test\)$`)
-		if regexOk.MatchString(line) {
-			return true
-		}
-	}
-
-	return false
 }
 
 func reinstall(apk *apk.Apk, device device.Device) error {
