@@ -8,10 +8,11 @@ import (
 )
 
 type TestConfig struct {
-	Apk        *apk.Apk
-	TestApk    *apk.Apk
-	TestRunner string
-	Tests      []Test
+	Apk          *apk.Apk
+	TestApk      *apk.Apk
+	TestRunner   string
+	Tests        []Test
+	OutputFolder string
 }
 
 func ExecuteTests(testConfig TestConfig, devices []device.Device) error {

@@ -34,6 +34,11 @@ var testCommand = cli.Command{
 			Name:  "device, d",
 			Usage: "Id of device on which the test shall run",
 		},
+		cli.StringFlag{
+			Name:  "output, o",
+			Value: "build/atr",
+			Usage: "Folder to write test output",
+		},
 	},
 }
 
@@ -66,10 +71,11 @@ func testAction(c *cli.Context) error {
 	}
 
 	config := test.TestConfig{
-		Apk:        apkUnderTest,
-		TestApk:    testApk,
-		TestRunner: testRunner,
-		Tests:      allTests,
+		Apk:          apkUnderTest,
+		TestApk:      testApk,
+		TestRunner:   testRunner,
+		Tests:        allTests,
+		OutputFolder: c.String("output"),
 	}
 
 	return test.ExecuteTests(config, devices)
