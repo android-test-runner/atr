@@ -11,7 +11,7 @@ type TestResult struct {
 	Output    string
 }
 
-func TestResultFromOutput(test Test, err error, output string) TestResult {
+func ResultFromOutput(test Test, err error, output string) TestResult {
 	return TestResult{
 		Test:      test,
 		HasPassed: err == nil && hasPassed(output),

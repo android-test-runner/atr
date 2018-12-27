@@ -36,7 +36,7 @@ func executeTests(testConfig TestConfig, device device.Device) []TestResult {
 	var results []TestResult
 	for _, t := range testConfig.Tests {
 		output, err := adb.ExecuteTest(testConfig.TestApk.PackageName, testConfig.TestRunner, FullName(t), device.Serial)
-		results = append(results, TestResultFromOutput(t, err, output))
+		results = append(results, ResultFromOutput(t, err, output))
 	}
 
 	return results
