@@ -24,6 +24,8 @@ func NewInstaller() Installer {
 func (installer installerImpl) Reinstall(apk apks.Apk, device devices.Device) error {
 	apkUninstallError := installer.adb.Uninstall(apk.PackageName, device.Serial)
 	if apkUninstallError != nil {
+		// Most likely the uninstall failed, because the package has never been installed.
+		// That is why we ignore the error and try to install the package anyways.
 		fmt.Println("Could not uninstall apk. Try to install it anyways.")
 	}
 
