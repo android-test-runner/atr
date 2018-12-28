@@ -8,7 +8,7 @@ import (
 func TestParsesTests(t *testing.T) {
 	unparsedTests := []string{"TestClass1#testMethod1", "TestClass2#testMethod2"}
 
-	parsedTests := ParseTests(unparsedTests)
+	parsedTests := NewParser().Parse(unparsedTests)
 
 	expected := []Test{
 		{Class: "TestClass1", Method: "testMethod1"},

@@ -12,7 +12,18 @@ type Test struct {
 	Method string
 }
 
-func ParseTestsFromFile(path string) ([]Test, error) {
+type Parser interface {
+	ParseFromFile(path string) ([]Test, error)
+	Parse(testsUnparsed []string) []Test
+}
+
+type parserImpl struct{}
+
+func NewParser() Parser {
+	return parserImpl{}
+}
+
+func (parser parserImpl) ParseFromFile(path string) ([]Test, error) {
 	_, err := os.Stat(path)
 	if err != nil {
 		return nil, err
@@ -27,10 +38,10 @@ func ParseTestsFromFile(path string) ([]Test, error) {
 		tests = append(tests, scanner.Text())
 	}
 
-	return ParseTests(tests), scanner.Err()
+	return parser.Parse(tests), scanner.Err()
 }
 
-func ParseTests(testsUnparsed []string) []Test {
+func (parserImpl) Parse(testsUnparsed []string) []Test {
 	var tests []Test
 	for _, testUnparsed := range testsUnparsed {
 		tests = append(tests, parseTest(testUnparsed))

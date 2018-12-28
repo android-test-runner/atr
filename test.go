@@ -95,14 +95,14 @@ func allTests(c *cli.Context) ([]test.Test, error) {
 	var tests []test.Test
 	testFile := c.String("testfile")
 	if testFile != "" {
-		testsFromFile, err := test.ParseTestsFromFile(testFile)
+		testsFromFile, err := test.NewParser().ParseFromFile(testFile)
 		if err != nil {
 			return nil, err
 		}
 		tests = append(tests, testsFromFile...)
 	}
 
-	tests = append(tests, test.ParseTests(c.StringSlice("test"))...)
+	tests = append(tests, test.NewParser().Parse(c.StringSlice("test"))...)
 
 	return tests, nil
 }
