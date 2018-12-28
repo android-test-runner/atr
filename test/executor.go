@@ -7,7 +7,7 @@ import (
 	"github.com/ybonjour/atr/devices"
 )
 
-type TestConfig struct {
+type Config struct {
 	Apk          *apks.Apk
 	TestApk      *apks.Apk
 	TestRunner   string
@@ -15,7 +15,7 @@ type TestConfig struct {
 	OutputFolder string
 }
 
-func ExecuteTests(testConfig TestConfig, devices []devices.Device) error {
+func ExecuteTests(testConfig Config, devices []devices.Device) error {
 	for _, d := range devices {
 		apkInstallError := reinstall(testConfig.Apk, d)
 		if apkInstallError != nil {
@@ -32,7 +32,7 @@ func ExecuteTests(testConfig TestConfig, devices []devices.Device) error {
 	return nil
 }
 
-func executeTests(testConfig TestConfig, device devices.Device) []TestResult {
+func executeTests(testConfig Config, device devices.Device) []TestResult {
 	var results []TestResult
 	for _, t := range testConfig.Tests {
 		output, err := adb.New().ExecuteTest(testConfig.TestApk.PackageName, testConfig.TestRunner, FullName(t), device.Serial)

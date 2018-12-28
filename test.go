@@ -70,7 +70,7 @@ func testAction(c *cli.Context) error {
 		return cli.NewExitError(fmt.Sprintf("Invalid test runner: %v", testRunnerError), 1)
 	}
 
-	config := test.TestConfig{
+	config := test.Config{
 		Apk:          apkUnderTest,
 		TestApk:      testApk,
 		TestRunner:   testRunner,
