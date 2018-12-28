@@ -66,10 +66,10 @@ func TestExecuteMultipleTests(t *testing.T) {
 	defer ctrl.Finish()
 	mockInstaller := mock_test_executor.NewMockInstaller(ctrl)
 	mockAdb := mock_adb.NewMockAdb(ctrl)
-	givenAllApksInstalledSuccessfully(mockInstaller)
 	mockResultParser := mock_result.NewMockResultParser(ctrl)
-	givenTestReturns(test1, testResult1, mockAdb, mockResultParser)
-	givenTestReturns(test2, testResult2, mockAdb, mockResultParser)
+	givenAllApksInstalledSuccessfully(mockInstaller, 1)
+	givenTestOnDeviceReturns(test1, device, testResult1, mockAdb, mockResultParser)
+	givenTestOnDeviceReturns(test2, device, testResult2, mockAdb, mockResultParser)
 	executor := executorImpl{
 		installer:    mockInstaller,
 		adb:          mockAdb,
@@ -83,19 +83,57 @@ func TestExecuteMultipleTests(t *testing.T) {
 	}
 	expectedResults := []result.Result{testResult1, testResult2}
 	if !AreEqualResults(results[device], expectedResults) {
-		t.Error(fmt.Sprintf("Expected results '%v' but got '%v'", expectedResults, results[devices.Device{Serial: "abcd"}]))
+		t.Error(fmt.Sprintf("Expected results '%v' but got '%v'", expectedResults, results[device]))
 	}
 }
 
-func givenAllApksInstalledSuccessfully(mockInstaller *mock_test_executor.MockInstaller) {
-	mockInstaller.EXPECT().Reinstall(gomock.Any(), gomock.Any()).Return(nil).Times(2)
+func TestExecuteMultipleDevices(t *testing.T) {
+	targetTest := test.Test{Class: "TestClass", Method: "testMethod"}
+	testResult1 := result.Result{}
+	testResult2 := result.Result{}
+	device1 := devices.Device{Serial: "abcd"}
+	device2 := devices.Device{Serial: "abcd"}
+	config := Config{
+		Tests: []test.Test{targetTest},
+	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockInstaller := mock_test_executor.NewMockInstaller(ctrl)
+	mockAdb := mock_adb.NewMockAdb(ctrl)
+	mockResultParser := mock_result.NewMockResultParser(ctrl)
+	givenAllApksInstalledSuccessfully(mockInstaller, 2)
+	givenTestOnDeviceReturns(targetTest, device1, testResult1, mockAdb, mockResultParser)
+	givenTestOnDeviceReturns(targetTest, device2, testResult2, mockAdb, mockResultParser)
+	executor := executorImpl{
+		installer:    mockInstaller,
+		adb:          mockAdb,
+		resultParser: mockResultParser,
+	}
+
+	results, err := executor.Execute(config, []devices.Device{device1, device2})
+
+	if err != nil {
+		t.Error(fmt.Sprintf("Expected no error but got '%v'", err))
+	}
+	expectedResultsDevice1 := []result.Result{testResult1}
+	if !AreEqualResults(results[device1], expectedResultsDevice1) {
+		t.Error(fmt.Sprintf("Expected results '%v' but got '%v'", expectedResultsDevice1, results[device1]))
+	}
+	expectedResultsDevice2 := []result.Result{testResult2}
+	if !AreEqualResults(results[device1], expectedResultsDevice2) {
+		t.Error(fmt.Sprintf("Expected results '%v' but got '%v'", expectedResultsDevice2, results[device2]))
+	}
 }
 
-func givenTestReturns(t test.Test, r result.Result, mockAdb *mock_adb.MockAdb, mockResultParser *mock_result.MockResultParser) {
+func givenAllApksInstalledSuccessfully(mockInstaller *mock_test_executor.MockInstaller, numDevices int) {
+	mockInstaller.EXPECT().Reinstall(gomock.Any(), gomock.Any()).Return(nil).Times(numDevices * 2)
+}
+
+func givenTestOnDeviceReturns(t test.Test, d devices.Device, r result.Result, mockAdb *mock_adb.MockAdb, mockResultParser *mock_result.MockResultParser) {
 	testOutput := t.FullName()
 	mockAdb.
 		EXPECT().
-		ExecuteTest(gomock.Any(), gomock.Any(), gomock.Eq(t.FullName()), gomock.Any()).
+		ExecuteTest(gomock.Any(), gomock.Any(), gomock.Eq(t.FullName()), gomock.Eq(d.Serial)).
 		Return(testOutput, nil)
 
 	mockResultParser.
