@@ -6,12 +6,6 @@ import (
 	"strings"
 )
 
-type Result struct {
-	Test      test.Test
-	HasPassed bool
-	Output    string
-}
-
 type ResultParser interface {
 	ParseFromOutput(test test.Test, err error, output string) Result
 }
