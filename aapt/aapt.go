@@ -10,22 +10,26 @@ type Aapt interface {
 	TestRunner(apkPath string) (string, error)
 }
 
-type aaptImpl struct{}
-
-func New() Aapt {
-	return aaptImpl{}
+type aaptImpl struct {
+	outputParser outputParser
 }
 
-func (aaptImpl) PackageName(apkPath string) (string, error) {
+func New() Aapt {
+	return aaptImpl{
+		outputParser: newOutputParser(),
+	}
+}
+
+func (aapt aaptImpl) PackageName(apkPath string) (string, error) {
 	out, err := command.ExecuteOutput(exec.Command("aapt", "dump", "badging", apkPath))
 	if err != nil {
 		return "", err
 	}
 
-	return newOutputParser().ParsePackageName(out)
+	return aapt.outputParser.ParsePackageName(out)
 }
 
-func (aaptImpl) TestRunner(apkPath string) (string, error) {
+func (aapt aaptImpl) TestRunner(apkPath string) (string, error) {
 	arguments := []string{
 		"dunmp",
 		"xmltree",
@@ -38,5 +42,5 @@ func (aaptImpl) TestRunner(apkPath string) (string, error) {
 		return "", err
 	}
 
-	return newOutputParser().ParseTestRunner(out)
+	return aapt.outputParser.ParseTestRunner(out)
 }
