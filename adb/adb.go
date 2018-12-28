@@ -24,7 +24,7 @@ func New() Adb {
 }
 
 func (adb adbImpl) ConnectedDevices() ([]string, error) {
-	out, err := command.ExecuteOutput(exec.Command("adb", "devices"))
+	out, err := command.NewExecutor().ExecuteOutput(exec.Command("adb", "devices"))
 	if err != nil {
 		return nil, err
 	}
@@ -33,11 +33,11 @@ func (adb adbImpl) ConnectedDevices() ([]string, error) {
 }
 
 func (adbImpl) Install(apkPath string, deviceSerial string) error {
-	return command.Execute(exec.Command("adb", "-s", deviceSerial, "install", apkPath))
+	return command.NewExecutor().Execute(exec.Command("adb", "-s", deviceSerial, "install", apkPath))
 }
 
 func (adbImpl) Uninstall(packageName string, deviceSerial string) error {
-	return command.Execute(exec.Command("adb", "-s", deviceSerial, "uninstall", packageName))
+	return command.NewExecutor().Execute(exec.Command("adb", "-s", deviceSerial, "uninstall", packageName))
 }
 
 func (adbImpl) ExecuteTest(packageName string, testRunner string, test string, deviceSerial string) (string, error) {
@@ -51,5 +51,5 @@ func (adbImpl) ExecuteTest(packageName string, testRunner string, test string, d
 		fmt.Sprintf("-e class %v", test),
 		fmt.Sprintf("%v/%v", packageName, testRunner),
 	}
-	return command.ExecuteOutput(exec.Command("adb", arguments...))
+	return command.NewExecutor().ExecuteOutput(exec.Command("adb", arguments...))
 }
