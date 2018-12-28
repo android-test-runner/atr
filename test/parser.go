@@ -20,14 +20,18 @@ type Parser interface {
 	Parse(testsUnparsed []string) []Test
 }
 
-type parserImpl struct{}
+type parserImpl struct {
+	files files.Files
+}
 
 func NewParser() Parser {
-	return parserImpl{}
+	return parserImpl{
+		files: files.New(),
+	}
 }
 
 func (parser parserImpl) ParseFromFile(path string) ([]Test, error) {
-	lines, err := files.New().ReadLines(path)
+	lines, err := parser.files.ReadLines(path)
 	if err != nil {
 		return nil, err
 	}
