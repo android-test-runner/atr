@@ -1,4 +1,4 @@
-package apks
+package files
 
 import "os"
 
@@ -8,7 +8,7 @@ type Files interface {
 
 type filesImpl struct{}
 
-func NewFiles() Files {
+func New() Files {
 	return filesImpl{}
 }
 

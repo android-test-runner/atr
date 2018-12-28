@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ybonjour/atr/aapt"
+	"github.com/ybonjour/atr/files"
 	"strings"
 )
 
@@ -18,13 +19,13 @@ type Apks interface {
 
 type apksImpl struct {
 	aapt  aapt.Aapt
-	files Files
+	files files.Files
 }
 
 func New() Apks {
 	return apksImpl{
 		aapt:  aapt.New(),
-		files: NewFiles(),
+		files: files.New(),
 	}
 }
 
