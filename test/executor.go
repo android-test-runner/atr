@@ -8,8 +8,8 @@ import (
 )
 
 type Config struct {
-	Apk          *apks.Apk
-	TestApk      *apks.Apk
+	Apk          apks.Apk
+	TestApk      apks.Apk
 	TestRunner   string
 	Tests        []Test
 	OutputFolder string

@@ -14,7 +14,7 @@ type Apk struct {
 }
 
 type Apks interface {
-	GetApk(path string) (*Apk, error)
+	GetApk(path string) (Apk, error)
 }
 
 type apksImpl struct {
@@ -29,18 +29,18 @@ func New() Apks {
 	}
 }
 
-func (apks apksImpl) GetApk(path string) (*Apk, error) {
+func (apks apksImpl) GetApk(path string) (Apk, error) {
 	if !strings.HasSuffix(path, ".apk") {
-		return nil, errors.New(fmt.Sprint("APK '%v' has no .apk ending.", path))
+		return Apk{}, errors.New(fmt.Sprint("APK '%v' has no .apk ending.", path))
 	}
 
 	if !apks.files.CanAccess(path) {
-		return nil, errors.New(fmt.Sprintf("Can not access APK '%v'.", path))
+		return Apk{}, errors.New(fmt.Sprintf("Can not access APK '%v'.", path))
 	}
 
 	packageName, packageNameError := apks.aapt.PackageName(path)
 	if packageNameError != nil {
-		return nil, packageNameError
+		return Apk{}, packageNameError
 	}
 
 	apk := Apk{
@@ -48,5 +48,5 @@ func (apks apksImpl) GetApk(path string) (*Apk, error) {
 		PackageName: packageName,
 	}
 
-	return &apk, nil
+	return apk, nil
 }

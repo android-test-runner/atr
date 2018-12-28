@@ -8,7 +8,7 @@ import (
 )
 
 type Installer interface {
-	Reinstall(apk *apks.Apk, device devices.Device) error
+	Reinstall(apk apks.Apk, device devices.Device) error
 }
 
 type installerImpl struct {
@@ -21,7 +21,7 @@ func NewInstaller() Installer {
 	}
 }
 
-func (installer installerImpl) Reinstall(apk *apks.Apk, device devices.Device) error {
+func (installer installerImpl) Reinstall(apk apks.Apk, device devices.Device) error {
 	apkUninstallError := installer.adb.Uninstall(apk.PackageName, device.Serial)
 	if apkUninstallError != nil {
 		fmt.Println("Could not uninstall apk. Try to install it anyways.")
