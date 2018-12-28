@@ -14,7 +14,7 @@ type Adb interface {
 }
 
 type adbImpl struct {
-	outputParser OutputParser
+	outputParser outputParser
 }
 
 func New() Adb {

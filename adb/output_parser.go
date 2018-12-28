@@ -5,13 +5,13 @@ import (
 	"strings"
 )
 
-type OutputParser interface {
+type outputParser interface {
 	ParseConnectedDeviceSerials(out string) []string
 }
 
 type outputParserImpl struct{}
 
-func newOutputParser() OutputParser {
+func newOutputParser() outputParser {
 	return outputParserImpl{}
 }
 
