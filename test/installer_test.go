@@ -35,23 +35,16 @@ func TestReInstallUninstallsAndInstallsApk(t *testing.T) {
 }
 
 func TestReInstallContinuesIfUninstallFails(t *testing.T) {
-	apk := apks.Apk{
-		Path:        "path",
-		PackageName: "packageName",
-	}
-	device := devices.Device{
-		Serial: "abcde",
-	}
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	adbMock := mock_adb.NewMockAdb(ctrl)
-	adbMock.EXPECT().Uninstall(apk.PackageName, device.Serial).Return(errors.New("Uninstall failed."))
-	adbMock.EXPECT().Install(apk.Path, device.Serial).Return(nil)
+	adbMock.EXPECT().Uninstall(gomock.Any(), gomock.Any()).Return(errors.New("uninstall failed"))
+	adbMock.EXPECT().Install(gomock.Any(), gomock.Any()).Return(nil)
 	installer := installerImpl{
 		adb: adbMock,
 	}
 
-	err := installer.Reinstall(apk, device)
+	err := installer.Reinstall(apks.Apk{}, devices.Device{})
 
 	if err != nil {
 		t.Error(fmt.Sprintf("Expected to ignore uninstall error but got '%v'", err))
@@ -59,24 +52,17 @@ func TestReInstallContinuesIfUninstallFails(t *testing.T) {
 }
 
 func TestReInstallFailsIfInstallFails(t *testing.T) {
-	installError := errors.New("Install failed.")
-	apk := apks.Apk{
-		Path:        "path",
-		PackageName: "packageName",
-	}
-	device := devices.Device{
-		Serial: "abcde",
-	}
+	installError := errors.New("install failed")
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	adbMock := mock_adb.NewMockAdb(ctrl)
-	adbMock.EXPECT().Uninstall(apk.PackageName, device.Serial).Return(nil)
-	adbMock.EXPECT().Install(apk.Path, device.Serial).Return(installError)
+	adbMock.EXPECT().Uninstall(gomock.Any(), gomock.Any()).Return(nil)
+	adbMock.EXPECT().Install(gomock.Any(), gomock.Any()).Return(installError)
 	installer := installerImpl{
 		adb: adbMock,
 	}
 
-	err := installer.Reinstall(apk, device)
+	err := installer.Reinstall(apks.Apk{}, devices.Device{})
 
 	if err != installError {
 		t.Error(fmt.Sprintf("Install error '%v' expected but got '%v", installError, err))
