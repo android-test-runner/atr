@@ -65,7 +65,7 @@ func testAction(c *cli.Context) error {
 		return cli.NewExitError(fmt.Sprintf("Invalid devices: %v", devicesError), 1)
 	}
 
-	testRunner, testRunnerError := aapt.TestRunner(testApk.Path)
+	testRunner, testRunnerError := aapt.New().TestRunner(testApk.Path)
 	if testRunnerError != nil {
 		return cli.NewExitError(fmt.Sprintf("Invalid test runner: %v", testRunnerError), 1)
 	}

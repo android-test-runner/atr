@@ -21,7 +21,7 @@ func GetApk(path string) (*Apk, error) {
 		return nil, err
 	}
 
-	packageName, packageNameError := aapt.PackageName(path)
+	packageName, packageNameError := aapt.New().PackageName(path)
 	if packageNameError != nil {
 		return nil, packageNameError
 	}

@@ -5,7 +5,18 @@ import (
 	"os/exec"
 )
 
-func PackageName(apkPath string) (string, error) {
+type Aapt interface {
+	PackageName(apkPath string) (string, error)
+	TestRunner(apkPath string) (string, error)
+}
+
+type aaptImpl struct{}
+
+func New() Aapt {
+	return aaptImpl{}
+}
+
+func (aaptImpl) PackageName(apkPath string) (string, error) {
 	out, err := command.ExecuteOutput(exec.Command("aapt", "dump", "badging", apkPath))
 	if err != nil {
 		return "", err
@@ -14,7 +25,7 @@ func PackageName(apkPath string) (string, error) {
 	return ParsePackageName(out)
 }
 
-func TestRunner(apkPath string) (string, error) {
+func (aaptImpl) TestRunner(apkPath string) (string, error) {
 	arguments := []string{
 		"dunmp",
 		"xmltree",
