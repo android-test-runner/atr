@@ -3,43 +3,24 @@ package aapt
 import (
 	"errors"
 	"fmt"
-	"os/exec"
+	"github.com/golang/mock/gomock"
+	"github.com/ybonjour/atr/mock_aapt"
+	"github.com/ybonjour/atr/mock_command"
 	"testing"
 )
 
-type commandExecutorMock struct {
-	executeError  error
-	executeOutput string
-}
-
-func (commandExecutor commandExecutorMock) Execute(cmd *exec.Cmd) error {
-	return commandExecutor.executeError
-}
-
-func (commandExecutor commandExecutorMock) ExecuteOutput(cmd *exec.Cmd) (string, error) {
-	return commandExecutor.executeOutput, commandExecutor.executeError
-}
-
-type outputParserMock struct {
-	parsedPackageName      string
-	parsedPackageNameError error
-	parsedTestRunner       string
-	parsedTestRunnerError  error
-}
-
-func (outputParser outputParserMock) ParsePackageName(out string) (string, error) {
-	return outputParser.parsedPackageName, outputParser.parsedPackageNameError
-}
-
-func (outputParser outputParserMock) ParseTestRunner(out string) (string, error) {
-	return outputParser.parsedTestRunner, outputParser.parsedTestRunnerError
-}
-
 func TestPackageName(t *testing.T) {
+	unparsedPackageName := "unparsedPackageName"
 	parsedPackageName := "parsedPackageName"
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	commandExecutorMock := mock_command.NewMockCommandExecutor(ctrl)
+	commandExecutorMock.EXPECT().ExecuteOutput(gomock.Any()).Return(unparsedPackageName, nil)
+	outputParserMock := mock_aapt.NewMockoutputParser(ctrl)
+	outputParserMock.EXPECT().ParsePackageName(gomock.Eq(unparsedPackageName)).Return(parsedPackageName, nil)
 	aapt := aaptImpl{
-		commandExecutor: commandExecutorMock{executeError: nil, executeOutput: "unparsedPackageName"},
-		outputParser:    outputParserMock{parsedPackageName: parsedPackageName, parsedPackageNameError: nil},
+		commandExecutor: commandExecutorMock,
+		outputParser:    outputParserMock,
 	}
 
 	result, err := aapt.PackageName("apkPath")
@@ -54,9 +35,12 @@ func TestPackageName(t *testing.T) {
 
 func TestPackageNameReturnsCommandError(t *testing.T) {
 	expectedErr := errors.New("Command execution failed.")
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	commandExecutorMock := mock_command.NewMockCommandExecutor(ctrl)
+	commandExecutorMock.EXPECT().ExecuteOutput(gomock.Any()).Return("", expectedErr)
 	aapt := aaptImpl{
-		commandExecutor: commandExecutorMock{executeError: expectedErr},
-		outputParser:    outputParserMock{parsedPackageName: "", parsedPackageNameError: nil},
+		commandExecutor: commandExecutorMock,
 	}
 
 	_, err := aapt.PackageName("apkPath")
@@ -68,9 +52,15 @@ func TestPackageNameReturnsCommandError(t *testing.T) {
 
 func TestPackageNameReturnsParseError(t *testing.T) {
 	expectedErr := errors.New("Parsing failed.")
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	commandExecutorMock := mock_command.NewMockCommandExecutor(ctrl)
+	commandExecutorMock.EXPECT().ExecuteOutput(gomock.Any()).Return("", nil)
+	outputParserMock := mock_aapt.NewMockoutputParser(ctrl)
+	outputParserMock.EXPECT().ParsePackageName(gomock.Any()).Return("", expectedErr)
 	aapt := aaptImpl{
-		commandExecutor: commandExecutorMock{executeError: nil},
-		outputParser:    outputParserMock{parsedPackageName: "", parsedPackageNameError: expectedErr},
+		commandExecutor: commandExecutorMock,
+		outputParser:    outputParserMock,
 	}
 
 	_, err := aapt.PackageName("apkPath")
@@ -81,10 +71,23 @@ func TestPackageNameReturnsParseError(t *testing.T) {
 }
 
 func TestTestRunner(t *testing.T) {
+	unparsedTestRunner := "unparsedTestRunner"
 	expectedTestRunner := "parsedTestRunner"
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	commandExecutorMock := mock_command.NewMockCommandExecutor(ctrl)
+	commandExecutorMock.
+		EXPECT().
+		ExecuteOutput(gomock.Any()).
+		Return(unparsedTestRunner, nil)
+	outputParserMock := mock_aapt.NewMockoutputParser(ctrl)
+	outputParserMock.
+		EXPECT().
+		ParseTestRunner(unparsedTestRunner).
+		Return(expectedTestRunner, nil)
 	aapt := aaptImpl{
-		commandExecutor: commandExecutorMock{executeError: nil, executeOutput: "unparsed"},
-		outputParser:    outputParserMock{parsedTestRunner: expectedTestRunner, parsedTestRunnerError: nil},
+		commandExecutor: commandExecutorMock,
+		outputParser:    outputParserMock,
 	}
 
 	testRunner, err := aapt.TestRunner("apkPath")
@@ -99,9 +102,12 @@ func TestTestRunner(t *testing.T) {
 
 func TestTestRunnerReturnsCommandError(t *testing.T) {
 	expectedErr := errors.New("Command execution failed.")
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	commandExecutorMock := mock_command.NewMockCommandExecutor(ctrl)
+	commandExecutorMock.EXPECT().ExecuteOutput(gomock.Any()).Return("", expectedErr)
 	aapt := aaptImpl{
-		commandExecutor: commandExecutorMock{executeError: expectedErr},
-		outputParser:    outputParserMock{parsedTestRunner: "", parsedTestRunnerError: nil},
+		commandExecutor: commandExecutorMock,
 	}
 
 	_, err := aapt.TestRunner("apkPath")
@@ -113,9 +119,15 @@ func TestTestRunnerReturnsCommandError(t *testing.T) {
 
 func TestTestRunnerReturnsParseError(t *testing.T) {
 	expectedErr := errors.New("Parsing failed.")
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	commandExecutorMock := mock_command.NewMockCommandExecutor(ctrl)
+	commandExecutorMock.EXPECT().ExecuteOutput(gomock.Any()).Return("", nil)
+	outputParserMock := mock_aapt.NewMockoutputParser(ctrl)
+	outputParserMock.EXPECT().ParseTestRunner(gomock.Any()).Return("", expectedErr)
 	aapt := aaptImpl{
-		commandExecutor: commandExecutorMock{executeError: nil},
-		outputParser:    outputParserMock{parsedTestRunner: "", parsedTestRunnerError: expectedErr},
+		commandExecutor: commandExecutorMock,
+		outputParser:    outputParserMock,
 	}
 
 	_, err := aapt.TestRunner("apkPath")
