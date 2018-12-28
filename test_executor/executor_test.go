@@ -53,6 +53,57 @@ func TestExecute(t *testing.T) {
 	}
 }
 
+func TestExecuteMultipleTests(t *testing.T) {
+	test1 := test.Test{Class: "TestClass", Method: "testMethod"}
+	test2 := test.Test{Class: "TestClass", Method: "testMethod1"}
+	testResult1 := result.Result{}
+	testResult2 := result.Result{}
+	device := devices.Device{Serial: "abcd"}
+	config := Config{
+		Tests: []test.Test{test1, test2},
+	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockInstaller := mock_test_executor.NewMockInstaller(ctrl)
+	mockAdb := mock_adb.NewMockAdb(ctrl)
+	givenAllApksInstalledSuccessfully(mockInstaller)
+	mockResultParser := mock_result.NewMockResultParser(ctrl)
+	givenTestReturns(test1, testResult1, mockAdb, mockResultParser)
+	givenTestReturns(test2, testResult2, mockAdb, mockResultParser)
+	executor := executorImpl{
+		installer:    mockInstaller,
+		adb:          mockAdb,
+		resultParser: mockResultParser,
+	}
+
+	results, err := executor.Execute(config, []devices.Device{device})
+
+	if err != nil {
+		t.Error(fmt.Sprintf("Expected no error but got '%v'", err))
+	}
+	expectedResults := []result.Result{testResult1, testResult2}
+	if !AreEqualResults(results[device], expectedResults) {
+		t.Error(fmt.Sprintf("Expected results '%v' but got '%v'", expectedResults, results[devices.Device{Serial: "abcd"}]))
+	}
+}
+
+func givenAllApksInstalledSuccessfully(mockInstaller *mock_test_executor.MockInstaller) {
+	mockInstaller.EXPECT().Reinstall(gomock.Any(), gomock.Any()).Return(nil).Times(2)
+}
+
+func givenTestReturns(t test.Test, r result.Result, mockAdb *mock_adb.MockAdb, mockResultParser *mock_result.MockResultParser) {
+	testOutput := t.FullName()
+	mockAdb.
+		EXPECT().
+		ExecuteTest(gomock.Any(), gomock.Any(), gomock.Eq(t.FullName()), gomock.Any()).
+		Return(testOutput, nil)
+
+	mockResultParser.
+		EXPECT().
+		ParseFromOutput(t, nil, testOutput).
+		Return(r)
+}
+
 func AreEqualResults(slice1, slice2 []result.Result) bool {
 	if len(slice1) != len(slice2) {
 		return false
