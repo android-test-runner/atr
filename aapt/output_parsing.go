@@ -40,5 +40,5 @@ func ParseTestRunner(out string) (string, error) {
 		}
 	}
 
-	return "", errors.New("No test runner found in AndroidManifest")
+	return "", errors.New("Test runner not found in AndroidManifest")
 }
