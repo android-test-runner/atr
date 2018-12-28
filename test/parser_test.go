@@ -1,17 +1,32 @@
 package test
 
 import (
+	"fmt"
 	"testing"
 )
 
-func TestParse(t *testing.T) {
-	unparsedTests := []string{"TestClass#testMethod"}
+func TestParsesTests(t *testing.T) {
+	unparsedTests := []string{"TestClass1#testMethod1", "TestClass2#testMethod2"}
 
 	parsedTests := ParseTests(unparsedTests)
 
-	expected := []Test{{Class: "TestClass", Method: "testMethod"}}
+	expected := []Test{
+		{Class: "TestClass1", Method: "testMethod1"},
+		{Class: "TestClass2", Method: "testMethod2"},
+	}
 	if !AreEqual(expected, parsedTests) {
-		t.Error("Unexpected result", expected, parsedTests)
+		t.Error(fmt.Sprintf("Parsed Tests are %v instead of %v", parsedTests, expected))
+	}
+}
+
+func TestGetsFullName(t *testing.T) {
+	test := Test{Class: "TestClass", Method: "testMethod"}
+
+	fullName := FullName(test)
+
+	expected := "TestClass#testMethod"
+	if expected != fullName {
+		t.Error(fmt.Sprintf("Fullname is %v instead of %v", fullName, expected))
 	}
 }
 
