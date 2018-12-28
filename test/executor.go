@@ -48,8 +48,8 @@ func (executor executorImpl) ExecuteTests(config Config, devices []devices.Devic
 	return nil
 }
 
-func (executor executorImpl) executeTests(testConfig Config, device devices.Device) []TestResult {
-	var results []TestResult
+func (executor executorImpl) executeTests(testConfig Config, device devices.Device) []Result {
+	var results []Result
 	for _, t := range testConfig.Tests {
 		output, err := executor.adb.ExecuteTest(testConfig.TestApk.PackageName, testConfig.TestRunner, FullName(t), device.Serial)
 		results = append(results, ResultFromOutput(t, err, output))

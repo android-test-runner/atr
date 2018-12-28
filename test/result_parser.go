@@ -5,14 +5,14 @@ import (
 	"strings"
 )
 
-type TestResult struct {
+type Result struct {
 	Test      Test
 	HasPassed bool
 	Output    string
 }
 
-func ResultFromOutput(test Test, err error, output string) TestResult {
-	return TestResult{
+func ResultFromOutput(test Test, err error, output string) Result {
+	return Result{
 		Test:      test,
 		HasPassed: err == nil && hasPassed(output),
 		Output:    output,
