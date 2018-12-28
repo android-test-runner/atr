@@ -6,15 +6,37 @@ import (
 	"os/exec"
 )
 
-func Install(apkPath string, deviceSerial string) error {
+type Adb interface {
+	ConnectedDevices() ([]string, error)
+	Install(apkPath string, deviceSerial string) error
+	Uninstall(packageName string, deviceSerial string) error
+	ExecuteTest(packageName string, testRunner string, test string, deviceSerial string) (string, error)
+}
+
+type adbImpl struct{}
+
+func New() Adb {
+	return adbImpl{}
+}
+
+func (adbImpl) ConnectedDevices() ([]string, error) {
+	out, err := command.ExecuteOutput(exec.Command("adb", "devices"))
+	if err != nil {
+		return nil, err
+	}
+
+	return ParseConnectedDeviceSerials(out), nil
+}
+
+func (adbImpl) Install(apkPath string, deviceSerial string) error {
 	return command.Execute(exec.Command("adb", "-s", deviceSerial, "install", apkPath))
 }
 
-func Uninstall(packageName string, deviceSerial string) error {
+func (adbImpl) Uninstall(packageName string, deviceSerial string) error {
 	return command.Execute(exec.Command("adb", "-s", deviceSerial, "uninstall", packageName))
 }
 
-func ExecuteTest(packageName string, testRunner string, test string, deviceSerial string) (string, error) {
+func (adbImpl) ExecuteTest(packageName string, testRunner string, test string, deviceSerial string) (string, error) {
 	arguments := []string{
 		"-s",
 		deviceSerial,
@@ -26,14 +48,4 @@ func ExecuteTest(packageName string, testRunner string, test string, deviceSeria
 		fmt.Sprintf("%v/%v", packageName, testRunner),
 	}
 	return command.ExecuteOutput(exec.Command("adb", arguments...))
-}
-
-func ConnectedDevices() ([]string, error) {
-	out, err := command.ExecuteOutput(exec.Command("adb", "devices"))
-	if err != nil {
-		return nil, err
-	}
-
-	return ParseConnectedDeviceSerials(out), nil
-
 }

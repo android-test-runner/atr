@@ -42,7 +42,7 @@ func fromSerials(serials []string) []Device {
 }
 
 func allConnectedDevices() ([]Device, error) {
-	deviceSerials, err := adb.ConnectedDevices()
+	deviceSerials, err := adb.New().ConnectedDevices()
 	if err != nil {
 		return nil, err
 	}

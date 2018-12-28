@@ -35,7 +35,7 @@ func ExecuteTests(testConfig TestConfig, devices []device.Device) error {
 func executeTests(testConfig TestConfig, device device.Device) []TestResult {
 	var results []TestResult
 	for _, t := range testConfig.Tests {
-		output, err := adb.ExecuteTest(testConfig.TestApk.PackageName, testConfig.TestRunner, FullName(t), device.Serial)
+		output, err := adb.New().ExecuteTest(testConfig.TestApk.PackageName, testConfig.TestRunner, FullName(t), device.Serial)
 		results = append(results, ResultFromOutput(t, err, output))
 	}
 
@@ -43,12 +43,12 @@ func executeTests(testConfig TestConfig, device device.Device) []TestResult {
 }
 
 func reinstall(apk *apk.Apk, device device.Device) error {
-	apkUninstallError := adb.Uninstall(apk.PackageName, device.Serial)
+	apkUninstallError := adb.New().Uninstall(apk.PackageName, device.Serial)
 	if apkUninstallError != nil {
 		fmt.Println("Could not uninstall apk. Try to install it anyways.")
 	}
 
-	apkInstallError := adb.Install(apk.Path, device.Serial)
+	apkInstallError := adb.New().Install(apk.Path, device.Serial)
 	if apkInstallError != nil {
 		return apkInstallError
 	}
