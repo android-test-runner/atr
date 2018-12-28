@@ -1,6 +1,7 @@
 package test
 
 import (
+	"errors"
 	"fmt"
 	"github.com/golang/mock/gomock"
 	"github.com/ybonjour/atr/mock_files"
@@ -43,6 +44,23 @@ func TestParsesTestsFromFile(t *testing.T) {
 	}
 	if !AreEqual(expected, parsedTests) {
 		t.Error(fmt.Sprintf("Parsed Tests are %v instead of %v", parsedTests, expected))
+	}
+}
+
+func TestReturnsErrorIfFileCanNotBeRead(t *testing.T) {
+	expectedError := errors.New("Error reading file")
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	filesMock := mock_files.NewMockFiles(ctrl)
+	filesMock.EXPECT().ReadLines(gomock.Any()).Return(nil, expectedError)
+	parser := parserImpl{
+		files: filesMock,
+	}
+
+	_, err := parser.ParseFromFile("tests.txt")
+
+	if expectedError != err {
+		t.Error(fmt.Sprintf("Expected error '%v' but got '%v'", expectedError, err))
 	}
 }
 
