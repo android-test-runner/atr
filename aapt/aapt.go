@@ -17,7 +17,8 @@ type aaptImpl struct {
 
 func New() Aapt {
 	return aaptImpl{
-		outputParser: newOutputParser(),
+		commandExecutor: command.NewExecutor(),
+		outputParser:    newOutputParser(),
 	}
 }
 
