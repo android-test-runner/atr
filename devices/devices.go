@@ -1,4 +1,4 @@
-package device
+package devices
 
 import (
 	"github.com/ybonjour/atr/adb"
@@ -8,7 +8,17 @@ type Device struct {
 	Serial string
 }
 
-func ConnectedDevices(includeDeviceSerials []string) ([]Device, error) {
+type Devices interface {
+	ConnectedDevices(includeDeviceSerials []string) ([]Device, error)
+}
+
+type devicesImpl struct{}
+
+func New() Devices {
+	return devicesImpl{}
+}
+
+func (devicesImpl) ConnectedDevices(includeDeviceSerials []string) ([]Device, error) {
 	allDevices, err := allConnectedDevices()
 	if err != nil {
 		return nil, err

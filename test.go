@@ -5,7 +5,7 @@ import (
 	"github.com/urfave/cli"
 	"github.com/ybonjour/atr/aapt"
 	"github.com/ybonjour/atr/apk"
-	"github.com/ybonjour/atr/device"
+	"github.com/ybonjour/atr/devices"
 	"github.com/ybonjour/atr/test"
 )
 
@@ -60,7 +60,7 @@ func testAction(c *cli.Context) error {
 		return cli.NewExitError(fmt.Sprintf("Invalid tests: %v", testsError), 1)
 	}
 
-	devices, devicesError := devices(c)
+	configDevices, devicesError := getDevices(c)
 	if devicesError != nil {
 		return cli.NewExitError(fmt.Sprintf("Invalid devices: %v", devicesError), 1)
 	}
@@ -78,17 +78,17 @@ func testAction(c *cli.Context) error {
 		OutputFolder: c.String("output"),
 	}
 
-	return test.ExecuteTests(config, devices)
+	return test.ExecuteTests(config, configDevices)
 }
 
-func devices(c *cli.Context) ([]device.Device, error) {
+func getDevices(c *cli.Context) ([]devices.Device, error) {
 	deviceFlag := c.StringSlice("device")
 	// ensure no filter (=> all connected devices) if no devices provided
 	var d []string
 	if len(deviceFlag) > 0 {
 		d = deviceFlag
 	}
-	return device.ConnectedDevices(d)
+	return devices.New().ConnectedDevices(d)
 }
 
 func allTests(c *cli.Context) ([]test.Test, error) {
