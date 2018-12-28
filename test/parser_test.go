@@ -2,6 +2,8 @@ package test
 
 import (
 	"fmt"
+	"github.com/golang/mock/gomock"
+	"github.com/ybonjour/atr/mock_files"
 	"testing"
 )
 
@@ -10,6 +12,31 @@ func TestParsesTests(t *testing.T) {
 
 	parsedTests := NewParser().Parse(unparsedTests)
 
+	expected := []Test{
+		{Class: "TestClass1", Method: "testMethod1"},
+		{Class: "TestClass2", Method: "testMethod2"},
+	}
+	if !AreEqual(expected, parsedTests) {
+		t.Error(fmt.Sprintf("Parsed Tests are %v instead of %v", parsedTests, expected))
+	}
+}
+
+func TestParsesTestsFromFile(t *testing.T) {
+	path := "tests.txt"
+	unparsedTesets := []string{"TestClass1#testMethod1", "TestClass2#testMethod2"}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	filesMock := mock_files.NewMockFiles(ctrl)
+	filesMock.EXPECT().ReadLines(gomock.Eq(path)).Return(unparsedTesets, nil)
+	parser := parserImpl{
+		files: filesMock,
+	}
+
+	parsedTests, err := parser.ParseFromFile(path)
+
+	if err != nil {
+		t.Error(fmt.Sprintf("Expected no error but got '%v", err))
+	}
 	expected := []Test{
 		{Class: "TestClass1", Method: "testMethod1"},
 		{Class: "TestClass2", Method: "testMethod2"},
