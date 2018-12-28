@@ -11,19 +11,23 @@ type Installer interface {
 	Reinstall(apk *apks.Apk, device devices.Device) error
 }
 
-type installerImpl struct{}
+type installerImpl struct {
+	adb adb.Adb
+}
 
 func NewInstaller() Installer {
-	return installerImpl{}
+	return installerImpl{
+		adb: adb.New(),
+	}
 }
 
 func (installer installerImpl) Reinstall(apk *apks.Apk, device devices.Device) error {
-	apkUninstallError := adb.New().Uninstall(apk.PackageName, device.Serial)
+	apkUninstallError := installer.adb.Uninstall(apk.PackageName, device.Serial)
 	if apkUninstallError != nil {
 		fmt.Println("Could not uninstall apk. Try to install it anyways.")
 	}
 
-	apkInstallError := adb.New().Install(apk.Path, device.Serial)
+	apkInstallError := installer.adb.Install(apk.Path, device.Serial)
 	if apkInstallError != nil {
 		return apkInstallError
 	}
