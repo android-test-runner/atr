@@ -11,7 +11,8 @@ type Aapt interface {
 }
 
 type aaptImpl struct {
-	outputParser outputParser
+	commandExecutor command.CommandExecutor
+	outputParser    outputParser
 }
 
 func New() Aapt {
@@ -21,7 +22,7 @@ func New() Aapt {
 }
 
 func (aapt aaptImpl) PackageName(apkPath string) (string, error) {
-	out, err := command.NewExecutor().ExecuteOutput(exec.Command("aapt", "dump", "badging", apkPath))
+	out, err := aapt.commandExecutor.ExecuteOutput(exec.Command("aapt", "dump", "badging", apkPath))
 	if err != nil {
 		return "", err
 	}
@@ -37,7 +38,7 @@ func (aapt aaptImpl) TestRunner(apkPath string) (string, error) {
 		"AndroidManifest.xml",
 	}
 
-	out, err := command.NewExecutor().ExecuteOutput(exec.Command("aapt", arguments...))
+	out, err := aapt.commandExecutor.ExecuteOutput(exec.Command("aapt", arguments...))
 	if err != nil {
 		return "", err
 	}
