@@ -14,12 +14,12 @@ type Adb interface {
 }
 
 type adbImpl struct {
-	OutputParser OutputParser
+	outputParser OutputParser
 }
 
 func New() Adb {
 	return adbImpl{
-		OutputParser: NewOutputParser(),
+		outputParser: NewOutputParser(),
 	}
 }
 
@@ -29,7 +29,7 @@ func (adb adbImpl) ConnectedDevices() ([]string, error) {
 		return nil, err
 	}
 
-	return adb.OutputParser.ParseConnectedDeviceSerials(out), nil
+	return adb.outputParser.ParseConnectedDeviceSerials(out), nil
 }
 
 func (adbImpl) Install(apkPath string, deviceSerial string) error {
