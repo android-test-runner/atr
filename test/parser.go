@@ -1,9 +1,8 @@
 package test
 
 import (
-	"bufio"
 	"fmt"
-	"os"
+	"github.com/ybonjour/atr/files"
 	"strings"
 )
 
@@ -28,21 +27,11 @@ func NewParser() Parser {
 }
 
 func (parser parserImpl) ParseFromFile(path string) ([]Test, error) {
-	_, err := os.Stat(path)
+	lines, err := files.New().ReadLines(path)
 	if err != nil {
 		return nil, err
 	}
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	var tests []string
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		tests = append(tests, scanner.Text())
-	}
-
-	return parser.Parse(tests), scanner.Err()
+	return parser.Parse(lines), nil
 }
 
 func (parserImpl) Parse(testsUnparsed []string) []Test {
