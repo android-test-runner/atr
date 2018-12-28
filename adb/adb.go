@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"github.com/ybonjour/atr/command"
 	"os/exec"
-	"regexp"
-	"strings"
 )
 
 func Install(apkPath string, deviceSerial string) error {
@@ -31,20 +29,11 @@ func ExecuteTest(packageName string, testRunner string, test string, deviceSeria
 }
 
 func ConnectedDevices() ([]string, error) {
-	output, err := command.ExecuteOutput(exec.Command("adb", "devices"))
+	out, err := command.ExecuteOutput(exec.Command("adb", "devices"))
 	if err != nil {
 		return nil, err
 	}
 
-	devices := []string{}
-	lines := strings.Split(output, "\n")
-	for _, line := range lines {
-		r := regexp.MustCompile(`^([^ ]+)\tdevice$`)
-		matches := r.FindStringSubmatch(line)
-		if matches != nil {
-			devices = append(devices, matches[1])
-		}
-	}
+	return ParseConnectedDeviceSerials(out), nil
 
-	return devices, nil
 }
