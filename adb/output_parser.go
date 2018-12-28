@@ -5,7 +5,17 @@ import (
 	"strings"
 )
 
-func ParseConnectedDeviceSerials(out string) []string {
+type OutputParser interface {
+	ParseConnectedDeviceSerials(out string) []string
+}
+
+type outputParserImpl struct{}
+
+func NewOutputParser() OutputParser {
+	return outputParserImpl{}
+}
+
+func (outputParserImpl) ParseConnectedDeviceSerials(out string) []string {
 	serials := []string{}
 	lines := strings.Split(out, "\n")
 	for _, line := range lines {

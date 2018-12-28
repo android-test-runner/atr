@@ -25,7 +25,7 @@ func (adbImpl) ConnectedDevices() ([]string, error) {
 		return nil, err
 	}
 
-	return ParseConnectedDeviceSerials(out), nil
+	return NewOutputParser().ParseConnectedDeviceSerials(out), nil
 }
 
 func (adbImpl) Install(apkPath string, deviceSerial string) error {
