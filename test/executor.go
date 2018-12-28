@@ -21,11 +21,13 @@ type Executor interface {
 
 type executorImpl struct {
 	installer Installer
+	adb       adb.Adb
 }
 
 func NewExecutor() Executor {
 	return executorImpl{
 		installer: NewInstaller(),
+		adb:       adb.New(),
 	}
 }
 
@@ -46,10 +48,10 @@ func (executor executorImpl) ExecuteTests(config Config, devices []devices.Devic
 	return nil
 }
 
-func (executorImpl) executeTests(testConfig Config, device devices.Device) []TestResult {
+func (executor executorImpl) executeTests(testConfig Config, device devices.Device) []TestResult {
 	var results []TestResult
 	for _, t := range testConfig.Tests {
-		output, err := adb.New().ExecuteTest(testConfig.TestApk.PackageName, testConfig.TestRunner, FullName(t), device.Serial)
+		output, err := executor.adb.ExecuteTest(testConfig.TestApk.PackageName, testConfig.TestRunner, FullName(t), device.Serial)
 		results = append(results, ResultFromOutput(t, err, output))
 	}
 
