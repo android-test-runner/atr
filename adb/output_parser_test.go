@@ -2,6 +2,7 @@ package adb
 
 import (
 	"fmt"
+	"github.com/ybonjour/atr/build/src/github.com/ybonjour/atr/adb"
 	"testing"
 )
 
@@ -9,7 +10,7 @@ func TestParsesConnectedDeviceSerial(t *testing.T) {
 	expectedSerial := "abcd"
 	out := fmt.Sprintf("%v\tdevice", expectedSerial)
 
-	deviceSerials := ParseConnectedDeviceSerials(out)
+	deviceSerials := adb.NewOutputParser().ParseConnectedDeviceSerials(out)
 
 	verifySerials([]string{expectedSerial}, deviceSerials, t)
 }
@@ -18,7 +19,7 @@ func TestParsesMultipleConnectedDeviceSerial(t *testing.T) {
 	expectedSerials := []string{"abcd", "efgh"}
 	out := fmt.Sprintf("%v\tdevice\n%v\tdevice", expectedSerials[0], expectedSerials[1])
 
-	deviceSerials := ParseConnectedDeviceSerials(out)
+	deviceSerials := adb.NewOutputParser().ParseConnectedDeviceSerials(out)
 
 	verifySerials(expectedSerials, deviceSerials, t)
 }
@@ -26,7 +27,7 @@ func TestParsesMultipleConnectedDeviceSerial(t *testing.T) {
 func TestIgnoresUnconnectedDevices(t *testing.T) {
 	out := "abcd\tunauthorized"
 
-	deviceSerials := ParseConnectedDeviceSerials(out)
+	deviceSerials := adb.NewOutputParser().ParseConnectedDeviceSerials(out)
 
 	if !AreEqual([]string{}, deviceSerials) {
 		t.Error("Did not ignore unconnected device.")
@@ -36,7 +37,7 @@ func TestIgnoresUnconnectedDevices(t *testing.T) {
 func TestIgnoresNonDeviceOutput(t *testing.T) {
 	out := "Some other output"
 
-	deviceSerials := ParseConnectedDeviceSerials(out)
+	deviceSerials := adb.NewOutputParser().ParseConnectedDeviceSerials(out)
 
 	if !AreEqual([]string{}, deviceSerials) {
 		t.Error("Did not ignore different output.")

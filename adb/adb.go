@@ -13,19 +13,23 @@ type Adb interface {
 	ExecuteTest(packageName string, testRunner string, test string, deviceSerial string) (string, error)
 }
 
-type adbImpl struct{}
-
-func New() Adb {
-	return adbImpl{}
+type adbImpl struct {
+	OutputParser OutputParser
 }
 
-func (adbImpl) ConnectedDevices() ([]string, error) {
+func New() Adb {
+	return adbImpl{
+		OutputParser: NewOutputParser(),
+	}
+}
+
+func (adb adbImpl) ConnectedDevices() ([]string, error) {
 	out, err := command.ExecuteOutput(exec.Command("adb", "devices"))
 	if err != nil {
 		return nil, err
 	}
 
-	return NewOutputParser().ParseConnectedDeviceSerials(out), nil
+	return adb.OutputParser.ParseConnectedDeviceSerials(out), nil
 }
 
 func (adbImpl) Install(apkPath string, deviceSerial string) error {
