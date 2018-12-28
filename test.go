@@ -44,13 +44,13 @@ var testCommand = cli.Command{
 
 func testAction(c *cli.Context) error {
 	apkPath := c.String("apk")
-	apkUnderTest, apkGetError := apks.GetApk(apkPath)
+	apkUnderTest, apkGetError := apks.New().GetApk(apkPath)
 	if apkGetError != nil {
 		return cli.NewExitError(fmt.Sprintf("Could not get apk %v", apkPath), 1)
 	}
 
 	testApkPath := c.String("testapk")
-	testApk, apkGetError := apks.GetApk(testApkPath)
+	testApk, apkGetError := apks.New().GetApk(testApkPath)
 	if apkGetError != nil {
 		return cli.NewExitError(fmt.Sprintf("Could not get apk %v", testApkPath), 1)
 	}

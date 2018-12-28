@@ -12,7 +12,17 @@ type Apk struct {
 	PackageName string
 }
 
-func GetApk(path string) (*Apk, error) {
+type Apks interface {
+	GetApk(path string) (*Apk, error)
+}
+
+type apksImpl struct{}
+
+func New() Apks {
+	return apksImpl{}
+}
+
+func (apksImpl) GetApk(path string) (*Apk, error) {
 	if !strings.HasSuffix(path, ".apk") {
 		return nil, errors.New("APK has no .apk ending")
 	}
