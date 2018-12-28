@@ -22,7 +22,7 @@ func TestParsesTests(t *testing.T) {
 func TestGetsFullName(t *testing.T) {
 	test := Test{Class: "TestClass", Method: "testMethod"}
 
-	fullName := FullName(test)
+	fullName := test.FullName()
 
 	expected := "TestClass#testMethod"
 	if expected != fullName {

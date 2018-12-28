@@ -12,6 +12,10 @@ type Test struct {
 	Method string
 }
 
+func (t Test) FullName() string {
+	return fmt.Sprintf("%v#%v", t.Class, t.Method)
+}
+
 type Parser interface {
 	ParseFromFile(path string) ([]Test, error)
 	Parse(testsUnparsed []string) []Test
@@ -48,10 +52,6 @@ func (parserImpl) Parse(testsUnparsed []string) []Test {
 	}
 
 	return tests
-}
-
-func FullName(test Test) string {
-	return fmt.Sprintf("%v#%v", test.Class, test.Method)
 }
 
 func parseTest(testUnparsed string) Test {
