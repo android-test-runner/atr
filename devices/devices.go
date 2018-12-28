@@ -12,14 +12,18 @@ type Devices interface {
 	ConnectedDevices(includeDeviceSerials []string) ([]Device, error)
 }
 
-type devicesImpl struct{}
-
-func New() Devices {
-	return devicesImpl{}
+type devicesImpl struct {
+	adb adb.Adb
 }
 
-func (devicesImpl) ConnectedDevices(includeDeviceSerials []string) ([]Device, error) {
-	allDevices, err := allConnectedDevices()
+func New() Devices {
+	return devicesImpl{
+		adb: adb.New(),
+	}
+}
+
+func (d devicesImpl) ConnectedDevices(includeDeviceSerials []string) ([]Device, error) {
+	allDevices, err := d.allConnectedDevices()
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +44,7 @@ func (devicesImpl) ConnectedDevices(includeDeviceSerials []string) ([]Device, er
 	return filteredDevices, nil
 }
 
-func fromSerials(serials []string) []Device {
+func (d devicesImpl) fromSerials(serials []string) []Device {
 	var devices []Device
 	for _, serial := range serials {
 		d := Device{
@@ -51,13 +55,13 @@ func fromSerials(serials []string) []Device {
 	return devices
 }
 
-func allConnectedDevices() ([]Device, error) {
-	deviceSerials, err := adb.New().ConnectedDevices()
+func (d devicesImpl) allConnectedDevices() ([]Device, error) {
+	deviceSerials, err := d.adb.ConnectedDevices()
 	if err != nil {
 		return nil, err
 	}
 
-	return fromSerials(deviceSerials), nil
+	return d.fromSerials(deviceSerials), nil
 }
 
 func toMap(keys []string) map[string]bool {
