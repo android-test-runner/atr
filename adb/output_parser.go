@@ -11,7 +11,7 @@ type OutputParser interface {
 
 type outputParserImpl struct{}
 
-func NewOutputParser() OutputParser {
+func newOutputParser() OutputParser {
 	return outputParserImpl{}
 }
 

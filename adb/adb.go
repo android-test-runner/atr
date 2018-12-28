@@ -19,7 +19,7 @@ type adbImpl struct {
 
 func New() Adb {
 	return adbImpl{
-		outputParser: NewOutputParser(),
+		outputParser: newOutputParser(),
 	}
 }
 
