@@ -2,8 +2,8 @@ package apks
 
 import (
 	"errors"
+	"fmt"
 	"github.com/ybonjour/atr/aapt"
-	"os"
 	"strings"
 )
 
@@ -17,22 +17,24 @@ type Apks interface {
 }
 
 type apksImpl struct {
-	aapt aapt.Aapt
+	aapt  aapt.Aapt
+	files Files
 }
 
 func New() Apks {
 	return apksImpl{
-		aapt: aapt.New(),
+		aapt:  aapt.New(),
+		files: NewFiles(),
 	}
 }
 
 func (apks apksImpl) GetApk(path string) (*Apk, error) {
 	if !strings.HasSuffix(path, ".apk") {
-		return nil, errors.New("APK has no .apk ending")
+		return nil, errors.New(fmt.Sprint("APK '%v' has no .apk ending.", path))
 	}
-	_, err := os.Stat(path)
-	if err != nil {
-		return nil, err
+
+	if !apks.files.CanAccess(path) {
+		return nil, errors.New(fmt.Sprintf("Can not access APK '%v'.", path))
 	}
 
 	packageName, packageNameError := apks.aapt.PackageName(path)
