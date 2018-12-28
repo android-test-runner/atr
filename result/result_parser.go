@@ -1,18 +1,19 @@
-package test
+package result
 
 import (
+	"github.com/ybonjour/atr/test"
 	"regexp"
 	"strings"
 )
 
 type Result struct {
-	Test      Test
+	Test      test.Test
 	HasPassed bool
 	Output    string
 }
 
 type ResultParser interface {
-	ParseFromOutput(test Test, err error, output string) Result
+	ParseFromOutput(test test.Test, err error, output string) Result
 }
 
 type resultParserImpl struct{}
@@ -21,7 +22,7 @@ func NewResultParser() ResultParser {
 	return resultParserImpl{}
 }
 
-func (resultParserImpl) ParseFromOutput(test Test, err error, output string) Result {
+func (resultParserImpl) ParseFromOutput(test test.Test, err error, output string) Result {
 	return Result{
 		Test:      test,
 		HasPassed: err == nil && hasPassed(output),

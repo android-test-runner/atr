@@ -7,6 +7,7 @@ import (
 	"github.com/ybonjour/atr/apks"
 	"github.com/ybonjour/atr/devices"
 	"github.com/ybonjour/atr/test"
+	"github.com/ybonjour/atr/test_executor"
 )
 
 var testCommand = cli.Command{
@@ -70,7 +71,7 @@ func testAction(c *cli.Context) error {
 		return cli.NewExitError(fmt.Sprintf("Invalid test runner: %v", testRunnerError), 1)
 	}
 
-	config := test.Config{
+	config := test_executor.Config{
 		Apk:          apkUnderTest,
 		TestApk:      testApk,
 		TestRunner:   testRunner,
@@ -78,7 +79,14 @@ func testAction(c *cli.Context) error {
 		OutputFolder: c.String("output"),
 	}
 
-	return test.NewExecutor().Execute(config, configDevices)
+	resultsByDevice, testExecutionError := test_executor.NewExecutor().Execute(config, configDevices)
+	if testExecutionError != nil {
+		return cli.NewExitError(fmt.Sprintf("Test execution errored: '%v'", testExecutionError), 1)
+	}
+
+	fmt.Println(resultsByDevice)
+
+	return nil
 }
 
 func getDevices(c *cli.Context) ([]devices.Device, error) {
