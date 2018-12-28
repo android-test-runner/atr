@@ -19,19 +19,23 @@ type Executor interface {
 	ExecuteTests(config Config, devices []devices.Device) error
 }
 
-type executorImpl struct{}
+type executorImpl struct {
+	installer Installer
+}
 
 func NewExecutor() Executor {
-	return executorImpl{}
+	return executorImpl{
+		installer: NewInstaller(),
+	}
 }
 
 func (executor executorImpl) ExecuteTests(config Config, devices []devices.Device) error {
 	for _, d := range devices {
-		apkInstallError := executor.reinstall(config.Apk, d)
+		apkInstallError := executor.installer.Reinstall(config.Apk, d)
 		if apkInstallError != nil {
 			return apkInstallError
 		}
-		testApkInstallError := executor.reinstall(config.TestApk, d)
+		testApkInstallError := executor.installer.Reinstall(config.TestApk, d)
 		if testApkInstallError != nil {
 			return testApkInstallError
 		}
@@ -50,18 +54,4 @@ func (executorImpl) executeTests(testConfig Config, device devices.Device) []Tes
 	}
 
 	return results
-}
-
-func (executor executorImpl) reinstall(apk *apks.Apk, device devices.Device) error {
-	apkUninstallError := adb.New().Uninstall(apk.PackageName, device.Serial)
-	if apkUninstallError != nil {
-		fmt.Println("Could not uninstall apk. Try to install it anyways.")
-	}
-
-	apkInstallError := adb.New().Install(apk.Path, device.Serial)
-	if apkInstallError != nil {
-		return apkInstallError
-	}
-
-	return nil
 }
