@@ -7,19 +7,19 @@ import (
 	"os/exec"
 )
 
-type CommandExecutor interface {
+type Executor interface {
 	Execute(cmd *exec.Cmd) error
 	ExecuteOutput(cmd *exec.Cmd) (string, error)
 }
 
-type commandExecutorImpl struct{}
+type executorImpl struct{}
 
-func NewExecutor() CommandExecutor {
-	return commandExecutorImpl{}
+func NewExecutor() Executor {
+	return executorImpl{}
 }
 
-func (commandExecutor commandExecutorImpl) Execute(cmd *exec.Cmd) error {
-	out, executeError := commandExecutor.ExecuteOutput(cmd)
+func (executor executorImpl) Execute(cmd *exec.Cmd) error {
+	out, executeError := executor.ExecuteOutput(cmd)
 
 	if executeError != nil {
 		return executeError
@@ -29,7 +29,7 @@ func (commandExecutor commandExecutorImpl) Execute(cmd *exec.Cmd) error {
 	return nil
 }
 
-func (commandExecutorImpl) ExecuteOutput(cmd *exec.Cmd) (string, error) {
+func (executor executorImpl) ExecuteOutput(cmd *exec.Cmd) (string, error) {
 	var out bytes.Buffer
 	cmd.Stdout = &out
 

@@ -11,7 +11,7 @@ type Aapt interface {
 }
 
 type aaptImpl struct {
-	commandExecutor command.CommandExecutor
+	commandExecutor command.Executor
 	outputParser    outputParser
 }
 

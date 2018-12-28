@@ -14,7 +14,7 @@ type Adb interface {
 }
 
 type adbImpl struct {
-	commandExecutor command.CommandExecutor
+	commandExecutor command.Executor
 	outputParser    outputParser
 }
 
