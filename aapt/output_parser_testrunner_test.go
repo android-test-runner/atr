@@ -11,7 +11,7 @@ func TestParsesTestRunner(t *testing.T) {
 		"A: android:name(0x01010003)=\"%v\" (Raw: \"%v\")"
 	out := fmt.Sprintf(outTemplate, expectedTestRunner, expectedTestRunner)
 
-	testRunner, err := ParseTestRunner(out)
+	testRunner, err := newOutputParser().ParseTestRunner(out)
 
 	verifyTestRunnner(expectedTestRunner, testRunner, err, t)
 }
@@ -25,7 +25,7 @@ func TestParsesTestWithOtherLines(t *testing.T) {
 		"line after"
 	out := fmt.Sprintf(outTemplate, expectedTestRunner, expectedTestRunner)
 
-	testRunner, err := ParseTestRunner(out)
+	testRunner, err := newOutputParser().ParseTestRunner(out)
 
 	verifyTestRunnner(expectedTestRunner, testRunner, err, t)
 }
@@ -33,7 +33,7 @@ func TestParsesTestWithOtherLines(t *testing.T) {
 func TestDoesNotParseTestRunnerWithNoInstrumentationElement(t *testing.T) {
 	out := "A: android:name(0x01010003)=\"testRunner\" (Raw: \"testRunner\")"
 
-	_, err := ParseTestRunner(out)
+	_, err := newOutputParser().ParseTestRunner(out)
 
 	verifyTestRunnerNotFoundError(err, t)
 }
@@ -41,7 +41,7 @@ func TestDoesNotParseTestRunnerWithNoInstrumentationElement(t *testing.T) {
 func TestDoesNotParseTestRunnerWithNoNameAttribute(t *testing.T) {
 	out := "E: instrumentation (line=1)"
 
-	_, err := ParseTestRunner(out)
+	_, err := newOutputParser().ParseTestRunner(out)
 
 	verifyTestRunnerNotFoundError(err, t)
 }

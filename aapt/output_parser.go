@@ -6,7 +6,18 @@ import (
 	"strings"
 )
 
-func ParsePackageName(out string) (string, error) {
+type outputParser interface {
+	ParsePackageName(out string) (string, error)
+	ParseTestRunner(out string) (string, error)
+}
+
+type outputParserImpl struct{}
+
+func newOutputParser() outputParser {
+	return outputParserImpl{}
+}
+
+func (outputParserImpl) ParsePackageName(out string) (string, error) {
 	lines := strings.Split(out, "\n")
 	for _, line := range lines {
 		r := regexp.MustCompile(`package: name='([^']+)'`)
@@ -19,7 +30,7 @@ func ParsePackageName(out string) (string, error) {
 	return "", errors.New("package name not found")
 }
 
-func ParseTestRunner(out string) (string, error) {
+func (outputParserImpl) ParseTestRunner(out string) (string, error) {
 	lines := strings.Split(out, "\n")
 	startInstrumentationIdx := len(lines)
 	for idx := 0; idx < len(lines); idx++ {

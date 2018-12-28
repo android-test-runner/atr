@@ -9,7 +9,7 @@ func TestParsesPackageName(t *testing.T) {
 	expectedPackageName := "ch.yvu.atr"
 	out := fmt.Sprintf("package: name='%v'", expectedPackageName)
 
-	packageName, err := ParsePackageName(out)
+	packageName, err := newOutputParser().ParsePackageName(out)
 
 	verifyPackageName(expectedPackageName, packageName, err, t)
 }
@@ -18,7 +18,7 @@ func TestParsesPackageNameMultiLines(t *testing.T) {
 	expectedPackageName := "ch.yvu.atr"
 	out := fmt.Sprintf("some output\n....\npackage: name='%v'", expectedPackageName)
 
-	packageName, err := ParsePackageName(out)
+	packageName, err := newOutputParser().ParsePackageName(out)
 
 	verifyPackageName(expectedPackageName, packageName, err, t)
 }
@@ -27,7 +27,7 @@ func TestParsesPackageNameWithOuterInformationOnSameLine(t *testing.T) {
 	expectedPackageName := "ch.yvu.atr"
 	out := fmt.Sprintf("package: name='%v' some other information", expectedPackageName)
 
-	packageName, err := ParsePackageName(out)
+	packageName, err := newOutputParser().ParsePackageName(out)
 
 	verifyPackageName(expectedPackageName, packageName, err, t)
 }
@@ -35,7 +35,7 @@ func TestParsesPackageNameWithOuterInformationOnSameLine(t *testing.T) {
 func TestDoesNotParsePackageNameWithInvalidFormat(t *testing.T) {
 	out := "invalid format"
 
-	_, err := ParsePackageName(out)
+	_, err := newOutputParser().ParsePackageName(out)
 
 	if err == nil {
 		t.Error("Expected 'package name not found error' but didn't get one.")

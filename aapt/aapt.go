@@ -22,7 +22,7 @@ func (aaptImpl) PackageName(apkPath string) (string, error) {
 		return "", err
 	}
 
-	return ParsePackageName(out)
+	return newOutputParser().ParsePackageName(out)
 }
 
 func (aaptImpl) TestRunner(apkPath string) (string, error) {
@@ -38,5 +38,5 @@ func (aaptImpl) TestRunner(apkPath string) (string, error) {
 		return "", err
 	}
 
-	return ParseTestRunner(out)
+	return newOutputParser().ParseTestRunner(out)
 }
