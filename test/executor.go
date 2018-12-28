@@ -16,7 +16,7 @@ type Config struct {
 }
 
 type Executor interface {
-	ExecuteTests(config Config, devices []devices.Device) error
+	Execute(config Config, devices []devices.Device) error
 }
 
 type executorImpl struct {
@@ -33,7 +33,7 @@ func NewExecutor() Executor {
 	}
 }
 
-func (executor executorImpl) ExecuteTests(config Config, devices []devices.Device) error {
+func (executor executorImpl) Execute(config Config, devices []devices.Device) error {
 	for _, d := range devices {
 		apkInstallError := executor.installer.Reinstall(config.Apk, d)
 		if apkInstallError != nil {
