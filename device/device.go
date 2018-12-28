@@ -9,7 +9,7 @@ type Device struct {
 }
 
 func ConnectedDevices(includeDeviceSerials []string) ([]Device, error) {
-	allDevices, err := AllConnectedDevices()
+	allDevices, err := allConnectedDevices()
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +30,7 @@ func ConnectedDevices(includeDeviceSerials []string) ([]Device, error) {
 	return filteredDevices, nil
 }
 
-func FromSerials(serials []string) []Device {
+func fromSerials(serials []string) []Device {
 	var devices []Device
 	for _, serial := range serials {
 		d := Device{
@@ -41,13 +41,13 @@ func FromSerials(serials []string) []Device {
 	return devices
 }
 
-func AllConnectedDevices() ([]Device, error) {
+func allConnectedDevices() ([]Device, error) {
 	deviceSerials, err := adb.ConnectedDevices()
 	if err != nil {
 		return nil, err
 	}
 
-	return FromSerials(deviceSerials), nil
+	return fromSerials(deviceSerials), nil
 }
 
 func toMap(keys []string) map[string]bool {
