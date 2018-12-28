@@ -78,7 +78,7 @@ func testAction(c *cli.Context) error {
 		OutputFolder: c.String("output"),
 	}
 
-	return test.ExecuteTests(config, configDevices)
+	return test.NewExecutor().ExecuteTests(config, configDevices)
 }
 
 func getDevices(c *cli.Context) ([]devices.Device, error) {
