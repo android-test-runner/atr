@@ -11,7 +11,17 @@ type Result struct {
 	Output    string
 }
 
-func ResultFromOutput(test Test, err error, output string) Result {
+type ResultParser interface {
+	ParseFromOutput(test Test, err error, output string) Result
+}
+
+type resultParserImpl struct{}
+
+func NewResultParser() ResultParser {
+	return resultParserImpl{}
+}
+
+func (resultParserImpl) ParseFromOutput(test Test, err error, output string) Result {
 	return Result{
 		Test:      test,
 		HasPassed: err == nil && hasPassed(output),

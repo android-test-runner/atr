@@ -20,14 +20,16 @@ type Executor interface {
 }
 
 type executorImpl struct {
-	installer Installer
-	adb       adb.Adb
+	installer    Installer
+	resultParser ResultParser
+	adb          adb.Adb
 }
 
 func NewExecutor() Executor {
 	return executorImpl{
-		installer: NewInstaller(),
-		adb:       adb.New(),
+		installer:    NewInstaller(),
+		resultParser: NewResultParser(),
+		adb:          adb.New(),
 	}
 }
 
@@ -52,7 +54,7 @@ func (executor executorImpl) executeTests(testConfig Config, device devices.Devi
 	var results []Result
 	for _, t := range testConfig.Tests {
 		output, err := executor.adb.ExecuteTest(testConfig.TestApk.PackageName, testConfig.TestRunner, FullName(t), device.Serial)
-		results = append(results, ResultFromOutput(t, err, output))
+		results = append(results, executor.resultParser.ParseFromOutput(t, err, output))
 	}
 
 	return results

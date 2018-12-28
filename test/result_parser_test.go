@@ -10,7 +10,7 @@ func TestResultFromOutputPassed(t *testing.T) {
 	test := Test{Class: "TestClass", Method: "testMethod"}
 	okOutput := "OK (1 test)"
 
-	result := ResultFromOutput(test, nil, okOutput)
+	result := NewResultParser().ParseFromOutput(test, nil, okOutput)
 
 	expected := Result{Test: test, HasPassed: true, Output: okOutput}
 	if expected != result {
@@ -22,7 +22,7 @@ func TestResultFromOutputPassedWithMultilineOutput(t *testing.T) {
 	test := Test{Class: "TestClass", Method: "testMethod"}
 	okOutput := "Some Information\n...\nOK (1 test)"
 
-	result := ResultFromOutput(test, nil, okOutput)
+	result := NewResultParser().ParseFromOutput(test, nil, okOutput)
 
 	expected := Result{Test: test, HasPassed: true, Output: okOutput}
 	if expected != result {
@@ -35,7 +35,7 @@ func TestResultFromOutputWithError(t *testing.T) {
 	err := errors.New("some error")
 	okOutput := "OK (1 test)"
 
-	result := ResultFromOutput(test, err, okOutput)
+	result := NewResultParser().ParseFromOutput(test, err, okOutput)
 
 	expected := Result{Test: test, HasPassed: false, Output: okOutput}
 	if expected != result {
@@ -47,7 +47,7 @@ func TestResultFromOutputWithFailureOutput(t *testing.T) {
 	test := Test{Class: "TestClass", Method: "testMethod"}
 	failureOutput := "Failure"
 
-	result := ResultFromOutput(test, nil, failureOutput)
+	result := NewResultParser().ParseFromOutput(test, nil, failureOutput)
 
 	expected := Result{Test: test, HasPassed: false, Output: failureOutput}
 	if expected != result {
