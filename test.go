@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/urfave/cli"
 	"github.com/ybonjour/atr/aapt"
-	"github.com/ybonjour/atr/apk"
+	"github.com/ybonjour/atr/apks"
 	"github.com/ybonjour/atr/devices"
 	"github.com/ybonjour/atr/test"
 )
@@ -44,13 +44,13 @@ var testCommand = cli.Command{
 
 func testAction(c *cli.Context) error {
 	apkPath := c.String("apk")
-	apkUnderTest, apkGetError := apk.GetApk(apkPath)
+	apkUnderTest, apkGetError := apks.GetApk(apkPath)
 	if apkGetError != nil {
 		return cli.NewExitError(fmt.Sprintf("Could not get apk %v", apkPath), 1)
 	}
 
 	testApkPath := c.String("testapk")
-	testApk, apkGetError := apk.GetApk(testApkPath)
+	testApk, apkGetError := apks.GetApk(testApkPath)
 	if apkGetError != nil {
 		return cli.NewExitError(fmt.Sprintf("Could not get apk %v", testApkPath), 1)
 	}

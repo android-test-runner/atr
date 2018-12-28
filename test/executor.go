@@ -3,13 +3,13 @@ package test
 import (
 	"fmt"
 	"github.com/ybonjour/atr/adb"
-	"github.com/ybonjour/atr/apk"
+	"github.com/ybonjour/atr/apks"
 	"github.com/ybonjour/atr/devices"
 )
 
 type TestConfig struct {
-	Apk          *apk.Apk
-	TestApk      *apk.Apk
+	Apk          *apks.Apk
+	TestApk      *apks.Apk
 	TestRunner   string
 	Tests        []Test
 	OutputFolder string
@@ -42,7 +42,7 @@ func executeTests(testConfig TestConfig, device devices.Device) []TestResult {
 	return results
 }
 
-func reinstall(apk *apk.Apk, device devices.Device) error {
+func reinstall(apk *apks.Apk, device devices.Device) error {
 	apkUninstallError := adb.New().Uninstall(apk.PackageName, device.Serial)
 	if apkUninstallError != nil {
 		fmt.Println("Could not uninstall apk. Try to install it anyways.")
