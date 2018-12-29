@@ -31,11 +31,11 @@ func New() Apks {
 
 func (apks apksImpl) GetApk(path string) (Apk, error) {
 	if !strings.HasSuffix(path, ".apk") {
-		return Apk{}, errors.New(fmt.Sprint("APK '%v' has no .apk ending.", path))
+		return Apk{}, errors.New(fmt.Sprintf("apk '%v' has no .apk ending", path))
 	}
 
 	if !apks.files.CanAccess(path) {
-		return Apk{}, errors.New(fmt.Sprintf("Can not access APK '%v'.", path))
+		return Apk{}, errors.New(fmt.Sprintf("can not access APK '%v'", path))
 	}
 
 	packageName, packageNameError := apks.aapt.PackageName(path)
