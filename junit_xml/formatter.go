@@ -16,11 +16,14 @@ func NewFormatter() Formatter {
 	return formatterImpl{}
 }
 
+type skipped struct{}
+
 type testcase struct {
 	XMLName    xml.Name `xml:"testcase"`
 	MethodName string   `xml:"name,attr"`
 	ClassName  string   `xml:"classname,attr"`
 	Failure    string   `xml:"failure,omitempty"`
+	Skipped    *skipped `xml:"skipped,omitempty"`
 }
 
 type testsuite struct {
@@ -29,12 +32,14 @@ type testsuite struct {
 	Name        string     `xml:"name,attr"`
 	NumTests    int        `xml:"tests,attr"`
 	NumFailures int        `xml:"failures,attr"`
+	NumSkipped  int        `xml:"skipped,attr"`
 	TestCases   []testcase `xml:"testcase"`
 }
 
 func (formatterImpl) Format(results []result.Result, apk apks.Apk) (string, error) {
 	var testCases []testcase
 	numFailures := 0
+	numSkipped := 0
 	for _, r := range results {
 		testCase := testcase{
 			MethodName: r.Test.Method,
@@ -43,6 +48,9 @@ func (formatterImpl) Format(results []result.Result, apk apks.Apk) (string, erro
 		if r.Status == result.Failed {
 			testCase.Failure = r.Output
 			numFailures += 1
+		} else if r.Status == result.Skipped {
+			testCase.Skipped = &skipped{}
+			numSkipped += 1
 		}
 
 		testCases = append(testCases, testCase)
@@ -53,6 +61,7 @@ func (formatterImpl) Format(results []result.Result, apk apks.Apk) (string, erro
 		TestCases:   testCases,
 		NumTests:    len(testCases),
 		NumFailures: numFailures,
+		NumSkipped:  numSkipped,
 	}
 
 	output, err := xml.MarshalIndent(testSuite, "", "    ")
