@@ -23,6 +23,7 @@ type testcase struct {
 	MethodName string   `xml:"name,attr"`
 	ClassName  string   `xml:"classname,attr"`
 	Failure    string   `xml:"failure,omitempty"`
+	Error      string   `xml:"error,omitempty"`
 	Skipped    *skipped `xml:"skipped,omitempty"`
 }
 
@@ -32,6 +33,7 @@ type testsuite struct {
 	Name        string     `xml:"name,attr"`
 	NumTests    int        `xml:"tests,attr"`
 	NumFailures int        `xml:"failures,attr"`
+	NumErrors   int        `xml:"errors,attr"`
 	NumSkipped  int        `xml:"skipped,attr"`
 	TestCases   []testcase `xml:"testcase"`
 }
@@ -39,13 +41,17 @@ type testsuite struct {
 func (formatterImpl) Format(results []result.Result, apk apks.Apk) (string, error) {
 	var testCases []testcase
 	numFailures := 0
+	numErrors := 0
 	numSkipped := 0
 	for _, r := range results {
 		testCase := testcase{
 			MethodName: r.Test.Method,
 			ClassName:  r.Test.Class,
 		}
-		if r.Status == result.Failed {
+		if r.Status == result.Errored {
+			testCase.Error = r.Output
+			numErrors += 1
+		} else if r.Status == result.Failed {
 			testCase.Failure = r.Output
 			numFailures += 1
 		} else if r.Status == result.Skipped {
@@ -61,6 +67,7 @@ func (formatterImpl) Format(results []result.Result, apk apks.Apk) (string, erro
 		TestCases:   testCases,
 		NumTests:    len(testCases),
 		NumFailures: numFailures,
+		NumErrors:   numErrors,
 		NumSkipped:  numSkipped,
 	}
 
