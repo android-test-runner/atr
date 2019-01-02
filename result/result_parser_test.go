@@ -13,7 +13,19 @@ func TestResultFromOutputPassed(t *testing.T) {
 
 	result := NewResultParser().ParseFromOutput(testForResult, nil, okOutput)
 
-	expected := Result{Test: testForResult, HasPassed: true, Output: okOutput}
+	expected := Result{Test: testForResult, WasSkipped: false, HasPassed: true, Output: okOutput}
+	if expected != result {
+		t.Error(fmt.Sprintf("Test result is %v instead of %v", result, expected))
+	}
+}
+
+func TestResultFromOutputSkipped(t *testing.T) {
+	testForResult := test.Test{Class: "TestClass", Method: "testMethod"}
+	skippedOutput := "OK (0 tests)"
+
+	result := NewResultParser().ParseFromOutput(testForResult, nil, skippedOutput)
+
+	expected := Result{Test: testForResult, WasSkipped: true, HasPassed: true, Output: skippedOutput}
 	if expected != result {
 		t.Error(fmt.Sprintf("Test result is %v instead of %v", result, expected))
 	}
@@ -25,7 +37,7 @@ func TestResultFromOutputPassedWithMultilineOutput(t *testing.T) {
 
 	result := NewResultParser().ParseFromOutput(testForResult, nil, okOutput)
 
-	expected := Result{Test: testForResult, HasPassed: true, Output: okOutput}
+	expected := Result{Test: testForResult, WasSkipped: false, HasPassed: true, Output: okOutput}
 	if expected != result {
 		t.Error(fmt.Sprintf("Test result is %v instead of %v", result, expected))
 	}
@@ -38,7 +50,7 @@ func TestResultFromOutputWithError(t *testing.T) {
 
 	result := NewResultParser().ParseFromOutput(testForResult, err, okOutput)
 
-	expected := Result{Test: testForResult, HasPassed: false, Output: okOutput}
+	expected := Result{Test: testForResult, WasSkipped: false, HasPassed: false, Output: okOutput}
 	if expected != result {
 		t.Error(fmt.Sprintf("Test result is %v instead of %v", result, expected))
 	}
@@ -50,7 +62,7 @@ func TestResultFromOutputWithFailureOutput(t *testing.T) {
 
 	result := NewResultParser().ParseFromOutput(testForResult, nil, failureOutput)
 
-	expected := Result{Test: testForResult, HasPassed: false, Output: failureOutput}
+	expected := Result{Test: testForResult, HasPassed: false, WasSkipped: false, Output: failureOutput}
 	if expected != result {
 		t.Error(fmt.Sprintf("Test result is %v instead of %v", result, expected))
 	}

@@ -17,11 +17,27 @@ func NewResultParser() ResultParser {
 }
 
 func (resultParserImpl) ParseFromOutput(test test.Test, err error, output string) Result {
+	wasSkipped := wasSkipped(output)
+	hasPassed := hasPassed(output)
 	return Result{
-		Test:      test,
-		HasPassed: err == nil && hasPassed(output),
-		Output:    output,
+		Test:       test,
+		WasSkipped: wasSkipped,
+		HasPassed:  wasSkipped || (err == nil && hasPassed),
+		Output:     output,
 	}
+}
+
+func wasSkipped(output string) bool {
+	// A test was successful if we find "OK (0 tests)" in the output
+	lines := strings.Split(output, "\n")
+	for _, line := range lines {
+		regexSkipped := regexp.MustCompile(`^OK \(0 tests\)$`)
+		if regexSkipped.MatchString(line) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func hasPassed(output string) bool {
