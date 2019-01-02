@@ -6,17 +6,17 @@ import (
 	"strings"
 )
 
-type ResultParser interface {
+type Parser interface {
 	ParseFromOutput(test test.Test, err error, output string) Result
 }
 
-type resultParserImpl struct{}
+type parserImpl struct{}
 
-func NewResultParser() ResultParser {
-	return resultParserImpl{}
+func NewParser() Parser {
+	return parserImpl{}
 }
 
-func (resultParserImpl) ParseFromOutput(test test.Test, err error, output string) Result {
+func (parserImpl) ParseFromOutput(test test.Test, err error, output string) Result {
 	status := getStatus(output, err)
 	return Result{
 		Test:   test,

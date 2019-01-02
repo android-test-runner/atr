@@ -34,7 +34,7 @@ func TestExecute(t *testing.T) {
 		EXPECT().
 		ExecuteTest(config.TestApk.PackageName, config.TestRunner, targetTest.FullName(), device.Serial).
 		Return(testOutput, nil)
-	mockResultParser := mock_result.NewMockResultParser(ctrl)
+	mockResultParser := mock_result.NewMockParser(ctrl)
 	mockResultParser.EXPECT().ParseFromOutput(targetTest, nil, testOutput).Return(testResult)
 	executor := executorImpl{
 		installer:    mockInstaller,
@@ -66,7 +66,7 @@ func TestExecuteMultipleTests(t *testing.T) {
 	defer ctrl.Finish()
 	mockInstaller := mock_test_executor.NewMockInstaller(ctrl)
 	mockAdb := mock_adb.NewMockAdb(ctrl)
-	mockResultParser := mock_result.NewMockResultParser(ctrl)
+	mockResultParser := mock_result.NewMockParser(ctrl)
 	givenAllApksInstalledSuccessfully(mockInstaller, 1)
 	givenTestOnDeviceReturns(test1, device, testResult1, mockAdb, mockResultParser)
 	givenTestOnDeviceReturns(test2, device, testResult2, mockAdb, mockResultParser)
@@ -100,7 +100,7 @@ func TestExecuteMultipleDevices(t *testing.T) {
 	defer ctrl.Finish()
 	mockInstaller := mock_test_executor.NewMockInstaller(ctrl)
 	mockAdb := mock_adb.NewMockAdb(ctrl)
-	mockResultParser := mock_result.NewMockResultParser(ctrl)
+	mockResultParser := mock_result.NewMockParser(ctrl)
 	givenAllApksInstalledSuccessfully(mockInstaller, 2)
 	givenTestOnDeviceReturns(targetTest, device1, testResult1, mockAdb, mockResultParser)
 	givenTestOnDeviceReturns(targetTest, device2, testResult2, mockAdb, mockResultParser)
@@ -129,7 +129,7 @@ func givenAllApksInstalledSuccessfully(mockInstaller *mock_test_executor.MockIns
 	mockInstaller.EXPECT().Reinstall(gomock.Any(), gomock.Any()).Return(nil).Times(numDevices * 2)
 }
 
-func givenTestOnDeviceReturns(t test.Test, d devices.Device, r result.Result, mockAdb *mock_adb.MockAdb, mockResultParser *mock_result.MockResultParser) {
+func givenTestOnDeviceReturns(t test.Test, d devices.Device, r result.Result, mockAdb *mock_adb.MockAdb, mockResultParser *mock_result.MockParser) {
 	testOutput := t.FullName()
 	mockAdb.
 		EXPECT().

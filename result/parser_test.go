@@ -11,7 +11,7 @@ func TestResultFromOutputPassed(t *testing.T) {
 	testForResult := test.Test{Class: "TestClass", Method: "testMethod"}
 	okOutput := "OK (1 test)"
 
-	result := NewResultParser().ParseFromOutput(testForResult, nil, okOutput)
+	result := NewParser().ParseFromOutput(testForResult, nil, okOutput)
 
 	expected := Result{Test: testForResult, Status: Passed, Output: okOutput}
 	if expected != result {
@@ -23,7 +23,7 @@ func TestResultFromOutputSkipped(t *testing.T) {
 	testForResult := test.Test{Class: "TestClass", Method: "testMethod"}
 	skippedOutput := "OK (0 tests)"
 
-	result := NewResultParser().ParseFromOutput(testForResult, nil, skippedOutput)
+	result := NewParser().ParseFromOutput(testForResult, nil, skippedOutput)
 
 	expected := Result{Test: testForResult, Status: Skipped, Output: skippedOutput}
 	if expected != result {
@@ -35,7 +35,7 @@ func TestResultFromOutputPassedWithMultilineOutput(t *testing.T) {
 	testForResult := test.Test{Class: "TestClass", Method: "testMethod"}
 	okOutput := "Some Information\n...\nOK (1 test)"
 
-	result := NewResultParser().ParseFromOutput(testForResult, nil, okOutput)
+	result := NewParser().ParseFromOutput(testForResult, nil, okOutput)
 
 	expected := Result{Test: testForResult, Status: Passed, Output: okOutput}
 	if expected != result {
@@ -48,7 +48,7 @@ func TestResultFromOutputWithError(t *testing.T) {
 	err := errors.New("some error")
 	okOutput := "OK (1 test)"
 
-	result := NewResultParser().ParseFromOutput(testForResult, err, okOutput)
+	result := NewParser().ParseFromOutput(testForResult, err, okOutput)
 
 	expected := Result{Test: testForResult, Status: Failed, Output: okOutput}
 	if expected != result {
@@ -60,7 +60,7 @@ func TestResultFromOutputWithFailureOutput(t *testing.T) {
 	testForResult := test.Test{Class: "TestClass", Method: "testMethod"}
 	failureOutput := "Failure"
 
-	result := NewResultParser().ParseFromOutput(testForResult, nil, failureOutput)
+	result := NewParser().ParseFromOutput(testForResult, nil, failureOutput)
 
 	expected := Result{Test: testForResult, Status: Failed, Output: failureOutput}
 	if expected != result {

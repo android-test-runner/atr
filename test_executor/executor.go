@@ -22,14 +22,14 @@ type Executor interface {
 
 type executorImpl struct {
 	installer    Installer
-	resultParser result.ResultParser
+	resultParser result.Parser
 	adb          adb.Adb
 }
 
 func NewExecutor() Executor {
 	return executorImpl{
 		installer:    NewInstaller(),
-		resultParser: result.NewResultParser(),
+		resultParser: result.NewParser(),
 		adb:          adb.New(),
 	}
 }
