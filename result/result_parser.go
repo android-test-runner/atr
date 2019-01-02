@@ -17,39 +17,35 @@ func NewResultParser() ResultParser {
 }
 
 func (resultParserImpl) ParseFromOutput(test test.Test, err error, output string) Result {
-	wasSkipped := wasSkipped(output)
-	hasPassed := hasPassed(output)
+	status := getStatus(output, err)
 	return Result{
 		Test:       test,
-		WasSkipped: wasSkipped,
-		HasPassed:  wasSkipped || (err == nil && hasPassed),
+		WasSkipped: status == Skipped,
+		HasPassed:  status == Skipped || status == Passed,
+		Status:     status,
 		Output:     output,
 	}
 }
 
-func wasSkipped(output string) bool {
-	// A test was successful if we find "OK (0 tests)" in the output
+func getStatus(output string, err error) Status {
+	if err != nil {
+		return Failed
+	}
+	// A test was successful if we find "OK (1 test)" in the output
+	// A test was skipped if we find "OK (0 tests)" in the output
+	// else it failed
+	// This is needed because the am process does not fail if the test fails.
 	lines := strings.Split(output, "\n")
 	for _, line := range lines {
 		regexSkipped := regexp.MustCompile(`^OK \(0 tests\)$`)
 		if regexSkipped.MatchString(line) {
-			return true
+			return Skipped
 		}
-	}
-
-	return false
-}
-
-func hasPassed(output string) bool {
-	// A test was successful if we find "OK (1 test)" in the output
-	// This is needed because the am process does not fail if the test fails.
-	lines := strings.Split(output, "\n")
-	for _, line := range lines {
 		regexOk := regexp.MustCompile(`^OK \(1 test\)$`)
 		if regexOk.MatchString(line) {
-			return true
+			return Passed
 		}
 	}
 
-	return false
+	return Failed
 }
