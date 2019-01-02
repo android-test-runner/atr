@@ -27,7 +27,7 @@ func (parserImpl) ParseFromOutput(test test.Test, err error, output string) Resu
 
 func getStatus(output string, err error) Status {
 	if err != nil {
-		return Failed
+		return Errored
 	}
 	// A test was successful if we find "OK (1 test)" in the output
 	// A test was skipped if we find "OK (0 tests)" in the output

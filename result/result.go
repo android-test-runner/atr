@@ -13,5 +13,6 @@ type Status int
 const (
 	Passed  Status = iota
 	Failed  Status = iota
+	Errored Status = iota
 	Skipped Status = iota
 )

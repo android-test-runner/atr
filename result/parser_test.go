@@ -43,20 +43,20 @@ func TestResultFromOutputPassedWithMultilineOutput(t *testing.T) {
 	}
 }
 
-func TestResultFromOutputWithError(t *testing.T) {
+func TestResultFromOutputErrored(t *testing.T) {
 	testForResult := test.Test{Class: "TestClass", Method: "testMethod"}
 	err := errors.New("some error")
 	okOutput := "OK (1 test)"
 
 	result := NewParser().ParseFromOutput(testForResult, err, okOutput)
 
-	expected := Result{Test: testForResult, Status: Failed, Output: okOutput}
+	expected := Result{Test: testForResult, Status: Errored, Output: okOutput}
 	if expected != result {
 		t.Error(fmt.Sprintf("Test result is %v instead of %v", result, expected))
 	}
 }
 
-func TestResultFromOutputWithFailureOutput(t *testing.T) {
+func TestResultFromOutputFailed(t *testing.T) {
 	testForResult := test.Test{Class: "TestClass", Method: "testMethod"}
 	failureOutput := "Failure"
 
