@@ -6,6 +6,7 @@ import (
 	"github.com/ybonjour/atr/aapt"
 	"github.com/ybonjour/atr/apks"
 	"github.com/ybonjour/atr/devices"
+	"github.com/ybonjour/atr/junit_xml"
 	"github.com/ybonjour/atr/test"
 	"github.com/ybonjour/atr/test_executor"
 )
@@ -84,7 +85,15 @@ func testAction(c *cli.Context) error {
 		return cli.NewExitError(fmt.Sprintf("Test execution errored: '%v'", testExecutionError), 1)
 	}
 
-	fmt.Println(resultsByDevice)
+	for device, results := range resultsByDevice {
+		fmt.Printf("Results for device '%v'", device)
+		formatter := junit_xml.NewFormatter()
+		output, err := formatter.Format(results, apkUnderTest)
+		if err != nil {
+			fmt.Printf("Error while printing test results '%v'\n", err)
+		}
+		fmt.Print(output)
+	}
 
 	return nil
 }
