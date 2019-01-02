@@ -40,7 +40,7 @@ func (formatterImpl) Format(results []result.Result, apk apks.Apk) (string, erro
 			MethodName: r.Test.Method,
 			ClassName:  r.Test.Class,
 		}
-		if !r.HasPassed {
+		if r.Status == result.Failed {
 			testCase.Failure = r.Output
 			numFailures += 1
 		}

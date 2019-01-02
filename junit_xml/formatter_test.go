@@ -11,8 +11,8 @@ import (
 
 func TestFormatsPassedTest(t *testing.T) {
 	passedTest := result.Result{
-		Test:      test.Test{Class: "TestClass", Method: "testMethod"},
-		HasPassed: true,
+		Test:   test.Test{Class: "TestClass", Method: "testMethod"},
+		Status: result.Passed,
 	}
 	apk := apks.Apk{PackageName: "ch.yvu.atr"}
 
@@ -26,9 +26,9 @@ func TestFormatsPassedTest(t *testing.T) {
 
 func TestFormatsFailedTest(t *testing.T) {
 	passedTest := result.Result{
-		Test:      test.Test{Class: "TestClass", Method: "testMethod"},
-		HasPassed: false,
-		Output:    "failureOutput",
+		Test:   test.Test{Class: "TestClass", Method: "testMethod"},
+		Status: result.Failed,
+		Output: "failureOutput",
 	}
 	apk := apks.Apk{PackageName: "ch.yvu.atr"}
 
@@ -42,12 +42,11 @@ func TestFormatsFailedTest(t *testing.T) {
 
 func TestFormatsMultipleTests(t *testing.T) {
 	test1 := result.Result{
-		Test:      test.Test{Class: "TestClass1", Method: "testMethod1"},
-		HasPassed: true,
+		Test:   test.Test{Class: "TestClass1", Method: "testMethod1"},
+		Status: result.Passed,
 	}
 	test2 := result.Result{
-		Test:      test.Test{Class: "TestClass2", Method: "testMethod2"},
-		HasPassed: true,
+		Test: test.Test{Class: "TestClass2", Method: "testMethod2"},
 	}
 	apk := apks.Apk{PackageName: "ch.yvu.atr"}
 
