@@ -19,11 +19,9 @@ func NewResultParser() ResultParser {
 func (resultParserImpl) ParseFromOutput(test test.Test, err error, output string) Result {
 	status := getStatus(output, err)
 	return Result{
-		Test:       test,
-		WasSkipped: status == Skipped,
-		HasPassed:  status == Skipped || status == Passed,
-		Status:     status,
-		Output:     output,
+		Test:   test,
+		Status: status,
+		Output: output,
 	}
 }
 
