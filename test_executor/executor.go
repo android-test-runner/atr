@@ -1,15 +1,13 @@
 package test_executor
 
 import (
-	"fmt"
 	"github.com/ybonjour/atr/adb"
 	"github.com/ybonjour/atr/apks"
 	"github.com/ybonjour/atr/devices"
-	"github.com/ybonjour/atr/logcat"
 	"github.com/ybonjour/atr/output"
 	"github.com/ybonjour/atr/result"
-	"github.com/ybonjour/atr/screen_recorder"
 	"github.com/ybonjour/atr/test"
+	"github.com/ybonjour/atr/test_listener"
 	"sync"
 	"time"
 )
@@ -27,20 +25,18 @@ type Executor interface {
 }
 
 type executorImpl struct {
-	installer             Installer
-	resultParser          result.Parser
-	adb                   adb.Adb
-	logcatFactory         logcat.Factory
-	screenRecorderFactory screen_recorder.Factory
+	installer     Installer
+	resultParser  result.Parser
+	adb           adb.Adb
+	testListeners []test_listener.TestListener
 }
 
 func NewExecutor(writer output.Writer) Executor {
 	return executorImpl{
-		installer:             NewInstaller(),
-		resultParser:          result.NewParser(),
-		adb:                   adb.New(),
-		logcatFactory:         logcat.NewFactory(writer),
-		screenRecorderFactory: screen_recorder.NewFactory(writer),
+		installer:     NewInstaller(),
+		resultParser:  result.NewParser(),
+		adb:           adb.New(),
+		testListeners: []test_listener.TestListener{NewLogcatListener(writer), NewScreenRecorderListener(writer)},
 	}
 }
 
@@ -101,37 +97,33 @@ func (executor executorImpl) reinstallApks(config Config, device devices.Device)
 
 func (executor executorImpl) executeTests(testConfig Config, device devices.Device) []result.Result {
 	var results []result.Result
-	deviceLogcat := executor.logcatFactory.ForDevice(device)
-	screenRecorder := executor.screenRecorderFactory.ForDevice(device)
+	executor.beforeTestSuite(device)
 	for _, t := range testConfig.Tests {
-		executor.beforeTest(t, deviceLogcat, screenRecorder)
+		executor.beforeTest(t)
 		testOutput, errTest, duration := executor.executeSingleTest(t, device, testConfig.TestApk.PackageName, testConfig.TestRunner)
-		executor.afterTest(t, deviceLogcat, screenRecorder)
+		r := executor.resultParser.ParseFromOutput(t, errTest, testOutput, duration)
+		executor.afterTest(r)
 
-		results = append(results, executor.resultParser.ParseFromOutput(t, errTest, testOutput, duration))
+		results = append(results, r)
 	}
 	return results
 }
 
-func (executor executorImpl) beforeTest(t test.Test, logcat logcat.Logcat, recorder screen_recorder.ScreenRecorder) {
-	errStartLogcat := logcat.StartRecording(t)
-	if errStartLogcat != nil {
-		fmt.Printf("Could not clear logcat: '%v'\n", errStartLogcat)
-	}
-	errStartScreenRecording := recorder.StartRecording(t)
-	if errStartScreenRecording != nil {
-		fmt.Printf("Could not start screen recording: '%v'\n", errStartScreenRecording)
+func (executor executorImpl) beforeTestSuite(device devices.Device) {
+	for _, listener := range executor.testListeners {
+		listener.BeforeTestSuite(device)
 	}
 }
 
-func (executor executorImpl) afterTest(t test.Test, logcat logcat.Logcat, recorder screen_recorder.ScreenRecorder) {
-	errStopLogcat := logcat.StopRecording(t)
-	if errStopLogcat != nil {
-		fmt.Printf("Could not save logcat: '%v'\n", errStopLogcat)
+func (executor executorImpl) beforeTest(t test.Test) {
+	for _, listener := range executor.testListeners {
+		listener.BeforeTest(t)
 	}
-	errStopScreenRecording := recorder.StopRecording(t)
-	if errStopScreenRecording != nil {
-		fmt.Printf("Could not save screen recording: '%v'\n", errStopScreenRecording)
+}
+
+func (executor executorImpl) afterTest(r result.Result) {
+	for _, listener := range executor.testListeners {
+		listener.AfterTest(r)
 	}
 }
 
