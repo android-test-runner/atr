@@ -1,23 +1,22 @@
-package test_executor
+package screen_recorder
 
 import (
 	"fmt"
 	"github.com/ybonjour/atr/devices"
 	"github.com/ybonjour/atr/output"
 	"github.com/ybonjour/atr/result"
-	"github.com/ybonjour/atr/screen_recorder"
 	"github.com/ybonjour/atr/test"
 	"github.com/ybonjour/atr/test_listener"
 )
 
 type screenRecorderListener struct {
-	screenRecorderFactory screen_recorder.Factory
-	screenRecorder        screen_recorder.ScreenRecorder
+	screenRecorderFactory Factory
+	screenRecorder        ScreenRecorder
 }
 
 func NewScreenRecorderListener(writer output.Writer) test_listener.TestListener {
 	return &screenRecorderListener{
-		screenRecorderFactory: screen_recorder.NewFactory(writer),
+		screenRecorderFactory: NewFactory(writer),
 	}
 }
 

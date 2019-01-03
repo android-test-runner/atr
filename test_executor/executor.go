@@ -6,6 +6,7 @@ import (
 	"github.com/ybonjour/atr/devices"
 	"github.com/ybonjour/atr/output"
 	"github.com/ybonjour/atr/result"
+	"github.com/ybonjour/atr/screen_recorder"
 	"github.com/ybonjour/atr/test"
 	"github.com/ybonjour/atr/test_listener"
 	"sync"
@@ -36,7 +37,7 @@ func NewExecutor(writer output.Writer) Executor {
 		installer:     NewInstaller(),
 		resultParser:  result.NewParser(),
 		adb:           adb.New(),
-		testListeners: []test_listener.TestListener{NewLogcatListener(writer), NewScreenRecorderListener(writer)},
+		testListeners: []test_listener.TestListener{NewLogcatListener(writer), screen_recorder.NewScreenRecorderListener(writer)},
 	}
 }
 
