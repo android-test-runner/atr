@@ -1,11 +1,13 @@
 package test_executor
 
 import (
+	"fmt"
 	"github.com/ybonjour/atr/adb"
 	"github.com/ybonjour/atr/apks"
 	"github.com/ybonjour/atr/devices"
 	"github.com/ybonjour/atr/result"
 	"github.com/ybonjour/atr/test"
+	"sync"
 )
 
 type Config struct {
@@ -34,17 +36,37 @@ func NewExecutor() Executor {
 	}
 }
 
+type testResults struct {
+	Results []result.Result
+	Error   error
+	Device  devices.Device
+}
+
 func (executor executorImpl) Execute(config Config, targetDevices []devices.Device) (map[devices.Device][]result.Result, error) {
-	resultsByDevice := map[devices.Device][]result.Result{}
+	resultsChannel := make(chan testResults, len(targetDevices))
 
+	var wg sync.WaitGroup
+	wg.Add(len(targetDevices))
 	for _, targetDevice := range targetDevices {
-		testResults, err := executor.executeOnDevice(config, targetDevice)
-		if err != nil {
-			return nil, err
-		}
-
-		resultsByDevice[targetDevice] = testResults
+		go func(d devices.Device) {
+			results, err := executor.executeOnDevice(config, d)
+			resultsChannel <- testResults{Results: results, Error: err, Device: d}
+			wg.Done()
+		}(targetDevice)
 	}
+	go func() {
+		wg.Wait()
+		close(resultsChannel)
+	}()
+
+	resultsByDevice := map[devices.Device][]result.Result{}
+	for r := range resultsChannel {
+		if r.Error != nil {
+			return nil, r.Error
+		}
+		resultsByDevice[r.Device] = r.Results
+	}
+
 	return resultsByDevice, nil
 }
 
