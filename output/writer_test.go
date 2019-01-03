@@ -3,6 +3,7 @@ package output
 import (
 	"fmt"
 	"github.com/golang/mock/gomock"
+	"github.com/ybonjour/atr/devices"
 	"github.com/ybonjour/atr/files"
 	"github.com/ybonjour/atr/mock_files"
 	"testing"
@@ -11,18 +12,19 @@ import (
 func TestWrite(t *testing.T) {
 	rootDir := "rootDir"
 	file := files.File{}
+	device := devices.Device{}
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	files_mock := mock_files.NewMockFiles(ctrl)
-	files_mock.EXPECT().MakeDirectory(rootDir)
-	files_mock.EXPECT().WriteFile(rootDir, file).Return(nil)
+	filesMock := mock_files.NewMockFiles(ctrl)
+	filesMock.EXPECT().MakeDirectory(rootDir)
+	filesMock.EXPECT().WriteFile(rootDir, file).Return(nil)
 
 	writer := writerImpl{
 		rootDir: rootDir,
-		files:   files_mock,
+		files:   filesMock,
 	}
 
-	err := writer.Write([]files.File{file})
+	err := writer.Write(map[devices.Device][]files.File{device: {file}})
 
 	if err != nil {
 		t.Error(fmt.Sprintf("Expected no error but got '%v'", err))

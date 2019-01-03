@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 )
 
 type Files interface {
@@ -45,7 +46,7 @@ func (files filesImpl) ReadLines(path string) ([]string, error) {
 }
 
 func (filesImpl) WriteFile(directory string, file File) error {
-	path := fmt.Sprintf("%v/%v", directory, file.Name)
+	path := filepath.Join(directory, file.Name)
 	return ioutil.WriteFile(path, []byte(file.Content), 0644)
 }
 

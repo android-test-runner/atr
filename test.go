@@ -99,16 +99,16 @@ func testAction(c *cli.Context) error {
 	return nil
 }
 
-func toJunitXmlFiles(resultsByDevice map[devices.Device][]result.Result, apk apks.Apk) []files.File {
-	xmlFiles := []files.File{}
+func toJunitXmlFiles(resultsByDevice map[devices.Device][]result.Result, apk apks.Apk) map[devices.Device][]files.File {
+	xmlFiles := map[devices.Device][]files.File{}
 	for device, results := range resultsByDevice {
 		formatter := junit_xml.NewFormatter()
-		xmlFile, err := formatter.Format(results, apk, device)
+		xmlFile, err := formatter.Format(results, apk)
 		if err != nil {
 			fmt.Printf("Error while formatting test results for device '%v': '%v'. Ignoring results for this device and continue with next device.\n", err)
 			continue
 		}
-		xmlFiles = append(xmlFiles, xmlFile)
+		xmlFiles[device] = []files.File{xmlFile}
 	}
 	return xmlFiles
 }

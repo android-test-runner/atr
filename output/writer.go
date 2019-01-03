@@ -1,9 +1,13 @@
 package output
 
-import "github.com/ybonjour/atr/files"
+import (
+	"github.com/ybonjour/atr/devices"
+	"github.com/ybonjour/atr/files"
+	"path/filepath"
+)
 
 type Writer interface {
-	Write(files []files.File) error
+	Write(files map[devices.Device][]files.File) error
 }
 
 type writerImpl struct {
@@ -18,13 +22,24 @@ func NewWriter(rootDirectory string) Writer {
 	}
 }
 
-func (writer writerImpl) Write(files []files.File) error {
-	err := writer.files.MakeDirectory(writer.rootDir)
+func (writer writerImpl) Write(files map[devices.Device][]files.File) error {
+	for device, filesForDevice := range files {
+		err := writer.write(filesForDevice, device)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (writer writerImpl) write(files []files.File, device devices.Device) error {
+	deviceDirectory := filepath.Join(writer.rootDir, device.Serial)
+	err := writer.files.MakeDirectory(deviceDirectory)
 	if err != nil {
 		return err
 	}
 	for _, f := range files {
-		err := writer.files.WriteFile(writer.rootDir, f)
+		err := writer.files.WriteFile(deviceDirectory, f)
 		if err != nil {
 			return err
 		}
