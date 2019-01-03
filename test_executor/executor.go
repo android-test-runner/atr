@@ -36,20 +36,37 @@ func NewExecutor() Executor {
 
 func (executor executorImpl) Execute(config Config, targetDevices []devices.Device) (map[devices.Device][]result.Result, error) {
 	resultsByDevice := map[devices.Device][]result.Result{}
+
 	for _, targetDevice := range targetDevices {
-		apkInstallError := executor.installer.Reinstall(config.Apk, targetDevice)
-		if apkInstallError != nil {
-			return nil, apkInstallError
+		testResults, err := executor.executeOnDevice(config, targetDevice)
+		if err != nil {
+			return nil, err
 		}
-		testApkInstallError := executor.installer.Reinstall(config.TestApk, targetDevice)
-		if testApkInstallError != nil {
-			return nil, testApkInstallError
-		}
-		testResults := executor.executeTests(config, targetDevice)
 
 		resultsByDevice[targetDevice] = testResults
 	}
 	return resultsByDevice, nil
+}
+
+func (executor executorImpl) executeOnDevice(config Config, device devices.Device) ([]result.Result, error) {
+	err := executor.reinstallApks(config, device)
+	if err != nil {
+		return nil, err
+	}
+	return executor.executeTests(config, device), nil
+}
+
+func (executor executorImpl) reinstallApks(config Config, device devices.Device) error {
+	apkInstallError := executor.installer.Reinstall(config.Apk, device)
+	if apkInstallError != nil {
+		return apkInstallError
+	}
+	testApkInstallError := executor.installer.Reinstall(config.TestApk, device)
+	if testApkInstallError != nil {
+		return testApkInstallError
+	}
+
+	return nil
 }
 
 func (executor executorImpl) executeTests(testConfig Config, device devices.Device) []result.Result {
