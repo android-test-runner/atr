@@ -12,7 +12,7 @@ import (
 
 type Logcat interface {
 	StartRecording(test test.Test) error
-	StopRecording(test test.Test) error
+	StopRecording(test test.Test, saveResult bool) error
 }
 
 type Factory interface {
@@ -50,9 +50,13 @@ func (logcat *logcatImpl) StartRecording(test test.Test) error {
 	return logcat.Adb.ClearLogcat(logcat.Device.Serial)
 }
 
-func (logcat logcatImpl) StopRecording(test test.Test) error {
+func (logcat *logcatImpl) StopRecording(test test.Test, saveResult bool) error {
 	if logcat.Test != test {
 		return errors.New(fmt.Sprintf("never started recording for test '%v'", test))
+	}
+
+	if !saveResult {
+		return nil
 	}
 
 	logcatOutput, err := logcat.Adb.GetLogcat(logcat.Device.Serial)

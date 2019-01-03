@@ -12,6 +12,10 @@ type Result struct {
 	Duration time.Duration
 }
 
+func (result Result) ShallSaveResult() bool {
+	return result.Status == Failed || result.Status == Errored
+}
+
 type Status int
 
 const (

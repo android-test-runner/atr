@@ -40,12 +40,7 @@ func (writer writerImpl) WriteFile(file files.File, device devices.Device) error
 		return errDirectory
 	}
 
-	errFile := writer.files.WriteFile(deviceDirectory, file)
-	if errFile != nil {
-		return errFile
-	}
-
-	return nil
+	return writer.files.WriteFile(deviceDirectory, file)
 }
 
 func (writer writerImpl) write(files []files.File, device devices.Device) error {
