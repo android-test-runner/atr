@@ -32,8 +32,8 @@ func NewFactory(writer output.Writer) Factory {
 type logcatImpl struct {
 	Device devices.Device
 	Adb    adb.Adb
-	Test   test.Test
 	Writer output.Writer
+	Test   test.Test
 }
 
 // One logcat instance per device to avoid problems with parallelism

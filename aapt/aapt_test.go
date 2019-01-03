@@ -14,7 +14,7 @@ func TestPackageName(t *testing.T) {
 	parsedPackageName := "parsedPackageName"
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	commandExecutorMock := mock_command.NewMockCommandExecutor(ctrl)
+	commandExecutorMock := mock_command.NewMockExecutor(ctrl)
 	commandExecutorMock.EXPECT().ExecuteOutput(gomock.Any()).Return(unparsedPackageName, nil)
 	outputParserMock := mock_aapt.NewMockoutputParser(ctrl)
 	outputParserMock.EXPECT().ParsePackageName(gomock.Eq(unparsedPackageName)).Return(parsedPackageName, nil)
@@ -37,7 +37,7 @@ func TestPackageNameReturnsCommandError(t *testing.T) {
 	expectedErr := errors.New("Command execution failed.")
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	commandExecutorMock := mock_command.NewMockCommandExecutor(ctrl)
+	commandExecutorMock := mock_command.NewMockExecutor(ctrl)
 	commandExecutorMock.EXPECT().ExecuteOutput(gomock.Any()).Return("", expectedErr)
 	aapt := aaptImpl{
 		commandExecutor: commandExecutorMock,
@@ -54,7 +54,7 @@ func TestPackageNameReturnsParseError(t *testing.T) {
 	expectedErr := errors.New("Parsing failed.")
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	commandExecutorMock := mock_command.NewMockCommandExecutor(ctrl)
+	commandExecutorMock := mock_command.NewMockExecutor(ctrl)
 	commandExecutorMock.EXPECT().ExecuteOutput(gomock.Any()).Return("", nil)
 	outputParserMock := mock_aapt.NewMockoutputParser(ctrl)
 	outputParserMock.EXPECT().ParsePackageName(gomock.Any()).Return("", expectedErr)
@@ -75,7 +75,7 @@ func TestTestRunner(t *testing.T) {
 	expectedTestRunner := "parsedTestRunner"
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	commandExecutorMock := mock_command.NewMockCommandExecutor(ctrl)
+	commandExecutorMock := mock_command.NewMockExecutor(ctrl)
 	commandExecutorMock.
 		EXPECT().
 		ExecuteOutput(gomock.Any()).
@@ -104,7 +104,7 @@ func TestTestRunnerReturnsCommandError(t *testing.T) {
 	expectedErr := errors.New("Command execution failed.")
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	commandExecutorMock := mock_command.NewMockCommandExecutor(ctrl)
+	commandExecutorMock := mock_command.NewMockExecutor(ctrl)
 	commandExecutorMock.EXPECT().ExecuteOutput(gomock.Any()).Return("", expectedErr)
 	aapt := aaptImpl{
 		commandExecutor: commandExecutorMock,
@@ -121,7 +121,7 @@ func TestTestRunnerReturnsParseError(t *testing.T) {
 	expectedErr := errors.New("Parsing failed.")
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	commandExecutorMock := mock_command.NewMockCommandExecutor(ctrl)
+	commandExecutorMock := mock_command.NewMockExecutor(ctrl)
 	commandExecutorMock.EXPECT().ExecuteOutput(gomock.Any()).Return("", nil)
 	outputParserMock := mock_aapt.NewMockoutputParser(ctrl)
 	outputParserMock.EXPECT().ParseTestRunner(gomock.Any()).Return("", expectedErr)

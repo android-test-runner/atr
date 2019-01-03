@@ -118,3 +118,46 @@ func (mr *MockAdbMockRecorder) GetLogcat(deviceSerial interface{}) *gomock.Call 
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLogcat", reflect.TypeOf((*MockAdb)(nil).GetLogcat), deviceSerial)
 }
+
+// RecordScreen mocks base method
+func (m *MockAdb) RecordScreen(deviceSerial, filePath string) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RecordScreen", deviceSerial, filePath)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RecordScreen indicates an expected call of RecordScreen
+func (mr *MockAdbMockRecorder) RecordScreen(deviceSerial, filePath interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RecordScreen", reflect.TypeOf((*MockAdb)(nil).RecordScreen), deviceSerial, filePath)
+}
+
+// PullFile mocks base method
+func (m *MockAdb) PullFile(deviceSerial, filePathOnDevice, filePathLocal string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PullFile", deviceSerial, filePathOnDevice, filePathLocal)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// PullFile indicates an expected call of PullFile
+func (mr *MockAdbMockRecorder) PullFile(deviceSerial, filePathOnDevice, filePathLocal interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PullFile", reflect.TypeOf((*MockAdb)(nil).PullFile), deviceSerial, filePathOnDevice, filePathLocal)
+}
+
+// RemoveFile mocks base method
+func (m *MockAdb) RemoveFile(deviceSerial, filePathOnDevice string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemoveFile", deviceSerial, filePathOnDevice)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RemoveFile indicates an expected call of RemoveFile
+func (mr *MockAdbMockRecorder) RemoveFile(deviceSerial, filePathOnDevice interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveFile", reflect.TypeOf((*MockAdb)(nil).RemoveFile), deviceSerial, filePathOnDevice)
+}

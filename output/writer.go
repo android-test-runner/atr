@@ -7,6 +7,7 @@ import (
 )
 
 type Writer interface {
+	GetDeviceDirectory(device devices.Device) (string, error)
 	Write(files map[devices.Device][]files.File) error
 	WriteFile(file files.File, device devices.Device) error
 }
@@ -34,7 +35,7 @@ func (writer writerImpl) Write(files map[devices.Device][]files.File) error {
 }
 
 func (writer writerImpl) WriteFile(file files.File, device devices.Device) error {
-	deviceDirectory, errDirectory := writer.ensureDeviceDirectory(device)
+	deviceDirectory, errDirectory := writer.GetDeviceDirectory(device)
 	if errDirectory != nil {
 		return errDirectory
 	}
@@ -48,7 +49,7 @@ func (writer writerImpl) WriteFile(file files.File, device devices.Device) error
 }
 
 func (writer writerImpl) write(files []files.File, device devices.Device) error {
-	deviceDirectory, err := writer.ensureDeviceDirectory(device)
+	deviceDirectory, err := writer.GetDeviceDirectory(device)
 	if err != nil {
 		return err
 	}
@@ -61,7 +62,7 @@ func (writer writerImpl) write(files []files.File, device devices.Device) error 
 	return nil
 }
 
-func (writer writerImpl) ensureDeviceDirectory(device devices.Device) (string, error) {
+func (writer writerImpl) GetDeviceDirectory(device devices.Device) (string, error) {
 	deviceDirectory := filepath.Join(writer.rootDir, device.Serial)
 	return deviceDirectory, writer.files.MakeDirectory(deviceDirectory)
 }

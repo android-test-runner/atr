@@ -10,31 +10,31 @@ import (
 	reflect "reflect"
 )
 
-// MockCommandExecutor is a mock of CommandExecutor interface
-type MockCommandExecutor struct {
+// MockExecutor is a mock of Executor interface
+type MockExecutor struct {
 	ctrl     *gomock.Controller
-	recorder *MockCommandExecutorMockRecorder
+	recorder *MockExecutorMockRecorder
 }
 
-// MockCommandExecutorMockRecorder is the mock recorder for MockCommandExecutor
-type MockCommandExecutorMockRecorder struct {
-	mock *MockCommandExecutor
+// MockExecutorMockRecorder is the mock recorder for MockExecutor
+type MockExecutorMockRecorder struct {
+	mock *MockExecutor
 }
 
-// NewMockCommandExecutor creates a new mock instance
-func NewMockCommandExecutor(ctrl *gomock.Controller) *MockCommandExecutor {
-	mock := &MockCommandExecutor{ctrl: ctrl}
-	mock.recorder = &MockCommandExecutorMockRecorder{mock}
+// NewMockExecutor creates a new mock instance
+func NewMockExecutor(ctrl *gomock.Controller) *MockExecutor {
+	mock := &MockExecutor{ctrl: ctrl}
+	mock.recorder = &MockExecutorMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use
-func (m *MockCommandExecutor) EXPECT() *MockCommandExecutorMockRecorder {
+func (m *MockExecutor) EXPECT() *MockExecutorMockRecorder {
 	return m.recorder
 }
 
 // Execute mocks base method
-func (m *MockCommandExecutor) Execute(cmd *exec.Cmd) error {
+func (m *MockExecutor) Execute(cmd *exec.Cmd) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Execute", cmd)
 	ret0, _ := ret[0].(error)
@@ -42,13 +42,13 @@ func (m *MockCommandExecutor) Execute(cmd *exec.Cmd) error {
 }
 
 // Execute indicates an expected call of Execute
-func (mr *MockCommandExecutorMockRecorder) Execute(cmd interface{}) *gomock.Call {
+func (mr *MockExecutorMockRecorder) Execute(cmd interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Execute", reflect.TypeOf((*MockCommandExecutor)(nil).Execute), cmd)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Execute", reflect.TypeOf((*MockExecutor)(nil).Execute), cmd)
 }
 
 // ExecuteOutput mocks base method
-func (m *MockCommandExecutor) ExecuteOutput(cmd *exec.Cmd) (string, error) {
+func (m *MockExecutor) ExecuteOutput(cmd *exec.Cmd) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ExecuteOutput", cmd)
 	ret0, _ := ret[0].(string)
@@ -57,7 +57,22 @@ func (m *MockCommandExecutor) ExecuteOutput(cmd *exec.Cmd) (string, error) {
 }
 
 // ExecuteOutput indicates an expected call of ExecuteOutput
-func (mr *MockCommandExecutorMockRecorder) ExecuteOutput(cmd interface{}) *gomock.Call {
+func (mr *MockExecutorMockRecorder) ExecuteOutput(cmd interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExecuteOutput", reflect.TypeOf((*MockCommandExecutor)(nil).ExecuteOutput), cmd)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExecuteOutput", reflect.TypeOf((*MockExecutor)(nil).ExecuteOutput), cmd)
+}
+
+// ExecuteInBackground mocks base method
+func (m *MockExecutor) ExecuteInBackground(cmd *exec.Cmd) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ExecuteInBackground", cmd)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ExecuteInBackground indicates an expected call of ExecuteInBackground
+func (mr *MockExecutorMockRecorder) ExecuteInBackground(cmd interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExecuteInBackground", reflect.TypeOf((*MockExecutor)(nil).ExecuteInBackground), cmd)
 }

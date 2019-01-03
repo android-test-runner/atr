@@ -9,8 +9,10 @@ import (
 	"github.com/ybonjour/atr/mock_adb"
 	"github.com/ybonjour/atr/mock_logcat"
 	"github.com/ybonjour/atr/mock_result"
+	"github.com/ybonjour/atr/mock_screen_recorder"
 	"github.com/ybonjour/atr/mock_test_executor"
 	"github.com/ybonjour/atr/result"
+	"github.com/ybonjour/atr/screen_recorder"
 	"github.com/ybonjour/atr/test"
 	"testing"
 )
@@ -37,11 +39,13 @@ func TestExecute(t *testing.T) {
 		Return(testOutput, nil)
 	mockResultParser := mock_result.NewMockParser(ctrl)
 	mockResultParser.EXPECT().ParseFromOutput(gomock.Eq(targetTest), gomock.Eq(nil), gomock.Eq(testOutput), gomock.Any()).Return(testResult)
+	testsPerDevice := map[devices.Device][]test.Test{device: {targetTest}}
 	executor := executorImpl{
-		installer:     mockInstaller,
-		adb:           mockAdb,
-		resultParser:  mockResultParser,
-		logcatFactory: mockLogcatFactory(map[devices.Device][]test.Test{device: {targetTest}}, ctrl),
+		installer:             mockInstaller,
+		adb:                   mockAdb,
+		resultParser:          mockResultParser,
+		logcatFactory:         mockLogcatFactory(testsPerDevice, ctrl),
+		screenRecorderFactory: mockScreenRecorderFactory(testsPerDevice, ctrl),
 	}
 
 	results, err := executor.Execute(config, []devices.Device{device})
@@ -72,11 +76,13 @@ func TestExecuteMultipleTests(t *testing.T) {
 	givenAllApksInstalledSuccessfully(mockInstaller, 1)
 	givenTestOnDeviceReturns(test1, device, testResult1, mockAdb, mockResultParser)
 	givenTestOnDeviceReturns(test2, device, testResult2, mockAdb, mockResultParser)
+	testsPerDevice := map[devices.Device][]test.Test{device: {test1, test2}}
 	executor := executorImpl{
-		installer:     mockInstaller,
-		adb:           mockAdb,
-		resultParser:  mockResultParser,
-		logcatFactory: mockLogcatFactory(map[devices.Device][]test.Test{device: {test1, test2}}, ctrl),
+		installer:             mockInstaller,
+		adb:                   mockAdb,
+		resultParser:          mockResultParser,
+		logcatFactory:         mockLogcatFactory(testsPerDevice, ctrl),
+		screenRecorderFactory: mockScreenRecorderFactory(testsPerDevice, ctrl),
 	}
 
 	results, err := executor.Execute(config, []devices.Device{device})
@@ -107,11 +113,13 @@ func TestExecuteMultipleDevices(t *testing.T) {
 	givenAllApksInstalledSuccessfully(mockInstaller, 2)
 	givenTestOnDeviceReturns(targetTest, device1, testResult1, mockAdb, mockResultParser)
 	givenTestOnDeviceReturns(targetTest, device2, testResult2, mockAdb, mockResultParser)
+	testsPerDevice := map[devices.Device][]test.Test{device1: {targetTest}, device2: {targetTest}}
 	executor := executorImpl{
-		installer:     mockInstaller,
-		adb:           mockAdb,
-		resultParser:  mockResultParser,
-		logcatFactory: mockLogcatFactory(map[devices.Device][]test.Test{device1: {targetTest}, device2: {targetTest}}, ctrl),
+		installer:             mockInstaller,
+		adb:                   mockAdb,
+		resultParser:          mockResultParser,
+		logcatFactory:         mockLogcatFactory(testsPerDevice, ctrl),
+		screenRecorderFactory: mockScreenRecorderFactory(testsPerDevice, ctrl),
 	}
 
 	results, err := executor.Execute(config, []devices.Device{device1, device2})
@@ -164,6 +172,26 @@ func mockLogcat(tests []test.Test, ctrl *gomock.Controller) logcat.Logcat {
 	}
 
 	return mockLogcat
+}
+
+func mockScreenRecorderFactory(testsPerDevice map[devices.Device][]test.Test, ctrl *gomock.Controller) screen_recorder.Factory {
+	mockScreenRecorderFactory := mock_screen_recorder.NewMockFactory(ctrl)
+	for device, tests := range testsPerDevice {
+		mockScreenRecorder := mockScreenRecorder(tests, ctrl)
+		mockScreenRecorderFactory.EXPECT().ForDevice(device).Return(mockScreenRecorder)
+	}
+
+	return mockScreenRecorderFactory
+}
+
+func mockScreenRecorder(tests []test.Test, ctrl *gomock.Controller) screen_recorder.ScreenRecorder {
+	mockScreenRecorder := mock_screen_recorder.NewMockScreenRecorder(ctrl)
+	for _, t := range tests {
+		mockScreenRecorder.EXPECT().StartRecording(t).Return(nil)
+		mockScreenRecorder.EXPECT().StopRecording(t).Return(nil)
+	}
+
+	return mockScreenRecorder
 }
 
 func AreEqualResults(slice1, slice2 []result.Result) bool {

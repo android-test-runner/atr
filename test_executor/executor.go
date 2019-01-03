@@ -8,6 +8,7 @@ import (
 	"github.com/ybonjour/atr/logcat"
 	"github.com/ybonjour/atr/output"
 	"github.com/ybonjour/atr/result"
+	"github.com/ybonjour/atr/screen_recorder"
 	"github.com/ybonjour/atr/test"
 	"sync"
 	"time"
@@ -26,18 +27,20 @@ type Executor interface {
 }
 
 type executorImpl struct {
-	installer     Installer
-	resultParser  result.Parser
-	adb           adb.Adb
-	logcatFactory logcat.Factory
+	installer             Installer
+	resultParser          result.Parser
+	adb                   adb.Adb
+	logcatFactory         logcat.Factory
+	screenRecorderFactory screen_recorder.Factory
 }
 
 func NewExecutor(writer output.Writer) Executor {
 	return executorImpl{
-		installer:     NewInstaller(),
-		resultParser:  result.NewParser(),
-		adb:           adb.New(),
-		logcatFactory: logcat.NewFactory(writer),
+		installer:             NewInstaller(),
+		resultParser:          result.NewParser(),
+		adb:                   adb.New(),
+		logcatFactory:         logcat.NewFactory(writer),
+		screenRecorderFactory: screen_recorder.NewFactory(writer),
 	}
 }
 
@@ -99,23 +102,37 @@ func (executor executorImpl) reinstallApks(config Config, device devices.Device)
 func (executor executorImpl) executeTests(testConfig Config, device devices.Device) []result.Result {
 	var results []result.Result
 	deviceLogcat := executor.logcatFactory.ForDevice(device)
+	screenRecorder := executor.screenRecorderFactory.ForDevice(device)
 	for _, t := range testConfig.Tests {
-		errStart := deviceLogcat.StartRecording(t)
-		if errStart != nil {
-			fmt.Printf("Got logcat clear error '%v'\n", errStart)
-			continue
-		}
-
+		executor.beforeTest(t, deviceLogcat, screenRecorder)
 		testOutput, errTest, duration := executor.executeSingleTest(t, device, testConfig.TestApk.PackageName, testConfig.TestRunner)
-		errStop := deviceLogcat.StopRecording(t)
-		if errStop != nil {
-			fmt.Printf("Could not save logcat: '%v'\n", errStop)
-			continue
-		}
+		executor.afterTest(t, deviceLogcat, screenRecorder)
 
 		results = append(results, executor.resultParser.ParseFromOutput(t, errTest, testOutput, duration))
 	}
 	return results
+}
+
+func (executor executorImpl) beforeTest(t test.Test, logcat logcat.Logcat, recorder screen_recorder.ScreenRecorder) {
+	errStartLogcat := logcat.StartRecording(t)
+	if errStartLogcat != nil {
+		fmt.Printf("Could not clear logcat: '%v'\n", errStartLogcat)
+	}
+	errStartScreenRecording := recorder.StartRecording(t)
+	if errStartScreenRecording != nil {
+		fmt.Printf("Could not start screen recording: '%v'\n", errStartScreenRecording)
+	}
+}
+
+func (executor executorImpl) afterTest(t test.Test, logcat logcat.Logcat, recorder screen_recorder.ScreenRecorder) {
+	errStopLogcat := logcat.StopRecording(t)
+	if errStopLogcat != nil {
+		fmt.Printf("Could not save logcat: '%v'\n", errStopLogcat)
+	}
+	errStopScreenRecording := recorder.StopRecording(t)
+	if errStopScreenRecording != nil {
+		fmt.Printf("Could not save screen recording: '%v'\n", errStopScreenRecording)
+	}
 }
 
 func (executor executorImpl) executeSingleTest(t test.Test, device devices.Device, testPackage string, testRunner string) (string, error, time.Duration) {

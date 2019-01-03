@@ -10,6 +10,7 @@ import (
 type Executor interface {
 	Execute(cmd *exec.Cmd) error
 	ExecuteOutput(cmd *exec.Cmd) (string, error)
+	ExecuteInBackground(cmd *exec.Cmd) (int, error)
 }
 
 type executorImpl struct{}
@@ -29,6 +30,11 @@ func (executor executorImpl) Execute(cmd *exec.Cmd) error {
 	return nil
 }
 
+func (executor executorImpl) ExecuteInBackground(cmd *exec.Cmd) (int, error) {
+	err := cmd.Start()
+	return cmd.Process.Pid, err
+}
+
 func (executor executorImpl) ExecuteOutput(cmd *exec.Cmd) (string, error) {
 	var out bytes.Buffer
 	cmd.Stdout = &out
@@ -37,6 +43,7 @@ func (executor executorImpl) ExecuteOutput(cmd *exec.Cmd) (string, error) {
 	cmd.Stderr = &err
 
 	runError := cmd.Run()
+
 	if runError != nil {
 		log.Printf("%v", err.String())
 		return "", runError
