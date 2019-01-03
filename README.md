@@ -17,13 +17,13 @@ Android Test Runner shall support he following functionality
 `atr test --record-screen=true`
 
 * Record logcat during test execution
-atr test --record-logcat=true
+`atr test --record-logcat=true`
 
 * List connected devices
-atr devices
+`atr devices`
 
 * Run tests on a specific device
-atr test --device="abcjekrjkdfj43r"
+atr test `--device="abcjekrjkdfj43r"`
 
 * `.atr` file to set default options like apk, testapk, filter device, record-screen etc. for project or user
 
