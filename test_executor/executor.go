@@ -5,6 +5,8 @@ import (
 	"github.com/ybonjour/atr/adb"
 	"github.com/ybonjour/atr/apks"
 	"github.com/ybonjour/atr/devices"
+	"github.com/ybonjour/atr/logcat"
+	"github.com/ybonjour/atr/output"
 	"github.com/ybonjour/atr/result"
 	"github.com/ybonjour/atr/test"
 	"sync"
@@ -24,16 +26,18 @@ type Executor interface {
 }
 
 type executorImpl struct {
-	installer    Installer
-	resultParser result.Parser
-	adb          adb.Adb
+	installer     Installer
+	resultParser  result.Parser
+	adb           adb.Adb
+	logcatFactory logcat.Factory
 }
 
-func NewExecutor() Executor {
+func NewExecutor(writer output.Writer) Executor {
 	return executorImpl{
-		installer:    NewInstaller(),
-		resultParser: result.NewParser(),
-		adb:          adb.New(),
+		installer:     NewInstaller(),
+		resultParser:  result.NewParser(),
+		adb:           adb.New(),
+		logcatFactory: logcat.NewFactory(writer),
 	}
 }
 
@@ -94,28 +98,29 @@ func (executor executorImpl) reinstallApks(config Config, device devices.Device)
 
 func (executor executorImpl) executeTests(testConfig Config, device devices.Device) []result.Result {
 	var results []result.Result
+	deviceLogcat := executor.logcatFactory.ForDevice(device)
 	for _, t := range testConfig.Tests {
-		err := executor.adb.ClearLogcat(device.Serial)
-		if err != nil {
-			fmt.Printf("Got logcat clear error '%v'\n", err)
+		errStart := deviceLogcat.StartRecording(t)
+		if errStart != nil {
+			fmt.Printf("Got logcat clear error '%v'\n", errStart)
 			continue
 		}
-		output, err, duration := executor.executeSingleTest(t, device, testConfig.TestApk.PackageName, testConfig.TestRunner)
-		logcat, err := executor.adb.GetLogcat(device.Serial)
-		if err != nil {
-			fmt.Printf("Got logcat get error '%v'\n", err)
-			continue
-		}
-		fmt.Printf("Got logcat '%v'", logcat)
-		results = append(results, executor.resultParser.ParseFromOutput(t, err, output, duration))
-	}
 
+		testOutput, errTest, duration := executor.executeSingleTest(t, device, testConfig.TestApk.PackageName, testConfig.TestRunner)
+		errStop := deviceLogcat.StopRecording(t)
+		if errStop != nil {
+			fmt.Printf("Could not save logcat: '%v'\n", errStop)
+			continue
+		}
+
+		results = append(results, executor.resultParser.ParseFromOutput(t, errTest, testOutput, duration))
+	}
 	return results
 }
 
 func (executor executorImpl) executeSingleTest(t test.Test, device devices.Device, testPackage string, testRunner string) (string, error, time.Duration) {
 	start := time.Now()
-	output, err := executor.adb.ExecuteTest(testPackage, testRunner, t.FullName(), device.Serial)
+	testOutput, err := executor.adb.ExecuteTest(testPackage, testRunner, t.FullName(), device.Serial)
 	duration := time.Since(start)
-	return output, err, duration
+	return testOutput, err, duration
 }

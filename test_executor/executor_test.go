@@ -5,7 +5,9 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/ybonjour/atr/apks"
 	"github.com/ybonjour/atr/devices"
+	"github.com/ybonjour/atr/logcat"
 	"github.com/ybonjour/atr/mock_adb"
+	"github.com/ybonjour/atr/mock_logcat"
 	"github.com/ybonjour/atr/mock_result"
 	"github.com/ybonjour/atr/mock_test_executor"
 	"github.com/ybonjour/atr/result"
@@ -29,8 +31,6 @@ func TestExecute(t *testing.T) {
 	mockInstaller.EXPECT().Reinstall(config.Apk, device).Return(nil)
 	mockInstaller.EXPECT().Reinstall(config.TestApk, device).Return(nil)
 	mockAdb := mock_adb.NewMockAdb(ctrl)
-	mockAdb.EXPECT().ClearLogcat(device.Serial).Return(nil)
-	mockAdb.EXPECT().GetLogcat(device.Serial).Return("", nil)
 	mockAdb.
 		EXPECT().
 		ExecuteTest(config.TestApk.PackageName, config.TestRunner, targetTest.FullName(), device.Serial).
@@ -38,9 +38,10 @@ func TestExecute(t *testing.T) {
 	mockResultParser := mock_result.NewMockParser(ctrl)
 	mockResultParser.EXPECT().ParseFromOutput(gomock.Eq(targetTest), gomock.Eq(nil), gomock.Eq(testOutput), gomock.Any()).Return(testResult)
 	executor := executorImpl{
-		installer:    mockInstaller,
-		adb:          mockAdb,
-		resultParser: mockResultParser,
+		installer:     mockInstaller,
+		adb:           mockAdb,
+		resultParser:  mockResultParser,
+		logcatFactory: mockLogcatFactory(map[devices.Device][]test.Test{device: {targetTest}}, ctrl),
 	}
 
 	results, err := executor.Execute(config, []devices.Device{device})
@@ -72,9 +73,10 @@ func TestExecuteMultipleTests(t *testing.T) {
 	givenTestOnDeviceReturns(test1, device, testResult1, mockAdb, mockResultParser)
 	givenTestOnDeviceReturns(test2, device, testResult2, mockAdb, mockResultParser)
 	executor := executorImpl{
-		installer:    mockInstaller,
-		adb:          mockAdb,
-		resultParser: mockResultParser,
+		installer:     mockInstaller,
+		adb:           mockAdb,
+		resultParser:  mockResultParser,
+		logcatFactory: mockLogcatFactory(map[devices.Device][]test.Test{device: {test1, test2}}, ctrl),
 	}
 
 	results, err := executor.Execute(config, []devices.Device{device})
@@ -93,7 +95,7 @@ func TestExecuteMultipleDevices(t *testing.T) {
 	testResult1 := result.Result{}
 	testResult2 := result.Result{}
 	device1 := devices.Device{Serial: "abcd"}
-	device2 := devices.Device{Serial: "abcd"}
+	device2 := devices.Device{Serial: "efgh"}
 	config := Config{
 		Tests: []test.Test{targetTest},
 	}
@@ -106,9 +108,10 @@ func TestExecuteMultipleDevices(t *testing.T) {
 	givenTestOnDeviceReturns(targetTest, device1, testResult1, mockAdb, mockResultParser)
 	givenTestOnDeviceReturns(targetTest, device2, testResult2, mockAdb, mockResultParser)
 	executor := executorImpl{
-		installer:    mockInstaller,
-		adb:          mockAdb,
-		resultParser: mockResultParser,
+		installer:     mockInstaller,
+		adb:           mockAdb,
+		resultParser:  mockResultParser,
+		logcatFactory: mockLogcatFactory(map[devices.Device][]test.Test{device1: {targetTest}, device2: {targetTest}}, ctrl),
 	}
 
 	results, err := executor.Execute(config, []devices.Device{device1, device2})
@@ -132,8 +135,6 @@ func givenAllApksInstalledSuccessfully(mockInstaller *mock_test_executor.MockIns
 
 func givenTestOnDeviceReturns(t test.Test, d devices.Device, r result.Result, mockAdb *mock_adb.MockAdb, mockResultParser *mock_result.MockParser) {
 	testOutput := t.FullName()
-	mockAdb.EXPECT().ClearLogcat(d.Serial).Return(nil)
-	mockAdb.EXPECT().GetLogcat(d.Serial).Return("", nil)
 	mockAdb.
 		EXPECT().
 		ExecuteTest(gomock.Any(), gomock.Any(), gomock.Eq(t.FullName()), gomock.Eq(d.Serial)).
@@ -143,6 +144,26 @@ func givenTestOnDeviceReturns(t test.Test, d devices.Device, r result.Result, mo
 		EXPECT().
 		ParseFromOutput(gomock.Eq(t), gomock.Eq(nil), gomock.Eq(testOutput), gomock.Any()).
 		Return(r)
+}
+
+func mockLogcatFactory(testsPerDevice map[devices.Device][]test.Test, ctrl *gomock.Controller) logcat.Factory {
+	mockLogcatFactory := mock_logcat.NewMockFactory(ctrl)
+	for device, tests := range testsPerDevice {
+		mockLogcat := mockLogcat(tests, ctrl)
+		mockLogcatFactory.EXPECT().ForDevice(device).Return(mockLogcat)
+	}
+
+	return mockLogcatFactory
+}
+
+func mockLogcat(tests []test.Test, ctrl *gomock.Controller) logcat.Logcat {
+	mockLogcat := mock_logcat.NewMockLogcat(ctrl)
+	for _, t := range tests {
+		mockLogcat.EXPECT().StartRecording(t).Return(nil)
+		mockLogcat.EXPECT().StopRecording(t).Return(nil)
+	}
+
+	return mockLogcat
 }
 
 func AreEqualResults(slice1, slice2 []result.Result) bool {

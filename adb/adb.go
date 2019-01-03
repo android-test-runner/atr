@@ -49,9 +49,7 @@ func (adb adbImpl) ClearLogcat(deviceSerial string) error {
 }
 
 func (adb adbImpl) GetLogcat(deviceSerial string) (string, error) {
-	cmd := exec.Command("adb", "-s", deviceSerial, "logcat", "-d")
-	fmt.Printf("Getting logcat '%v'", cmd)
-	return adb.commandExecutor.ExecuteOutput(cmd)
+	return adb.commandExecutor.ExecuteOutput(exec.Command("adb", "-s", deviceSerial, "logcat", "-d"))
 }
 
 func (adb adbImpl) ExecuteTest(packageName string, testRunner string, test string, deviceSerial string) (string, error) {

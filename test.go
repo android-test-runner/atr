@@ -70,7 +70,7 @@ func testAction(c *cli.Context) error {
 		return cli.NewExitError(fmt.Sprintf("Invalid devices: %v", devicesError), 1)
 	}
 
-	fmt.Printf("Executing Tests on the following devices: '%v'", configDevices)
+	fmt.Printf("Executing %v Tests on the following devices: '%v'", len(allTests), configDevices)
 
 	testRunner, testRunnerError := aapt.New().TestRunner(testApk.Path)
 	if testRunnerError != nil {
@@ -84,14 +84,15 @@ func testAction(c *cli.Context) error {
 		Tests:        allTests,
 		OutputFolder: c.String("output"),
 	}
+	writer := output.NewWriter(c.String("output"))
 
-	resultsByDevice, testExecutionError := test_executor.NewExecutor().Execute(config, configDevices)
+	resultsByDevice, testExecutionError := test_executor.NewExecutor(writer).Execute(config, configDevices)
 	if testExecutionError != nil {
 		return cli.NewExitError(fmt.Sprintf("Test execution errored: '%v'", testExecutionError), 1)
 	}
 	junitXmlFiles := toJunitXmlFiles(resultsByDevice, apkUnderTest)
 
-	err := output.NewWriter(c.String("output")).Write(junitXmlFiles)
+	err := writer.Write(junitXmlFiles)
 	if err != nil {
 		return cli.NewExitError(fmt.Sprintf("Error while writing junit results '%v'", err), 1)
 	}

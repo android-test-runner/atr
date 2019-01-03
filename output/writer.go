@@ -8,6 +8,7 @@ import (
 
 type Writer interface {
 	Write(files map[devices.Device][]files.File) error
+	WriteFile(file files.File, device devices.Device) error
 }
 
 type writerImpl struct {
@@ -32,9 +33,22 @@ func (writer writerImpl) Write(files map[devices.Device][]files.File) error {
 	return nil
 }
 
+func (writer writerImpl) WriteFile(file files.File, device devices.Device) error {
+	deviceDirectory, errDirectory := writer.ensureDeviceDirectory(device)
+	if errDirectory != nil {
+		return errDirectory
+	}
+
+	errFile := writer.files.WriteFile(deviceDirectory, file)
+	if errFile != nil {
+		return errFile
+	}
+
+	return nil
+}
+
 func (writer writerImpl) write(files []files.File, device devices.Device) error {
-	deviceDirectory := filepath.Join(writer.rootDir, device.Serial)
-	err := writer.files.MakeDirectory(deviceDirectory)
+	deviceDirectory, err := writer.ensureDeviceDirectory(device)
 	if err != nil {
 		return err
 	}
@@ -45,4 +59,9 @@ func (writer writerImpl) write(files []files.File, device devices.Device) error 
 		}
 	}
 	return nil
+}
+
+func (writer writerImpl) ensureDeviceDirectory(device devices.Device) (string, error) {
+	deviceDirectory := filepath.Join(writer.rootDir, device.Serial)
+	return deviceDirectory, writer.files.MakeDirectory(deviceDirectory)
 }
