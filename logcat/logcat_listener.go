@@ -1,9 +1,8 @@
-package test_executor
+package logcat
 
 import (
 	"fmt"
 	"github.com/ybonjour/atr/devices"
-	"github.com/ybonjour/atr/logcat"
 	"github.com/ybonjour/atr/output"
 	"github.com/ybonjour/atr/result"
 	"github.com/ybonjour/atr/test"
@@ -11,13 +10,13 @@ import (
 )
 
 type logcatListener struct {
-	logcatFactory logcat.Factory
-	logcat        logcat.Logcat
+	logcatFactory Factory
+	logcat        Logcat
 }
 
 func NewLogcatListener(writer output.Writer) test_listener.TestListener {
 	return &logcatListener{
-		logcatFactory: logcat.NewFactory(writer),
+		logcatFactory: NewFactory(writer),
 	}
 }
 
