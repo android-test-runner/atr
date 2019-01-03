@@ -1,7 +1,6 @@
 package test_executor
 
 import (
-	"fmt"
 	"github.com/ybonjour/atr/adb"
 	"github.com/ybonjour/atr/apks"
 	"github.com/ybonjour/atr/devices"
