@@ -6,6 +6,7 @@ package mock_files
 
 import (
 	gomock "github.com/golang/mock/gomock"
+	files "github.com/ybonjour/atr/files"
 	reflect "reflect"
 )
 
@@ -59,4 +60,32 @@ func (m *MockFiles) ReadLines(path string) ([]string, error) {
 func (mr *MockFilesMockRecorder) ReadLines(path interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadLines", reflect.TypeOf((*MockFiles)(nil).ReadLines), path)
+}
+
+// WriteFile mocks base method
+func (m *MockFiles) WriteFile(directory string, file files.File) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WriteFile", directory, file)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// WriteFile indicates an expected call of WriteFile
+func (mr *MockFilesMockRecorder) WriteFile(directory, file interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WriteFile", reflect.TypeOf((*MockFiles)(nil).WriteFile), directory, file)
+}
+
+// MakeDirectory mocks base method
+func (m *MockFiles) MakeDirectory(directory string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MakeDirectory", directory)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// MakeDirectory indicates an expected call of MakeDirectory
+func (mr *MockFilesMockRecorder) MakeDirectory(directory interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MakeDirectory", reflect.TypeOf((*MockFiles)(nil).MakeDirectory), directory)
 }

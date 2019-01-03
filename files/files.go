@@ -4,12 +4,15 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
 )
 
 type Files interface {
 	CanAccess(path string) bool
 	ReadLines(path string) ([]string, error)
+	WriteFile(directory string, file File) error
+	MakeDirectory(directory string) error
 }
 
 type filesImpl struct{}
@@ -39,4 +42,13 @@ func (files filesImpl) ReadLines(path string) ([]string, error) {
 	}
 
 	return lines, scanner.Err()
+}
+
+func (filesImpl) WriteFile(directory string, file File) error {
+	path := fmt.Sprintf("%v/%v.%v", directory, file.Name, file.Type)
+	return ioutil.WriteFile(path, []byte(file.Content), 0644)
+}
+
+func (filesImpl) MakeDirectory(directory string) error {
+	return os.MkdirAll(directory, os.ModePerm)
 }

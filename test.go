@@ -6,7 +6,10 @@ import (
 	"github.com/ybonjour/atr/aapt"
 	"github.com/ybonjour/atr/apks"
 	"github.com/ybonjour/atr/devices"
+	"github.com/ybonjour/atr/files"
 	"github.com/ybonjour/atr/junit_xml"
+	"github.com/ybonjour/atr/output"
+	"github.com/ybonjour/atr/result"
 	"github.com/ybonjour/atr/test"
 	"github.com/ybonjour/atr/test_executor"
 )
@@ -84,18 +87,28 @@ func testAction(c *cli.Context) error {
 	if testExecutionError != nil {
 		return cli.NewExitError(fmt.Sprintf("Test execution errored: '%v'", testExecutionError), 1)
 	}
+	junitXml := toLabeledJunitContent(resultsByDevice, apkUnderTest)
 
-	for device, results := range resultsByDevice {
-		fmt.Printf("Results for device '%v'", device)
-		formatter := junit_xml.NewFormatter()
-		output, err := formatter.Format(results, apkUnderTest)
-		if err != nil {
-			fmt.Printf("Error while printing test results '%v'\n", err)
-		}
-		fmt.Print(output)
+	err := output.NewWriter(c.String("output")).Write(files.ToFiles(junitXml, "xml"))
+	if err != nil {
+		return cli.NewExitError(fmt.Sprintf("Error while writing junit results '%v'", err), 1)
 	}
 
 	return nil
+}
+
+func toLabeledJunitContent(resultsByDevice map[devices.Device][]result.Result, apk apks.Apk) map[string]string {
+	labeledContent := map[string]string{}
+	for device, results := range resultsByDevice {
+		formatter := junit_xml.NewFormatter()
+		out, err := formatter.Format(results, apk)
+		if err != nil {
+			fmt.Printf("Error while formatting test results for device '%v': '%v'. Ignoring results for this device and continue with next device.\n", err)
+			continue
+		}
+		labeledContent[device.Serial] = out
+	}
+	return labeledContent
 }
 
 func getDevices(c *cli.Context) ([]devices.Device, error) {

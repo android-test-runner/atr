@@ -1,4 +1,4 @@
-package output
+package files
 
 type File struct {
 	Name    string
