@@ -6,6 +6,8 @@ import (
 	"github.com/ybonjour/atr/apks"
 	"github.com/ybonjour/atr/devices"
 	"github.com/ybonjour/atr/mock_adb"
+	"github.com/ybonjour/atr/mock_files"
+	"github.com/ybonjour/atr/mock_output"
 	"github.com/ybonjour/atr/mock_result"
 	"github.com/ybonjour/atr/mock_test_executor"
 	"github.com/ybonjour/atr/result"
@@ -36,11 +38,16 @@ func TestExecute(t *testing.T) {
 		Return(testOutput, nil)
 	mockResultParser := mock_result.NewMockParser(ctrl)
 	mockResultParser.EXPECT().ParseFromOutput(gomock.Eq(targetTest), gomock.Eq(nil), gomock.Eq(testOutput), gomock.Any()).Return(testResult)
+	mockWriter := mock_output.NewMockWriter(ctrl)
+	mockFiles := mock_files.NewMockFiles(ctrl)
+	givenDeviceDirectoryCanBeRemoved(device, mockWriter, mockFiles)
 	executor := executorImpl{
 		installer:     mockInstaller,
 		adb:           mockAdb,
 		resultParser:  mockResultParser,
 		testListeners: []test_listener.TestListener{},
+		writer:        mockWriter,
+		files:         mockFiles,
 	}
 
 	results, err := executor.Execute(config, []devices.Device{device})
@@ -71,11 +78,16 @@ func TestExecuteMultipleTests(t *testing.T) {
 	givenAllApksInstalledSuccessfully(mockInstaller, 1)
 	givenTestOnDeviceReturns(test1, device, testResult1, mockAdb, mockResultParser)
 	givenTestOnDeviceReturns(test2, device, testResult2, mockAdb, mockResultParser)
+	mockWriter := mock_output.NewMockWriter(ctrl)
+	mockFiles := mock_files.NewMockFiles(ctrl)
+	givenDeviceDirectoryCanBeRemoved(device, mockWriter, mockFiles)
 	executor := executorImpl{
 		installer:     mockInstaller,
 		adb:           mockAdb,
 		resultParser:  mockResultParser,
 		testListeners: []test_listener.TestListener{},
+		writer:        mockWriter,
+		files:         mockFiles,
 	}
 
 	results, err := executor.Execute(config, []devices.Device{device})
@@ -106,11 +118,17 @@ func TestExecuteMultipleDevices(t *testing.T) {
 	givenAllApksInstalledSuccessfully(mockInstaller, 2)
 	givenTestOnDeviceReturns(targetTest, device1, testResult1, mockAdb, mockResultParser)
 	givenTestOnDeviceReturns(targetTest, device2, testResult2, mockAdb, mockResultParser)
+	mockWriter := mock_output.NewMockWriter(ctrl)
+	mockFiles := mock_files.NewMockFiles(ctrl)
+	givenDeviceDirectoryCanBeRemoved(device1, mockWriter, mockFiles)
+	givenDeviceDirectoryCanBeRemoved(device2, mockWriter, mockFiles)
 	executor := executorImpl{
 		installer:     mockInstaller,
 		adb:           mockAdb,
 		resultParser:  mockResultParser,
 		testListeners: []test_listener.TestListener{},
+		writer:        mockWriter,
+		files:         mockFiles,
 	}
 
 	results, err := executor.Execute(config, []devices.Device{device1, device2})
@@ -126,6 +144,12 @@ func TestExecuteMultipleDevices(t *testing.T) {
 	if !AreEqualResults(results[device1], expectedResultsDevice2) {
 		t.Error(fmt.Sprintf("Expected results '%v' but got '%v'", expectedResultsDevice2, results[device2]))
 	}
+}
+
+func givenDeviceDirectoryCanBeRemoved(device devices.Device, mockWriter *mock_output.MockWriter, mockFiles *mock_files.MockFiles) {
+	deviceDirectory := device.Serial
+	mockWriter.EXPECT().GetDeviceDirectory(device).Return(deviceDirectory, nil)
+	mockFiles.EXPECT().RemoveDirectory(deviceDirectory).Return(nil)
 }
 
 func givenAllApksInstalledSuccessfully(mockInstaller *mock_test_executor.MockInstaller, numDevices int) {

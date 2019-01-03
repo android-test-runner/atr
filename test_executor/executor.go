@@ -4,6 +4,7 @@ import (
 	"github.com/ybonjour/atr/adb"
 	"github.com/ybonjour/atr/apks"
 	"github.com/ybonjour/atr/devices"
+	"github.com/ybonjour/atr/files"
 	"github.com/ybonjour/atr/logcat"
 	"github.com/ybonjour/atr/output"
 	"github.com/ybonjour/atr/result"
@@ -31,6 +32,8 @@ type executorImpl struct {
 	resultParser  result.Parser
 	adb           adb.Adb
 	testListeners []test_listener.TestListener
+	writer        output.Writer
+	files         files.Files
 }
 
 func NewExecutor(writer output.Writer) Executor {
@@ -39,6 +42,8 @@ func NewExecutor(writer output.Writer) Executor {
 		resultParser:  result.NewParser(),
 		adb:           adb.New(),
 		testListeners: []test_listener.TestListener{logcat.NewLogcatListener(writer), screen_recorder.NewScreenRecorderListener(writer)},
+		writer:        writer,
+		files:         files.New(),
 	}
 }
 
@@ -77,9 +82,17 @@ func (executor executorImpl) Execute(config Config, targetDevices []devices.Devi
 }
 
 func (executor executorImpl) executeOnDevice(config Config, device devices.Device) ([]result.Result, error) {
-	err := executor.reinstallApks(config, device)
-	if err != nil {
-		return nil, err
+	installError := executor.reinstallApks(config, device)
+	if installError != nil {
+		return nil, installError
+	}
+	directory, directoryError := executor.writer.GetDeviceDirectory(device)
+	if directoryError != nil {
+		return nil, directoryError
+	}
+	removeError := executor.files.RemoveDirectory(directory)
+	if removeError != nil {
+		return nil, removeError
 	}
 	return executor.executeTests(config, device), nil
 }

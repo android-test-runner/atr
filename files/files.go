@@ -14,6 +14,7 @@ type Files interface {
 	ReadLines(path string) ([]string, error)
 	WriteFile(directory string, file File) error
 	MakeDirectory(directory string) error
+	RemoveDirectory(directory string) error
 }
 
 type filesImpl struct{}
@@ -52,4 +53,8 @@ func (filesImpl) WriteFile(directory string, file File) error {
 
 func (filesImpl) MakeDirectory(directory string) error {
 	return os.MkdirAll(directory, os.ModePerm)
+}
+
+func (filesImpl) RemoveDirectory(directory string) error {
+	return os.RemoveAll(directory)
 }

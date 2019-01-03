@@ -89,3 +89,17 @@ func (mr *MockFilesMockRecorder) MakeDirectory(directory interface{}) *gomock.Ca
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MakeDirectory", reflect.TypeOf((*MockFiles)(nil).MakeDirectory), directory)
 }
+
+// RemoveDirectory mocks base method
+func (m *MockFiles) RemoveDirectory(directory string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemoveDirectory", directory)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RemoveDirectory indicates an expected call of RemoveDirectory
+func (mr *MockFilesMockRecorder) RemoveDirectory(directory interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveDirectory", reflect.TypeOf((*MockFiles)(nil).RemoveDirectory), directory)
+}
