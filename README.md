@@ -13,9 +13,6 @@ Android Test Runner shall support he following functionality
 * Run multiple tests
 `atr test --test="MyTest#test1" --test="MyTest#test2"`
 
-* Run all tests in a class
-`atr test --test="MyTest"`
-
 * Record screen during test execution
 `atr test --record-screen=true`
 
