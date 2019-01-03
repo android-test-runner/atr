@@ -14,7 +14,7 @@ func TestConvertsLabeledContentToFiles(t *testing.T) {
 	files := ToFiles(labeledContent, fileType)
 
 	expectedFiles := []File{{Name: label, Type: fileType, Content: content}}
-	if !AreEqual(expectedFiles, files) {
+	if !haveSameElements(expectedFiles, files) {
 		t.Error(fmt.Sprintf("Expected files '%v' but got '%v'", expectedFiles, files))
 	}
 }
@@ -30,21 +30,24 @@ func TestConvertsMultipleLabeledContentToFiles(t *testing.T) {
 	files := ToFiles(labeledContent, fileType)
 
 	expectedFiles := []File{{Name: label1, Type: fileType, Content: content1}, {Name: label2, Type: fileType, Content: content2}}
-	if !AreEqual(expectedFiles, files) {
+	if !haveSameElements(expectedFiles, files) {
 		t.Error(fmt.Sprintf("Expected files '%v' but got '%v'", expectedFiles, files))
 	}
 }
 
-func AreEqual(slice1, slice2 []File) bool {
-	if len(slice1) != len(slice2) {
-		return false
-	}
+func haveSameElements(slice1, slice2 []File) bool {
+	return len(slice1) == len(slice2) && containsAll(slice1, slice2...)
+}
 
-	for i := range slice1 {
-		if slice1[i] != slice2[i] {
+func containsAll(haystack []File, needles ...File) bool {
+	exists := map[File]bool{}
+	for _, f := range haystack {
+		exists[f] = true
+	}
+	for _, needle := range needles {
+		if !exists[needle] {
 			return false
 		}
 	}
-
 	return true
 }
