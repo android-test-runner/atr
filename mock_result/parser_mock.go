@@ -9,6 +9,7 @@ import (
 	result "github.com/ybonjour/atr/result"
 	test "github.com/ybonjour/atr/test"
 	reflect "reflect"
+	time "time"
 )
 
 // MockParser is a mock of Parser interface
@@ -35,15 +36,15 @@ func (m *MockParser) EXPECT() *MockParserMockRecorder {
 }
 
 // ParseFromOutput mocks base method
-func (m *MockParser) ParseFromOutput(test test.Test, err error, output string) result.Result {
+func (m *MockParser) ParseFromOutput(test test.Test, err error, output string, duration time.Duration) result.Result {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ParseFromOutput", test, err, output)
+	ret := m.ctrl.Call(m, "ParseFromOutput", test, err, output, duration)
 	ret0, _ := ret[0].(result.Result)
 	return ret0
 }
 
 // ParseFromOutput indicates an expected call of ParseFromOutput
-func (mr *MockParserMockRecorder) ParseFromOutput(test, err, output interface{}) *gomock.Call {
+func (mr *MockParserMockRecorder) ParseFromOutput(test, err, output, duration interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseFromOutput", reflect.TypeOf((*MockParser)(nil).ParseFromOutput), test, err, output)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseFromOutput", reflect.TypeOf((*MockParser)(nil).ParseFromOutput), test, err, output, duration)
 }

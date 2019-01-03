@@ -7,6 +7,7 @@ import (
 	"github.com/ybonjour/atr/result"
 	"github.com/ybonjour/atr/test"
 	"sync"
+	"time"
 )
 
 type Config struct {
@@ -93,8 +94,10 @@ func (executor executorImpl) reinstallApks(config Config, device devices.Device)
 func (executor executorImpl) executeTests(testConfig Config, device devices.Device) []result.Result {
 	var results []result.Result
 	for _, t := range testConfig.Tests {
+		start := time.Now()
 		output, err := executor.adb.ExecuteTest(testConfig.TestApk.PackageName, testConfig.TestRunner, t.FullName(), device.Serial)
-		results = append(results, executor.resultParser.ParseFromOutput(t, err, output))
+		duration := time.Since(start)
+		results = append(results, executor.resultParser.ParseFromOutput(t, err, output, duration))
 	}
 
 	return results

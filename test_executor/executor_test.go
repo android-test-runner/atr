@@ -35,7 +35,7 @@ func TestExecute(t *testing.T) {
 		ExecuteTest(config.TestApk.PackageName, config.TestRunner, targetTest.FullName(), device.Serial).
 		Return(testOutput, nil)
 	mockResultParser := mock_result.NewMockParser(ctrl)
-	mockResultParser.EXPECT().ParseFromOutput(targetTest, nil, testOutput).Return(testResult)
+	mockResultParser.EXPECT().ParseFromOutput(gomock.Eq(targetTest), gomock.Eq(nil), gomock.Eq(testOutput), gomock.Any()).Return(testResult)
 	executor := executorImpl{
 		installer:    mockInstaller,
 		adb:          mockAdb,
@@ -138,7 +138,7 @@ func givenTestOnDeviceReturns(t test.Test, d devices.Device, r result.Result, mo
 
 	mockResultParser.
 		EXPECT().
-		ParseFromOutput(t, nil, testOutput).
+		ParseFromOutput(gomock.Eq(t), gomock.Eq(nil), gomock.Eq(testOutput), gomock.Any()).
 		Return(r)
 }
 

@@ -4,10 +4,11 @@ import (
 	"github.com/ybonjour/atr/test"
 	"regexp"
 	"strings"
+	"time"
 )
 
 type Parser interface {
-	ParseFromOutput(test test.Test, err error, output string) Result
+	ParseFromOutput(test test.Test, err error, output string, duration time.Duration) Result
 }
 
 type parserImpl struct{}
@@ -16,12 +17,13 @@ func NewParser() Parser {
 	return parserImpl{}
 }
 
-func (parserImpl) ParseFromOutput(test test.Test, err error, output string) Result {
+func (parserImpl) ParseFromOutput(test test.Test, err error, output string, duration time.Duration) Result {
 	status := getStatus(output, err)
 	return Result{
-		Test:   test,
-		Status: status,
-		Output: output,
+		Test:     test,
+		Status:   status,
+		Output:   output,
+		Duration: duration,
 	}
 }
 
