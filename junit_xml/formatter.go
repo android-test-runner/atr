@@ -2,6 +2,7 @@ package junit_xml
 
 import (
 	"encoding/xml"
+	"fmt"
 	"github.com/ybonjour/atr/apks"
 	"github.com/ybonjour/atr/result"
 )
@@ -25,6 +26,7 @@ type testcase struct {
 	Failure    string   `xml:"failure,omitempty"`
 	Error      string   `xml:"error,omitempty"`
 	Skipped    *skipped `xml:"skipped,omitempty"`
+	Time       string   `xml:"time,attr"`
 }
 
 type testsuite struct {
@@ -35,18 +37,25 @@ type testsuite struct {
 	NumFailures int        `xml:"failures,attr"`
 	NumErrors   int        `xml:"errors,attr"`
 	NumSkipped  int        `xml:"skipped,attr"`
+	Time        string     `xml:"time,attr"`
 	TestCases   []testcase `xml:"testcase"`
 }
+
+const (
+	durationFormat = "%.3f"
+)
 
 func (formatterImpl) Format(results []result.Result, apk apks.Apk) (string, error) {
 	var testCases []testcase
 	numFailures := 0
 	numErrors := 0
 	numSkipped := 0
+	totalTime := 0.0
 	for _, r := range results {
 		testCase := testcase{
 			MethodName: r.Test.Method,
 			ClassName:  r.Test.Class,
+			Time:       fmt.Sprintf(durationFormat, r.Duration.Seconds()),
 		}
 		if r.Status == result.Errored {
 			testCase.Error = r.Output
@@ -58,6 +67,7 @@ func (formatterImpl) Format(results []result.Result, apk apks.Apk) (string, erro
 			testCase.Skipped = &skipped{}
 			numSkipped += 1
 		}
+		totalTime += r.Duration.Seconds()
 
 		testCases = append(testCases, testCase)
 	}
@@ -69,6 +79,7 @@ func (formatterImpl) Format(results []result.Result, apk apks.Apk) (string, erro
 		NumFailures: numFailures,
 		NumErrors:   numErrors,
 		NumSkipped:  numSkipped,
+		Time:        fmt.Sprintf(durationFormat, totalTime),
 	}
 
 	output, err := xml.MarshalIndent(testSuite, "", "    ")
