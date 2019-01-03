@@ -32,7 +32,7 @@ func (listener *screenRecorderListener) BeforeTest(test test.Test) {
 }
 
 func (listener *screenRecorderListener) AfterTest(result result.Result) {
-	errStopScreenRecording := listener.screenRecorder.StopRecording(result.Test)
+	errStopScreenRecording := listener.screenRecorder.StopRecording(result.Test, result.ShallSaveResult())
 	if errStopScreenRecording != nil {
 		fmt.Printf("Could not save screen recording: '%v'\n", errStopScreenRecording)
 	}

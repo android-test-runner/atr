@@ -15,7 +15,7 @@ import (
 
 type ScreenRecorder interface {
 	StartRecording(test test.Test) error
-	StopRecording(test test.Test) error
+	StopRecording(test test.Test, saveResult bool) error
 }
 
 type screenRecorderImpl struct {
@@ -62,7 +62,7 @@ func (screenRecorder *screenRecorderImpl) StartRecording(test test.Test) error {
 	return nil
 }
 
-func (screenRecorder screenRecorderImpl) StopRecording(test test.Test) error {
+func (screenRecorder screenRecorderImpl) StopRecording(test test.Test, saveResult bool) error {
 	if screenRecorder.Test != test {
 		return errors.New(fmt.Sprintf("never started recording for test '%v'", test))
 	}
@@ -72,6 +72,21 @@ func (screenRecorder screenRecorderImpl) StopRecording(test test.Test) error {
 		return killError
 	}
 
+	var saveError error
+	if saveResult {
+		saveError = screenRecorder.saveResult(test)
+
+	}
+	removeError := screenRecorder.Adb.RemoveFile(screenRecorder.Device.Serial, screenRecorder.filePath)
+
+	if saveError != nil {
+		return saveError
+	}
+
+	return removeError
+}
+
+func (screenRecorder *screenRecorderImpl) saveResult(test test.Test) error {
 	deviceDirectory, directoryErr := screenRecorder.Writer.GetDeviceDirectory(screenRecorder.Device)
 	if directoryErr != nil {
 		return directoryErr
@@ -82,15 +97,7 @@ func (screenRecorder screenRecorderImpl) StopRecording(test test.Test) error {
 	// Give screen recorder some time to properly write the video file
 	time.Sleep(2 * time.Second)
 
-	pullError := screenRecorder.Adb.PullFile(screenRecorder.Device.Serial, screenRecorder.filePath, localFile)
-
-	removeError := screenRecorder.Adb.RemoveFile(screenRecorder.Device.Serial, screenRecorder.filePath)
-
-	if pullError != nil {
-		return pullError
-	}
-
-	return removeError
+	return screenRecorder.Adb.PullFile(screenRecorder.Device.Serial, screenRecorder.filePath, localFile)
 }
 
 func interruptProcess(pid int) error {
