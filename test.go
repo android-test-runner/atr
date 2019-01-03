@@ -89,9 +89,9 @@ func testAction(c *cli.Context) error {
 	if testExecutionError != nil {
 		return cli.NewExitError(fmt.Sprintf("Test execution errored: '%v'", testExecutionError), 1)
 	}
-	junitXml := toLabeledJunitContent(resultsByDevice, apkUnderTest)
+	junitXmlFiles := toJunitXmlFiles(resultsByDevice, apkUnderTest)
 
-	err := output.NewWriter(c.String("output")).Write(files.ToFiles(junitXml, "xml"))
+	err := output.NewWriter(c.String("output")).Write(junitXmlFiles)
 	if err != nil {
 		return cli.NewExitError(fmt.Sprintf("Error while writing junit results '%v'", err), 1)
 	}
@@ -99,18 +99,18 @@ func testAction(c *cli.Context) error {
 	return nil
 }
 
-func toLabeledJunitContent(resultsByDevice map[devices.Device][]result.Result, apk apks.Apk) map[string]string {
-	labeledContent := map[string]string{}
+func toJunitXmlFiles(resultsByDevice map[devices.Device][]result.Result, apk apks.Apk) []files.File {
+	xmlFiles := []files.File{}
 	for device, results := range resultsByDevice {
 		formatter := junit_xml.NewFormatter()
-		out, err := formatter.Format(results, apk)
+		xmlFile, err := formatter.Format(results, apk, device)
 		if err != nil {
 			fmt.Printf("Error while formatting test results for device '%v': '%v'. Ignoring results for this device and continue with next device.\n", err)
 			continue
 		}
-		labeledContent[device.Serial] = out
+		xmlFiles = append(xmlFiles, xmlFile)
 	}
-	return labeledContent
+	return xmlFiles
 }
 
 func getDevices(c *cli.Context) ([]devices.Device, error) {

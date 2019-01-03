@@ -3,6 +3,7 @@ package junit_xml
 import (
 	"fmt"
 	"github.com/ybonjour/atr/apks"
+	"github.com/ybonjour/atr/devices"
 	"github.com/ybonjour/atr/result"
 	"github.com/ybonjour/atr/test"
 	"strings"
@@ -17,12 +18,17 @@ func TestFormatsPassedTest(t *testing.T) {
 		Duration: 1*time.Second + 500*time.Millisecond,
 	}
 	apk := apks.Apk{PackageName: "ch.yvu.atr"}
+	device := devices.Device{Serial: "abcd"}
 
-	xmlOutput, _ := NewFormatter().Format([]result.Result{passedTest}, apk)
+	xmlFile, _ := NewFormatter().Format([]result.Result{passedTest}, apk, device)
 
+	expectedFilename := fmt.Sprintf("%v/junit.xml", device.Serial)
+	if xmlFile.Name != expectedFilename {
+		t.Error(fmt.Sprintf("Expected file name to be '%v' but it was '%v'", expectedFilename, xmlFile.Name))
+	}
 	expectedXml := `<testsuite name="ch.yvu.atr" tests="1" failures="0" errors="0" skipped="0" time="1.500"><properties></properties><testcase name="testMethod" classname="TestClass" time="1.500"></testcase></testsuite>`
-	if removeWhitespaces(expectedXml) != removeWhitespaces(xmlOutput) {
-		t.Error(fmt.Sprintf("Expected xml '%v' but got '%v'.", expectedXml, xmlOutput))
+	if removeWhitespaces(expectedXml) != removeWhitespaces(xmlFile.Content) {
+		t.Error(fmt.Sprintf("Expected xml '%v' but got '%v'.", expectedXml, xmlFile.Content))
 	}
 }
 
@@ -34,12 +40,13 @@ func TestFormatsFailedTest(t *testing.T) {
 		Duration: 1*time.Second + 500*time.Millisecond,
 	}
 	apk := apks.Apk{PackageName: "ch.yvu.atr"}
+	device := devices.Device{Serial: "abcd"}
 
-	xmlOutput, _ := NewFormatter().Format([]result.Result{failedTest}, apk)
+	xmlFile, _ := NewFormatter().Format([]result.Result{failedTest}, apk, device)
 
 	expectedXml := `<testsuite name="ch.yvu.atr" tests="1" failures="1" errors="0" skipped="0" time="1.500"><properties></properties><testcase name="testMethod" classname="TestClass" time="1.500"><failure>failureOutput</failure></testcase></testsuite>`
-	if removeWhitespaces(expectedXml) != removeWhitespaces(xmlOutput) {
-		t.Error(fmt.Sprintf("Expected xml '%v' but got '%v'.", expectedXml, xmlOutput))
+	if removeWhitespaces(expectedXml) != removeWhitespaces(xmlFile.Content) {
+		t.Error(fmt.Sprintf("Expected xml '%v' but got '%v'.", expectedXml, xmlFile.Content))
 	}
 }
 
@@ -51,12 +58,13 @@ func TestFormatsErroredTest(t *testing.T) {
 		Duration: 1*time.Second + 500*time.Millisecond,
 	}
 	apk := apks.Apk{PackageName: "ch.yvu.atr"}
+	device := devices.Device{Serial: "abcd"}
 
-	xmlOutput, _ := NewFormatter().Format([]result.Result{failedTest}, apk)
+	xmlFile, _ := NewFormatter().Format([]result.Result{failedTest}, apk, device)
 
 	expectedXml := `<testsuite name="ch.yvu.atr" tests="1" failures="0" errors="1" skipped="0" time="1.500"><properties></properties><testcase name="testMethod" classname="TestClass" time="1.500"><error>errorOutput</error></testcase></testsuite>`
-	if removeWhitespaces(expectedXml) != removeWhitespaces(xmlOutput) {
-		t.Error(fmt.Sprintf("Expected xml '%v' but got '%v'.", expectedXml, xmlOutput))
+	if removeWhitespaces(expectedXml) != removeWhitespaces(xmlFile.Content) {
+		t.Error(fmt.Sprintf("Expected xml '%v' but got '%v'.", expectedXml, xmlFile.Content))
 	}
 }
 
@@ -67,13 +75,14 @@ func TestFormatsSkippedTest(t *testing.T) {
 		Duration: 1*time.Second + 500*time.Millisecond,
 	}
 	apk := apks.Apk{PackageName: "ch.yvu.atr"}
+	device := devices.Device{Serial: "abcd"}
 
-	xmlOutput, _ := NewFormatter().Format([]result.Result{skippedTest}, apk)
+	xmlFile, _ := NewFormatter().Format([]result.Result{skippedTest}, apk, device)
 
 	expectedXml := `<testsuite name="ch.yvu.atr" tests="1" failures="0" errors="0" skipped="1" time="1.500"><properties></properties><testcase name="testMethod" classname="TestClass" time="1.500"><skipped></skipped></testcase></testsuite>`
 
-	if removeWhitespaces(expectedXml) != removeWhitespaces(xmlOutput) {
-		t.Error(fmt.Sprintf("Expected xml '%v' but got '%v'.", expectedXml, xmlOutput))
+	if removeWhitespaces(expectedXml) != removeWhitespaces(xmlFile.Content) {
+		t.Error(fmt.Sprintf("Expected xml '%v' but got '%v'.", expectedXml, xmlFile.Content))
 	}
 }
 
@@ -88,12 +97,13 @@ func TestFormatsMultipleTests(t *testing.T) {
 		Duration: 1 * time.Second,
 	}
 	apk := apks.Apk{PackageName: "ch.yvu.atr"}
+	device := devices.Device{Serial: "abcd"}
 
-	xmlOutput, _ := NewFormatter().Format([]result.Result{test1, test2}, apk)
+	xmlFile, _ := NewFormatter().Format([]result.Result{test1, test2}, apk, device)
 
 	expectedXml := `<testsuite name="ch.yvu.atr" tests="2" failures="0" errors="0" skipped="0" time="2.000"><properties></properties><testcase name="testMethod1" classname="TestClass1" time="1.000"></testcase><testcase name="testMethod2" classname="TestClass2" time="1.000"></testcase></testsuite>`
-	if removeWhitespaces(expectedXml) != removeWhitespaces(xmlOutput) {
-		t.Error(fmt.Sprintf("Expected xml '%v' but got '%v'.", expectedXml, xmlOutput))
+	if removeWhitespaces(expectedXml) != removeWhitespaces(xmlFile.Content) {
+		t.Error(fmt.Sprintf("Expected xml '%v' but got '%v'.", expectedXml, xmlFile.Content))
 	}
 }
 

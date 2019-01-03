@@ -89,3 +89,32 @@ func (mr *MockAdbMockRecorder) ExecuteTest(packageName, testRunner, test, device
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExecuteTest", reflect.TypeOf((*MockAdb)(nil).ExecuteTest), packageName, testRunner, test, deviceSerial)
 }
+
+// ClearLogcat mocks base method
+func (m *MockAdb) ClearLogcat(deviceSerial string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ClearLogcat", deviceSerial)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ClearLogcat indicates an expected call of ClearLogcat
+func (mr *MockAdbMockRecorder) ClearLogcat(deviceSerial interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClearLogcat", reflect.TypeOf((*MockAdb)(nil).ClearLogcat), deviceSerial)
+}
+
+// GetLogcat mocks base method
+func (m *MockAdb) GetLogcat(deviceSerial string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetLogcat", deviceSerial)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetLogcat indicates an expected call of GetLogcat
+func (mr *MockAdbMockRecorder) GetLogcat(deviceSerial interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLogcat", reflect.TypeOf((*MockAdb)(nil).GetLogcat), deviceSerial)
+}

@@ -11,6 +11,8 @@ type Adb interface {
 	Install(apkPath string, deviceSerial string) error
 	Uninstall(packageName string, deviceSerial string) error
 	ExecuteTest(packageName string, testRunner string, test string, deviceSerial string) (string, error)
+	ClearLogcat(deviceSerial string) error
+	GetLogcat(deviceSerial string) (string, error)
 }
 
 type adbImpl struct {
@@ -40,6 +42,16 @@ func (adb adbImpl) Install(apkPath string, deviceSerial string) error {
 
 func (adb adbImpl) Uninstall(packageName string, deviceSerial string) error {
 	return adb.commandExecutor.Execute(exec.Command("adb", "-s", deviceSerial, "uninstall", packageName))
+}
+
+func (adb adbImpl) ClearLogcat(deviceSerial string) error {
+	return adb.commandExecutor.Execute(exec.Command("adb", "-s", deviceSerial, "logcat", "-c"))
+}
+
+func (adb adbImpl) GetLogcat(deviceSerial string) (string, error) {
+	cmd := exec.Command("adb", "-s", deviceSerial, "logcat", "-d")
+	fmt.Printf("Getting logcat '%v'", cmd)
+	return adb.commandExecutor.ExecuteOutput(cmd)
 }
 
 func (adb adbImpl) ExecuteTest(packageName string, testRunner string, test string, deviceSerial string) (string, error) {

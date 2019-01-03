@@ -4,11 +4,13 @@ import (
 	"encoding/xml"
 	"fmt"
 	"github.com/ybonjour/atr/apks"
+	"github.com/ybonjour/atr/devices"
+	"github.com/ybonjour/atr/files"
 	"github.com/ybonjour/atr/result"
 )
 
 type Formatter interface {
-	Format(result []result.Result, apk apks.Apk) (string, error)
+	Format(result []result.Result, apk apks.Apk, device devices.Device) (files.File, error)
 }
 
 type formatterImpl struct{}
@@ -45,7 +47,7 @@ const (
 	durationFormat = "%.3f"
 )
 
-func (formatterImpl) Format(results []result.Result, apk apks.Apk) (string, error) {
+func (formatterImpl) Format(results []result.Result, apk apks.Apk, device devices.Device) (files.File, error) {
 	var testCases []testcase
 	numFailures := 0
 	numErrors := 0
@@ -85,8 +87,13 @@ func (formatterImpl) Format(results []result.Result, apk apks.Apk) (string, erro
 	output, err := xml.MarshalIndent(testSuite, "", "    ")
 
 	if err != nil {
-		return "", err
+		return files.File{}, err
 	}
 
-	return string(output), nil
+	f := files.File{
+		Name:    fmt.Sprintf("%v/junit.xml", device.Serial),
+		Content: string(output),
+	}
+
+	return f, nil
 }

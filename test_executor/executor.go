@@ -1,6 +1,7 @@
 package test_executor
 
 import (
+	"fmt"
 	"github.com/ybonjour/atr/adb"
 	"github.com/ybonjour/atr/apks"
 	"github.com/ybonjour/atr/devices"
@@ -94,11 +95,27 @@ func (executor executorImpl) reinstallApks(config Config, device devices.Device)
 func (executor executorImpl) executeTests(testConfig Config, device devices.Device) []result.Result {
 	var results []result.Result
 	for _, t := range testConfig.Tests {
-		start := time.Now()
-		output, err := executor.adb.ExecuteTest(testConfig.TestApk.PackageName, testConfig.TestRunner, t.FullName(), device.Serial)
-		duration := time.Since(start)
+		err := executor.adb.ClearLogcat(device.Serial)
+		if err != nil {
+			fmt.Printf("Got logcat clear error '%v'\n", err)
+			continue
+		}
+		output, err, duration := executor.executeSingleTest(t, device, testConfig.TestApk.PackageName, testConfig.TestRunner)
+		logcat, err := executor.adb.GetLogcat(device.Serial)
+		if err != nil {
+			fmt.Printf("Got logcat get error '%v'\n", err)
+			continue
+		}
+		fmt.Printf("Got logcat '%v'", logcat)
 		results = append(results, executor.resultParser.ParseFromOutput(t, err, output, duration))
 	}
 
 	return results
+}
+
+func (executor executorImpl) executeSingleTest(t test.Test, device devices.Device, testPackage string, testRunner string) (string, error, time.Duration) {
+	start := time.Now()
+	output, err := executor.adb.ExecuteTest(testPackage, testRunner, t.FullName(), device.Serial)
+	duration := time.Since(start)
+	return output, err, duration
 }

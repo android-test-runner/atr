@@ -16,7 +16,6 @@ import (
 func TestExecute(t *testing.T) {
 	targetTest := test.Test{Class: "TestClass", Method: "testMethod"}
 	config := Config{
-		Apk:        apks.Apk{},
 		TestApk:    apks.Apk{PackageName: "testPackageName"},
 		Tests:      []test.Test{targetTest},
 		TestRunner: "testRunner",
@@ -30,6 +29,8 @@ func TestExecute(t *testing.T) {
 	mockInstaller.EXPECT().Reinstall(config.Apk, device).Return(nil)
 	mockInstaller.EXPECT().Reinstall(config.TestApk, device).Return(nil)
 	mockAdb := mock_adb.NewMockAdb(ctrl)
+	mockAdb.EXPECT().ClearLogcat(device.Serial).Return(nil)
+	mockAdb.EXPECT().GetLogcat(device.Serial).Return("", nil)
 	mockAdb.
 		EXPECT().
 		ExecuteTest(config.TestApk.PackageName, config.TestRunner, targetTest.FullName(), device.Serial).
@@ -131,6 +132,8 @@ func givenAllApksInstalledSuccessfully(mockInstaller *mock_test_executor.MockIns
 
 func givenTestOnDeviceReturns(t test.Test, d devices.Device, r result.Result, mockAdb *mock_adb.MockAdb, mockResultParser *mock_result.MockParser) {
 	testOutput := t.FullName()
+	mockAdb.EXPECT().ClearLogcat(d.Serial).Return(nil)
+	mockAdb.EXPECT().GetLogcat(d.Serial).Return("", nil)
 	mockAdb.
 		EXPECT().
 		ExecuteTest(gomock.Any(), gomock.Any(), gomock.Eq(t.FullName()), gomock.Eq(d.Serial)).
