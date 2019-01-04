@@ -5,6 +5,7 @@ import (
 	"github.com/urfave/cli/altsrc"
 	"github.com/ybonjour/atr/aapt"
 	"github.com/ybonjour/atr/apks"
+	"github.com/ybonjour/atr/console"
 	"github.com/ybonjour/atr/devices"
 	"github.com/ybonjour/atr/junit_xml"
 	"github.com/ybonjour/atr/logcat"
@@ -118,6 +119,8 @@ func testAction(c *cli.Context) error {
 
 func getTestListeners(c *cli.Context, apk apks.Apk, writer output.Writer) []test_listener.TestListener {
 	var listeners []test_listener.TestListener
+
+	listeners = append(listeners, console.NewTestListener())
 
 	if c.Bool("recordjunit") {
 		listeners = append(listeners, junit_xml.NewTestListener(writer, apk))
