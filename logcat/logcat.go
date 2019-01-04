@@ -15,20 +15,6 @@ type Logcat interface {
 	StopRecording(test test.Test, saveResult bool, writer output.Writer) error
 }
 
-type Factory interface {
-	ForDevice(device devices.Device) Logcat
-}
-
-type factoryImpl struct {
-	Writer output.Writer
-}
-
-func NewFactory(writer output.Writer) Factory {
-	return factoryImpl{
-		Writer: writer,
-	}
-}
-
 type logcatImpl struct {
 	Device devices.Device
 	Adb    adb.Adb
@@ -36,14 +22,6 @@ type logcatImpl struct {
 }
 
 func NewLogcat(device devices.Device) Logcat {
-	return &logcatImpl{
-		Device: device,
-		Adb:    adb.New(),
-	}
-}
-
-// One logcat instance per device to avoid problems with parallelism
-func (factory factoryImpl) ForDevice(device devices.Device) Logcat {
 	return &logcatImpl{
 		Device: device,
 		Adb:    adb.New(),
