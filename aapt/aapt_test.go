@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/golang/mock/gomock"
+	"github.com/ybonjour/atr/command"
 	"github.com/ybonjour/atr/mock_aapt"
 	"github.com/ybonjour/atr/mock_command"
 	"testing"
@@ -15,7 +16,8 @@ func TestPackageName(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	commandExecutorMock := mock_command.NewMockExecutor(ctrl)
-	commandExecutorMock.EXPECT().ExecuteOutput(gomock.Any()).Return(unparsedPackageName, nil)
+	executionResult := command.ExecutionResult{StdOut: unparsedPackageName, Error: nil}
+	commandExecutorMock.EXPECT().Execute(gomock.Any()).Return(executionResult)
 	outputParserMock := mock_aapt.NewMockoutputParser(ctrl)
 	outputParserMock.EXPECT().ParsePackageName(gomock.Eq(unparsedPackageName)).Return(parsedPackageName, nil)
 	aapt := aaptImpl{
@@ -38,7 +40,8 @@ func TestPackageNameReturnsCommandError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	commandExecutorMock := mock_command.NewMockExecutor(ctrl)
-	commandExecutorMock.EXPECT().ExecuteOutput(gomock.Any()).Return("", expectedErr)
+	executionResult := command.ExecutionResult{Error: expectedErr}
+	commandExecutorMock.EXPECT().Execute(gomock.Any()).Return(executionResult)
 	aapt := aaptImpl{
 		commandExecutor: commandExecutorMock,
 	}
@@ -55,7 +58,8 @@ func TestPackageNameReturnsParseError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	commandExecutorMock := mock_command.NewMockExecutor(ctrl)
-	commandExecutorMock.EXPECT().ExecuteOutput(gomock.Any()).Return("", nil)
+	executionResult := command.ExecutionResult{StdOut: "", Error: nil}
+	commandExecutorMock.EXPECT().Execute(gomock.Any()).Return(executionResult)
 	outputParserMock := mock_aapt.NewMockoutputParser(ctrl)
 	outputParserMock.EXPECT().ParsePackageName(gomock.Any()).Return("", expectedErr)
 	aapt := aaptImpl{

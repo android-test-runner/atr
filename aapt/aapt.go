@@ -23,12 +23,12 @@ func New() Aapt {
 }
 
 func (aapt aaptImpl) PackageName(apkPath string) (string, error) {
-	out, err := aapt.commandExecutor.ExecuteOutput(exec.Command("aapt", "dump", "badging", apkPath))
-	if err != nil {
-		return "", err
+	result := aapt.commandExecutor.Execute(exec.Command("aapt", "dump", "badging", apkPath))
+	if result.Error != nil {
+		return "", result.Error
 	}
 
-	return aapt.outputParser.ParsePackageName(out)
+	return aapt.outputParser.ParsePackageName(result.StdOut)
 }
 
 func (aapt aaptImpl) TestRunner(apkPath string) (string, error) {
