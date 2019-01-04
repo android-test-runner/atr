@@ -13,7 +13,7 @@ type ExecutionResult struct {
 }
 
 type Executor interface {
-	ExecuteResult(cmd *exec.Cmd) ExecutionResult
+	Execute(cmd *exec.Cmd) ExecutionResult
 	ExecuteOutput(cmd *exec.Cmd) (string, error)
 	ExecuteInBackground(cmd *exec.Cmd) (int, error)
 }
@@ -24,7 +24,7 @@ func NewExecutor() Executor {
 	return executorImpl{}
 }
 
-func (executorImpl) ExecuteResult(cmd *exec.Cmd) ExecutionResult {
+func (executorImpl) Execute(cmd *exec.Cmd) ExecutionResult {
 	var out bytes.Buffer
 	cmd.Stdout = &out
 

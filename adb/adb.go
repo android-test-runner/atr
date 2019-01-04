@@ -40,15 +40,15 @@ func (adb adbImpl) ConnectedDevices() ([]string, error) {
 }
 
 func (adb adbImpl) Install(apkPath string, deviceSerial string) command.ExecutionResult {
-	return adb.commandExecutor.ExecuteResult(exec.Command("adb", "-s", deviceSerial, "install", apkPath))
+	return adb.commandExecutor.Execute(exec.Command("adb", "-s", deviceSerial, "install", apkPath))
 }
 
 func (adb adbImpl) Uninstall(packageName string, deviceSerial string) command.ExecutionResult {
-	return adb.commandExecutor.ExecuteResult(exec.Command("adb", "-s", deviceSerial, "uninstall", packageName))
+	return adb.commandExecutor.Execute(exec.Command("adb", "-s", deviceSerial, "uninstall", packageName))
 }
 
 func (adb adbImpl) ClearLogcat(deviceSerial string) command.ExecutionResult {
-	return adb.commandExecutor.ExecuteResult(exec.Command("adb", "-s", deviceSerial, "logcat", "-c"))
+	return adb.commandExecutor.Execute(exec.Command("adb", "-s", deviceSerial, "logcat", "-c"))
 }
 
 func (adb adbImpl) GetLogcat(deviceSerial string) (string, error) {
@@ -60,11 +60,11 @@ func (adb adbImpl) RecordScreen(deviceSerial string, filePath string) (int, erro
 }
 
 func (adb adbImpl) PullFile(deviceSerial string, filePathOnDevice string, filePathLocal string) command.ExecutionResult {
-	return adb.commandExecutor.ExecuteResult(exec.Command("adb", "-s", deviceSerial, "pull", filePathOnDevice, filePathLocal))
+	return adb.commandExecutor.Execute(exec.Command("adb", "-s", deviceSerial, "pull", filePathOnDevice, filePathLocal))
 }
 
 func (adb adbImpl) RemoveFile(deviceSerial string, filePathOnDevice string) command.ExecutionResult {
-	return adb.commandExecutor.ExecuteResult(exec.Command("adb", "-s", deviceSerial, "shell", "rm", filePathOnDevice))
+	return adb.commandExecutor.Execute(exec.Command("adb", "-s", deviceSerial, "shell", "rm", filePathOnDevice))
 }
 
 func (adb adbImpl) ExecuteTest(packageName string, testRunner string, test string, deviceSerial string) (string, error) {
