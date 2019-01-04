@@ -32,8 +32,15 @@ func (listener *logcatListener) BeforeTest(test test.Test) {
 }
 
 func (listener *logcatListener) AfterTest(result result.Result) {
-	errStopLogcat := listener.logcat.StopRecording(result.Test, result.ShallSaveResult(), listener.writer)
+	errStopLogcat := listener.logcat.StopRecording(result.Test)
 	if errStopLogcat != nil {
-		fmt.Printf("Could not save logcat: '%v'\n", errStopLogcat)
+		fmt.Printf("Could not get logcat: '%v'\n", errStopLogcat)
+	}
+
+	if result.ShallSaveResult() {
+		errSave := listener.logcat.SaveRecording(result.Test, listener.writer)
+		if errSave != nil {
+			fmt.Printf("Could not save logcat: '%v'\n", errSave)
+		}
 	}
 }

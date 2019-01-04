@@ -12,13 +12,15 @@ import (
 
 type Logcat interface {
 	StartRecording(test test.Test) error
-	StopRecording(test test.Test, saveResult bool, writer output.Writer) error
+	StopRecording(test test.Test) error
+	SaveRecording(test test.Test, writer output.Writer) error
 }
 
 type logcatImpl struct {
 	Device devices.Device
 	Adb    adb.Adb
 	Test   test.Test
+	Output string
 }
 
 func NewLogcat(device devices.Device) Logcat {
@@ -33,23 +35,24 @@ func (logcat *logcatImpl) StartRecording(test test.Test) error {
 	return logcat.Adb.ClearLogcat(logcat.Device.Serial)
 }
 
-func (logcat *logcatImpl) StopRecording(test test.Test, saveResult bool, writer output.Writer) error {
+func (logcat *logcatImpl) StopRecording(test test.Test) error {
 	if logcat.Test != test {
 		return errors.New(fmt.Sprintf("never started recording for test '%v'", test))
 	}
 
-	if !saveResult {
-		return nil
-	}
+	out, err := logcat.Adb.GetLogcat(logcat.Device.Serial)
+	logcat.Output = out
+	return err
+}
 
-	logcatOutput, err := logcat.Adb.GetLogcat(logcat.Device.Serial)
-	if err != nil {
-		return err
+func (logcat *logcatImpl) SaveRecording(test test.Test, writer output.Writer) error {
+	if logcat.Test != test {
+		return errors.New(fmt.Sprintf("never started recording for test '%v'", test))
 	}
 
 	f := files.File{
 		Name:    fmt.Sprintf("%v.log", test.FullName()),
-		Content: logcatOutput,
+		Content: logcat.Output,
 	}
 
 	return writer.WriteFile(f, logcat.Device)
