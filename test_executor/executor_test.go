@@ -51,14 +51,10 @@ func TestExecute(t *testing.T) {
 		files:         mockFiles,
 	}
 
-	results, err := executor.Execute(config, []devices.Device{device})
+	err := executor.Execute(config, []devices.Device{device})
 
 	if err != nil {
 		t.Error(fmt.Sprintf("Expected no error but got '%v'", err))
-	}
-	expectedResults := []result.Result{testResult}
-	if !AreEqualResults(results[device], expectedResults) {
-		t.Error(fmt.Sprintf("Expected results '%v' but got '%v'", expectedResults, results[device]))
 	}
 }
 
@@ -91,14 +87,10 @@ func TestExecuteMultipleTests(t *testing.T) {
 		files:         mockFiles,
 	}
 
-	results, err := executor.Execute(config, []devices.Device{device})
+	err := executor.Execute(config, []devices.Device{device})
 
 	if err != nil {
 		t.Error(fmt.Sprintf("Expected no error but got '%v'", err))
-	}
-	expectedResults := []result.Result{testResult1, testResult2}
-	if !AreEqualResults(results[device], expectedResults) {
-		t.Error(fmt.Sprintf("Expected results '%v' but got '%v'", expectedResults, results[device]))
 	}
 }
 
@@ -132,18 +124,10 @@ func TestExecuteMultipleDevices(t *testing.T) {
 		files:         mockFiles,
 	}
 
-	results, err := executor.Execute(config, []devices.Device{device1, device2})
+	err := executor.Execute(config, []devices.Device{device1, device2})
 
 	if err != nil {
 		t.Error(fmt.Sprintf("Expected no error but got '%v'", err))
-	}
-	expectedResultsDevice1 := []result.Result{testResult1}
-	if !AreEqualResults(results[device1], expectedResultsDevice1) {
-		t.Error(fmt.Sprintf("Expected results '%v' but got '%v'", expectedResultsDevice1, results[device1]))
-	}
-	expectedResultsDevice2 := []result.Result{testResult2}
-	if !AreEqualResults(results[device1], expectedResultsDevice2) {
-		t.Error(fmt.Sprintf("Expected results '%v' but got '%v'", expectedResultsDevice2, results[device2]))
 	}
 }
 
@@ -180,7 +164,7 @@ func TestExecuteCallsTestListener(t *testing.T) {
 		files:         mockFiles,
 	}
 
-	_, err := executor.Execute(config, []devices.Device{device})
+	err := executor.Execute(config, []devices.Device{device})
 
 	if err != nil {
 		t.Error(fmt.Sprintf("Expected no error but got '%v'", err))
@@ -208,18 +192,4 @@ func givenTestOnDeviceReturns(t test.Test, d devices.Device, r result.Result, mo
 		EXPECT().
 		ParseFromOutput(gomock.Eq(t), gomock.Eq(nil), gomock.Eq(testOutput), gomock.Any()).
 		Return(r)
-}
-
-func AreEqualResults(slice1, slice2 []result.Result) bool {
-	if len(slice1) != len(slice2) {
-		return false
-	}
-
-	for i := range slice1 {
-		if slice1[i] != slice2[i] {
-			return false
-		}
-	}
-
-	return true
 }

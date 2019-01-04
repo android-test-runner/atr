@@ -6,11 +6,9 @@ import (
 	"github.com/ybonjour/atr/aapt"
 	"github.com/ybonjour/atr/apks"
 	"github.com/ybonjour/atr/devices"
-	"github.com/ybonjour/atr/files"
 	"github.com/ybonjour/atr/junit_xml"
 	"github.com/ybonjour/atr/logcat"
 	"github.com/ybonjour/atr/output"
-	"github.com/ybonjour/atr/result"
 	"github.com/ybonjour/atr/screen_recorder"
 	"github.com/ybonjour/atr/test"
 	"github.com/ybonjour/atr/test_executor"
@@ -105,37 +103,19 @@ func testAction(c *cli.Context) error {
 	}
 	writer := output.NewWriter(c.String("output"))
 
-	testListeners := getTestListeners(c, writer)
-	resultsByDevice, testExecutionError := test_executor.NewExecutor(writer, testListeners).Execute(config, configDevices)
+	testListeners := getTestListeners(c, apkUnderTest, writer)
+	testExecutionError := test_executor.NewExecutor(writer, testListeners).Execute(config, configDevices)
 	if testExecutionError != nil {
 		return cli.NewExitError(fmt.Sprintf("Test execution errored: '%v'", testExecutionError), 1)
-	}
-	junitXmlFiles := toJunitXmlFiles(resultsByDevice, apkUnderTest)
-
-	err := writer.Write(junitXmlFiles)
-	if err != nil {
-		return cli.NewExitError(fmt.Sprintf("Error while writing junit results '%v'", err), 1)
 	}
 
 	return nil
 }
 
-func toJunitXmlFiles(resultsByDevice map[devices.Device][]result.Result, apk apks.Apk) map[devices.Device][]files.File {
-	xmlFiles := map[devices.Device][]files.File{}
-	for device, results := range resultsByDevice {
-		formatter := junit_xml.NewFormatter()
-		xmlFile, err := formatter.Format(results, apk)
-		if err != nil {
-			fmt.Printf("Error while formatting test results for device '%v': '%v'. Ignoring results for this device and continue with next device.\n", err)
-			continue
-		}
-		xmlFiles[device] = []files.File{xmlFile}
-	}
-	return xmlFiles
-}
-
-func getTestListeners(c *cli.Context, writer output.Writer) []test_listener.TestListener {
+func getTestListeners(c *cli.Context, apk apks.Apk, writer output.Writer) []test_listener.TestListener {
 	var listeners []test_listener.TestListener
+	listeners = append(listeners, junit_xml.NewTestListener(writer, apk))
+
 	if c.Bool("recordlogcat") {
 		listeners = append(listeners, logcat.NewLogcatListener(writer))
 	}

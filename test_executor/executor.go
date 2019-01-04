@@ -1,6 +1,7 @@
 package test_executor
 
 import (
+	"github.com/hashicorp/go-multierror"
 	"github.com/ybonjour/atr/adb"
 	"github.com/ybonjour/atr/apks"
 	"github.com/ybonjour/atr/devices"
@@ -22,7 +23,7 @@ type Config struct {
 }
 
 type Executor interface {
-	Execute(config Config, devices []devices.Device) (map[devices.Device][]result.Result, error)
+	Execute(config Config, devices []devices.Device) error
 }
 
 type executorImpl struct {
@@ -45,54 +46,49 @@ func NewExecutor(writer output.Writer, testListeners []test_listener.TestListene
 	}
 }
 
-type testResults struct {
-	Results []result.Result
-	Error   error
-	Device  devices.Device
-}
-
-func (executor executorImpl) Execute(config Config, targetDevices []devices.Device) (map[devices.Device][]result.Result, error) {
-	resultsChannel := make(chan testResults, len(targetDevices))
+func (executor executorImpl) Execute(config Config, targetDevices []devices.Device) error {
+	errorChannel := make(chan error, len(targetDevices))
 
 	var wg sync.WaitGroup
 	wg.Add(len(targetDevices))
 	for _, targetDevice := range targetDevices {
 		go func(d devices.Device) {
-			results, err := executor.executeOnDevice(config, d)
-			resultsChannel <- testResults{Results: results, Error: err, Device: d}
+			err := executor.executeOnDevice(config, d)
+			if err != nil {
+				errorChannel <- err
+			}
+
 			wg.Done()
 		}(targetDevice)
 	}
 	go func() {
 		wg.Wait()
-		close(resultsChannel)
+		close(errorChannel)
 	}()
 
-	resultsByDevice := map[devices.Device][]result.Result{}
-	for r := range resultsChannel {
-		if r.Error != nil {
-			return nil, r.Error
-		}
-		resultsByDevice[r.Device] = r.Results
+	var collectedErrors error
+	for err := range errorChannel {
+		collectedErrors = multierror.Append(collectedErrors, err)
 	}
 
-	return resultsByDevice, nil
+	return collectedErrors
 }
 
-func (executor executorImpl) executeOnDevice(config Config, device devices.Device) ([]result.Result, error) {
+func (executor executorImpl) executeOnDevice(config Config, device devices.Device) error {
 	installError := executor.reinstallApks(config, device)
 	if installError != nil {
-		return nil, installError
+		return installError
 	}
 	directory, directoryError := executor.writer.GetDeviceDirectory(device)
 	if directoryError != nil {
-		return nil, directoryError
+		return directoryError
 	}
 	removeError := executor.files.RemoveDirectory(directory)
 	if removeError != nil {
-		return nil, removeError
+		return removeError
 	}
-	return executor.executeTests(config, device), nil
+	executor.executeTests(config, device)
+	return nil
 }
 
 func (executor executorImpl) reinstallApks(config Config, device devices.Device) error {
@@ -108,18 +104,15 @@ func (executor executorImpl) reinstallApks(config Config, device devices.Device)
 	return nil
 }
 
-func (executor executorImpl) executeTests(testConfig Config, device devices.Device) []result.Result {
-	var results []result.Result
+func (executor executorImpl) executeTests(testConfig Config, device devices.Device) {
 	executor.beforeTestSuite(device)
 	for _, t := range testConfig.Tests {
 		executor.beforeTest(t)
 		testOutput, errTest, duration := executor.executeSingleTest(t, device, testConfig.TestApk.PackageName, testConfig.TestRunner)
 		r := executor.resultParser.ParseFromOutput(t, errTest, testOutput, duration)
 		executor.afterTest(r)
-		results = append(results, r)
 	}
 	executor.afterTestSuite()
-	return results
 }
 
 func (executor executorImpl) forAllTestListeners(f func(listener test_listener.TestListener)) {
