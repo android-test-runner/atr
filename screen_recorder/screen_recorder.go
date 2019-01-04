@@ -15,37 +15,23 @@ import (
 
 type ScreenRecorder interface {
 	StartRecording(test test.Test) error
-	StopRecording(test test.Test, saveResult bool) error
+	StopRecording(test test.Test) error
+	SaveResult(test test.Test, writer output.Writer) error
+	RemoveRecording(test test.Test) error
 }
 
 type screenRecorderImpl struct {
 	Device   devices.Device
 	Adb      adb.Adb
-	Writer   output.Writer
 	Test     test.Test
 	pid      int
 	filePath string
 }
 
-type Factory interface {
-	ForDevice(device devices.Device) ScreenRecorder
-}
-
-type factoryImpl struct {
-	Writer output.Writer
-}
-
-func NewFactory(writer output.Writer) Factory {
-	return factoryImpl{
-		Writer: writer,
-	}
-}
-
-func (factory factoryImpl) ForDevice(device devices.Device) ScreenRecorder {
+func NewScreenRecorder(device devices.Device) ScreenRecorder {
 	return &screenRecorderImpl{
 		Device: device,
 		Adb:    adb.New(),
-		Writer: factory.Writer,
 	}
 }
 
@@ -62,32 +48,27 @@ func (screenRecorder *screenRecorderImpl) StartRecording(test test.Test) error {
 	return nil
 }
 
-func (screenRecorder screenRecorderImpl) StopRecording(test test.Test, saveResult bool) error {
+func (screenRecorder screenRecorderImpl) StopRecording(test test.Test) error {
 	if screenRecorder.Test != test {
 		return errors.New(fmt.Sprintf("never started recording for test '%v'", test))
 	}
 
-	killError := interruptProcess(screenRecorder.pid)
-	if killError != nil {
-		return killError
-	}
-
-	var saveError error
-	if saveResult {
-		saveError = screenRecorder.saveResult(test)
-
-	}
-	removeError := screenRecorder.Adb.RemoveFile(screenRecorder.Device.Serial, screenRecorder.filePath)
-
-	if saveError != nil {
-		return saveError
-	}
-
-	return removeError
+	return interruptProcess(screenRecorder.pid)
 }
 
-func (screenRecorder *screenRecorderImpl) saveResult(test test.Test) error {
-	deviceDirectory, directoryErr := screenRecorder.Writer.GetDeviceDirectory(screenRecorder.Device)
+func (screenRecorder *screenRecorderImpl) RemoveRecording(test test.Test) error {
+	if screenRecorder.Test != test {
+		return errors.New(fmt.Sprintf("never started recording for test '%v'", test))
+	}
+	return screenRecorder.Adb.RemoveFile(screenRecorder.Device.Serial, screenRecorder.filePath)
+}
+
+func (screenRecorder *screenRecorderImpl) SaveResult(test test.Test, writer output.Writer) error {
+	if screenRecorder.Test != test {
+		return errors.New(fmt.Sprintf("never started recording for test '%v'", test))
+	}
+
+	deviceDirectory, directoryErr := writer.GetDeviceDirectory(screenRecorder.Device)
 	if directoryErr != nil {
 		return directoryErr
 	}

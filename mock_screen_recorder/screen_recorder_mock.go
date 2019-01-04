@@ -6,8 +6,7 @@ package mock_screen_recorder
 
 import (
 	gomock "github.com/golang/mock/gomock"
-	devices "github.com/ybonjour/atr/devices"
-	screen_recorder "github.com/ybonjour/atr/screen_recorder"
+	output "github.com/ybonjour/atr/output"
 	test "github.com/ybonjour/atr/test"
 	reflect "reflect"
 )
@@ -63,39 +62,30 @@ func (mr *MockScreenRecorderMockRecorder) StopRecording(test interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StopRecording", reflect.TypeOf((*MockScreenRecorder)(nil).StopRecording), test)
 }
 
-// MockFactory is a mock of Factory interface
-type MockFactory struct {
-	ctrl     *gomock.Controller
-	recorder *MockFactoryMockRecorder
-}
-
-// MockFactoryMockRecorder is the mock recorder for MockFactory
-type MockFactoryMockRecorder struct {
-	mock *MockFactory
-}
-
-// NewMockFactory creates a new mock instance
-func NewMockFactory(ctrl *gomock.Controller) *MockFactory {
-	mock := &MockFactory{ctrl: ctrl}
-	mock.recorder = &MockFactoryMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use
-func (m *MockFactory) EXPECT() *MockFactoryMockRecorder {
-	return m.recorder
-}
-
-// ForDevice mocks base method
-func (m *MockFactory) ForDevice(device devices.Device) screen_recorder.ScreenRecorder {
+// SaveResult mocks base method
+func (m *MockScreenRecorder) SaveResult(test test.Test, writer output.Writer) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ForDevice", device)
-	ret0, _ := ret[0].(screen_recorder.ScreenRecorder)
+	ret := m.ctrl.Call(m, "SaveResult", test, writer)
+	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// ForDevice indicates an expected call of ForDevice
-func (mr *MockFactoryMockRecorder) ForDevice(device interface{}) *gomock.Call {
+// SaveResult indicates an expected call of SaveResult
+func (mr *MockScreenRecorderMockRecorder) SaveResult(test, writer interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ForDevice", reflect.TypeOf((*MockFactory)(nil).ForDevice), device)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveResult", reflect.TypeOf((*MockScreenRecorder)(nil).SaveResult), test, writer)
+}
+
+// RemoveRecording mocks base method
+func (m *MockScreenRecorder) RemoveRecording(test test.Test) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemoveRecording", test)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RemoveRecording indicates an expected call of RemoveRecording
+func (mr *MockScreenRecorderMockRecorder) RemoveRecording(test interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveRecording", reflect.TypeOf((*MockScreenRecorder)(nil).RemoveRecording), test)
 }

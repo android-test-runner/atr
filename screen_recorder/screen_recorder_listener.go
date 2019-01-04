@@ -10,18 +10,18 @@ import (
 )
 
 type screenRecorderListener struct {
-	screenRecorderFactory Factory
-	screenRecorder        ScreenRecorder
+	writer         output.Writer
+	screenRecorder ScreenRecorder
 }
 
 func NewScreenRecorderListener(writer output.Writer) test_listener.TestListener {
 	return &screenRecorderListener{
-		screenRecorderFactory: NewFactory(writer),
+		writer: writer,
 	}
 }
 
 func (listener *screenRecorderListener) BeforeTestSuite(device devices.Device) {
-	listener.screenRecorder = listener.screenRecorderFactory.ForDevice(device)
+	listener.screenRecorder = NewScreenRecorder(device)
 }
 
 func (listener *screenRecorderListener) BeforeTest(test test.Test) {
@@ -32,8 +32,24 @@ func (listener *screenRecorderListener) BeforeTest(test test.Test) {
 }
 
 func (listener *screenRecorderListener) AfterTest(result result.Result) {
-	errStopScreenRecording := listener.screenRecorder.StopRecording(result.Test, result.ShallSaveResult())
+	errStopScreenRecording := listener.screenRecorder.StopRecording(result.Test)
 	if errStopScreenRecording != nil {
 		fmt.Printf("Could not save screen recording: '%v'\n", errStopScreenRecording)
+	}
+
+	var errSave error
+	if result.ShallSaveResult() {
+		errSave = listener.screenRecorder.SaveResult(result.Test, listener.writer)
+	}
+
+	errRemove := listener.screenRecorder.RemoveRecording(result.Test)
+
+	if errSave != nil {
+		fmt.Printf("Could not save screen recording: '%v'\n", errSave)
+		return
+	}
+
+	if errRemove != nil {
+		fmt.Printf("Could not remove screen recording: '%v'\n", errRemove)
 	}
 }
