@@ -31,12 +31,12 @@ func New() Adb {
 }
 
 func (adb adbImpl) ConnectedDevices() ([]string, error) {
-	out, err := adb.commandExecutor.ExecuteOutput(exec.Command("adb", "devices"))
-	if err != nil {
-		return nil, err
+	result := adb.commandExecutor.Execute(exec.Command("adb", "devices"))
+	if result.Error != nil {
+		return nil, result.Error
 	}
 
-	return adb.outputParser.ParseConnectedDeviceSerials(out), nil
+	return adb.outputParser.ParseConnectedDeviceSerials(result.StdOut), nil
 }
 
 func (adb adbImpl) Install(apkPath string, deviceSerial string) command.ExecutionResult {
