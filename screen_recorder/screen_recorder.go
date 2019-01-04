@@ -60,7 +60,8 @@ func (screenRecorder *screenRecorderImpl) RemoveRecording(test test.Test) error 
 	if screenRecorder.Test != test {
 		return errors.New(fmt.Sprintf("never started recording for test '%v'", test))
 	}
-	return screenRecorder.Adb.RemoveFile(screenRecorder.Device.Serial, screenRecorder.filePath)
+	result := screenRecorder.Adb.RemoveFile(screenRecorder.Device.Serial, screenRecorder.filePath)
+	return result.Error
 }
 
 func (screenRecorder *screenRecorderImpl) SaveResult(test test.Test, writer output.Writer) error {

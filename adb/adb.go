@@ -15,7 +15,7 @@ type Adb interface {
 	GetLogcat(deviceSerial string) (string, error)
 	RecordScreen(deviceSerial string, filePath string) (int, error)
 	PullFile(deviceSerial string, filePathOnDevice string, filePathLocal string) command.ExecutionResult
-	RemoveFile(deviceSerial string, filePathOnDevice string) error
+	RemoveFile(deviceSerial string, filePathOnDevice string) command.ExecutionResult
 }
 
 type adbImpl struct {
@@ -63,8 +63,8 @@ func (adb adbImpl) PullFile(deviceSerial string, filePathOnDevice string, filePa
 	return adb.commandExecutor.ExecuteResult(exec.Command("adb", "-s", deviceSerial, "pull", filePathOnDevice, filePathLocal))
 }
 
-func (adb adbImpl) RemoveFile(deviceSerial string, filePathOnDevice string) error {
-	return adb.commandExecutor.Execute(exec.Command("adb", "-s", deviceSerial, "shell", "rm", filePathOnDevice))
+func (adb adbImpl) RemoveFile(deviceSerial string, filePathOnDevice string) command.ExecutionResult {
+	return adb.commandExecutor.ExecuteResult(exec.Command("adb", "-s", deviceSerial, "shell", "rm", filePathOnDevice))
 }
 
 func (adb adbImpl) ExecuteTest(packageName string, testRunner string, test string, deviceSerial string) (string, error) {
