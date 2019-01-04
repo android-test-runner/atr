@@ -32,7 +32,6 @@ func NewFactory(writer output.Writer) Factory {
 type logcatImpl struct {
 	Device devices.Device
 	Adb    adb.Adb
-	Writer output.Writer
 	Test   test.Test
 }
 
@@ -41,7 +40,6 @@ func (factory factoryImpl) ForDevice(device devices.Device) Logcat {
 	return &logcatImpl{
 		Device: device,
 		Adb:    adb.New(),
-		Writer: factory.Writer,
 	}
 }
 
