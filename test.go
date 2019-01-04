@@ -110,7 +110,7 @@ func testAction(c *cli.Context) error {
 	testListeners := getTestListeners(c, apkUnderTest, writer)
 	testExecutionError := test_executor.NewExecutor(writer, testListeners).Execute(config, configDevices)
 	if testExecutionError != nil {
-		return cli.NewExitError(fmt.Sprintf("Test execution errored: '%v'", testExecutionError), 1)
+		return cli.NewExitError(fmt.Sprintf("Test execution errored:\n %v", testExecutionError), 1)
 	}
 
 	return nil
