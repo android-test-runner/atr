@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/golang/mock/gomock"
 	"github.com/ybonjour/atr/apks"
+	"github.com/ybonjour/atr/command"
 	"github.com/ybonjour/atr/devices"
 	"github.com/ybonjour/atr/mock_adb"
 	"testing"
@@ -21,8 +22,8 @@ func TestReInstallUninstallsAndInstallsApk(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	adbMock := mock_adb.NewMockAdb(ctrl)
-	adbMock.EXPECT().Uninstall(apk.PackageName, device.Serial).Return(nil)
-	adbMock.EXPECT().Install(apk.Path, device.Serial).Return(nil)
+	adbMock.EXPECT().Uninstall(apk.PackageName, device.Serial).Return(executionResultOk())
+	adbMock.EXPECT().Install(apk.Path, device.Serial).Return(executionResultOk())
 	installer := installerImpl{
 		adb: adbMock,
 	}
@@ -37,9 +38,10 @@ func TestReInstallUninstallsAndInstallsApk(t *testing.T) {
 func TestReInstallContinuesIfUninstallFails(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+	uninstallError := errors.New("uninstall failed")
 	adbMock := mock_adb.NewMockAdb(ctrl)
-	adbMock.EXPECT().Uninstall(gomock.Any(), gomock.Any()).Return(errors.New("uninstall failed"))
-	adbMock.EXPECT().Install(gomock.Any(), gomock.Any()).Return(nil)
+	adbMock.EXPECT().Uninstall(gomock.Any(), gomock.Any()).Return(executionResultError(uninstallError))
+	adbMock.EXPECT().Install(gomock.Any(), gomock.Any()).Return(executionResultOk())
 	installer := installerImpl{
 		adb: adbMock,
 	}
@@ -56,8 +58,8 @@ func TestReInstallFailsIfInstallFails(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	adbMock := mock_adb.NewMockAdb(ctrl)
-	adbMock.EXPECT().Uninstall(gomock.Any(), gomock.Any()).Return(nil)
-	adbMock.EXPECT().Install(gomock.Any(), gomock.Any()).Return(installError)
+	adbMock.EXPECT().Uninstall(gomock.Any(), gomock.Any()).Return(executionResultOk())
+	adbMock.EXPECT().Install(gomock.Any(), gomock.Any()).Return(executionResultError(installError))
 	installer := installerImpl{
 		adb: adbMock,
 	}
@@ -67,4 +69,12 @@ func TestReInstallFailsIfInstallFails(t *testing.T) {
 	if err != installError {
 		t.Error(fmt.Sprintf("Install error '%v' expected but got '%v", installError, err))
 	}
+}
+
+func executionResultOk() command.ExecutionResult {
+	return command.ExecutionResult{Error: nil}
+}
+
+func executionResultError(err error) command.ExecutionResult {
+	return command.ExecutionResult{Error: err}
 }

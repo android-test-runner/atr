@@ -8,8 +8,8 @@ import (
 
 type Adb interface {
 	ConnectedDevices() ([]string, error)
-	Install(apkPath string, deviceSerial string) error
-	Uninstall(packageName string, deviceSerial string) error
+	Install(apkPath string, deviceSerial string) command.ExecutionResult
+	Uninstall(packageName string, deviceSerial string) command.ExecutionResult
 	ExecuteTest(packageName string, testRunner string, test string, deviceSerial string) (string, error)
 	ClearLogcat(deviceSerial string) error
 	GetLogcat(deviceSerial string) (string, error)
@@ -39,12 +39,12 @@ func (adb adbImpl) ConnectedDevices() ([]string, error) {
 	return adb.outputParser.ParseConnectedDeviceSerials(out), nil
 }
 
-func (adb adbImpl) Install(apkPath string, deviceSerial string) error {
-	return adb.commandExecutor.Execute(exec.Command("adb", "-s", deviceSerial, "install", apkPath))
+func (adb adbImpl) Install(apkPath string, deviceSerial string) command.ExecutionResult {
+	return adb.commandExecutor.ExecuteResult(exec.Command("adb", "-s", deviceSerial, "install", apkPath))
 }
 
-func (adb adbImpl) Uninstall(packageName string, deviceSerial string) error {
-	return adb.commandExecutor.Execute(exec.Command("adb", "-s", deviceSerial, "uninstall", packageName))
+func (adb adbImpl) Uninstall(packageName string, deviceSerial string) command.ExecutionResult {
+	return adb.commandExecutor.ExecuteResult(exec.Command("adb", "-s", deviceSerial, "uninstall", packageName))
 }
 
 func (adb adbImpl) ClearLogcat(deviceSerial string) error {

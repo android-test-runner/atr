@@ -49,10 +49,10 @@ func (mr *MockAdbMockRecorder) ConnectedDevices() *gomock.Call {
 }
 
 // Install mocks base method
-func (m *MockAdb) Install(apkPath, deviceSerial string) error {
+func (m *MockAdb) Install(apkPath, deviceSerial string) command.ExecutionResult {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Install", apkPath, deviceSerial)
-	ret0, _ := ret[0].(error)
+	ret0, _ := ret[0].(command.ExecutionResult)
 	return ret0
 }
 
@@ -63,10 +63,10 @@ func (mr *MockAdbMockRecorder) Install(apkPath, deviceSerial interface{}) *gomoc
 }
 
 // Uninstall mocks base method
-func (m *MockAdb) Uninstall(packageName, deviceSerial string) error {
+func (m *MockAdb) Uninstall(packageName, deviceSerial string) command.ExecutionResult {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Uninstall", packageName, deviceSerial)
-	ret0, _ := ret[0].(error)
+	ret0, _ := ret[0].(command.ExecutionResult)
 	return ret0
 }
 
