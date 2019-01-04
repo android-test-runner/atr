@@ -48,21 +48,6 @@ func (mr *MockExecutorMockRecorder) Execute(cmd interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Execute", reflect.TypeOf((*MockExecutor)(nil).Execute), cmd)
 }
 
-// ExecuteOutput mocks base method
-func (m *MockExecutor) ExecuteOutput(cmd *exec.Cmd) (string, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ExecuteOutput", cmd)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// ExecuteOutput indicates an expected call of ExecuteOutput
-func (mr *MockExecutorMockRecorder) ExecuteOutput(cmd interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExecuteOutput", reflect.TypeOf((*MockExecutor)(nil).ExecuteOutput), cmd)
-}
-
 // ExecuteInBackground mocks base method
 func (m *MockExecutor) ExecuteInBackground(cmd *exec.Cmd) (int, error) {
 	m.ctrl.T.Helper()

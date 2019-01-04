@@ -2,7 +2,6 @@ package command
 
 import (
 	"bytes"
-	"log"
 	"os/exec"
 )
 
@@ -14,7 +13,6 @@ type ExecutionResult struct {
 
 type Executor interface {
 	Execute(cmd *exec.Cmd) ExecutionResult
-	ExecuteOutput(cmd *exec.Cmd) (string, error)
 	ExecuteInBackground(cmd *exec.Cmd) (int, error)
 }
 
@@ -43,21 +41,4 @@ func (executorImpl) Execute(cmd *exec.Cmd) ExecutionResult {
 func (executor executorImpl) ExecuteInBackground(cmd *exec.Cmd) (int, error) {
 	err := cmd.Start()
 	return cmd.Process.Pid, err
-}
-
-func (executor executorImpl) ExecuteOutput(cmd *exec.Cmd) (string, error) {
-	var out bytes.Buffer
-	cmd.Stdout = &out
-
-	var err bytes.Buffer
-	cmd.Stderr = &err
-
-	runError := cmd.Run()
-
-	if runError != nil {
-		log.Printf("%v", err.String())
-		return "", runError
-	}
-
-	return out.String(), nil
 }
