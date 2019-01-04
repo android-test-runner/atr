@@ -35,6 +35,13 @@ type logcatImpl struct {
 	Test   test.Test
 }
 
+func NewLogcat(device devices.Device) Logcat {
+	return &logcatImpl{
+		Device: device,
+		Adb:    adb.New(),
+	}
+}
+
 // One logcat instance per device to avoid problems with parallelism
 func (factory factoryImpl) ForDevice(device devices.Device) Logcat {
 	return &logcatImpl{

@@ -10,20 +10,18 @@ import (
 )
 
 type logcatListener struct {
-	logcatFactory Factory
-	writer        output.Writer
-	logcat        Logcat
+	writer output.Writer
+	logcat Logcat
 }
 
 func NewLogcatListener(writer output.Writer) test_listener.TestListener {
 	return &logcatListener{
-		logcatFactory: NewFactory(writer),
-		writer:        writer,
+		writer: writer,
 	}
 }
 
 func (listener *logcatListener) BeforeTestSuite(device devices.Device) {
-	listener.logcat = listener.logcatFactory.ForDevice(device)
+	listener.logcat = NewLogcat(device)
 }
 
 func (listener *logcatListener) BeforeTest(test test.Test) {
