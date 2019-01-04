@@ -5,10 +5,8 @@ import (
 	"github.com/ybonjour/atr/apks"
 	"github.com/ybonjour/atr/devices"
 	"github.com/ybonjour/atr/files"
-	"github.com/ybonjour/atr/logcat"
 	"github.com/ybonjour/atr/output"
 	"github.com/ybonjour/atr/result"
-	"github.com/ybonjour/atr/screen_recorder"
 	"github.com/ybonjour/atr/test"
 	"github.com/ybonjour/atr/test_listener"
 	"sync"
@@ -36,12 +34,12 @@ type executorImpl struct {
 	files         files.Files
 }
 
-func NewExecutor(writer output.Writer) Executor {
+func NewExecutor(writer output.Writer, testListeners []test_listener.TestListener) Executor {
 	return executorImpl{
 		installer:     NewInstaller(),
 		resultParser:  result.NewParser(),
 		adb:           adb.New(),
-		testListeners: []test_listener.TestListener{logcat.NewLogcatListener(writer), screen_recorder.NewScreenRecorderListener(writer)},
+		testListeners: testListeners,
 		writer:        writer,
 		files:         files.New(),
 	}

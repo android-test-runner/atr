@@ -8,10 +8,13 @@ import (
 	"github.com/ybonjour/atr/devices"
 	"github.com/ybonjour/atr/files"
 	"github.com/ybonjour/atr/junit_xml"
+	"github.com/ybonjour/atr/logcat"
 	"github.com/ybonjour/atr/output"
 	"github.com/ybonjour/atr/result"
+	"github.com/ybonjour/atr/screen_recorder"
 	"github.com/ybonjour/atr/test"
 	"github.com/ybonjour/atr/test_executor"
+	"github.com/ybonjour/atr/test_listener"
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -44,6 +47,14 @@ var flags = []cli.Flag{
 		Name:  "output",
 		Value: "build/atr",
 		Usage: "Folder to write test output",
+	}),
+	altsrc.NewBoolFlag(cli.BoolFlag{
+		Name:  "recordscreen",
+		Usage: "Record screen for failed tests.",
+	}),
+	altsrc.NewBoolFlag(cli.BoolFlag{
+		Name:  "recordlogcat",
+		Usage: "Record logcat for failed tests.",
 	}),
 }
 
@@ -94,7 +105,8 @@ func testAction(c *cli.Context) error {
 	}
 	writer := output.NewWriter(c.String("output"))
 
-	resultsByDevice, testExecutionError := test_executor.NewExecutor(writer).Execute(config, configDevices)
+	testListeners := getTestListeners(c, writer)
+	resultsByDevice, testExecutionError := test_executor.NewExecutor(writer, testListeners).Execute(config, configDevices)
 	if testExecutionError != nil {
 		return cli.NewExitError(fmt.Sprintf("Test execution errored: '%v'", testExecutionError), 1)
 	}
@@ -120,6 +132,19 @@ func toJunitXmlFiles(resultsByDevice map[devices.Device][]result.Result, apk apk
 		xmlFiles[device] = []files.File{xmlFile}
 	}
 	return xmlFiles
+}
+
+func getTestListeners(c *cli.Context, writer output.Writer) []test_listener.TestListener {
+	var listeners []test_listener.TestListener
+	if c.Bool("recordlogcat") {
+		listeners = append(listeners, logcat.NewLogcatListener(writer))
+	}
+
+	if c.Bool("recordscreen") {
+		listeners = append(listeners, screen_recorder.NewScreenRecorderListener(writer))
+	}
+
+	return listeners
 }
 
 func getDevices(c *cli.Context) ([]devices.Device, error) {
