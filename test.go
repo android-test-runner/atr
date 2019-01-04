@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/urfave/cli/altsrc"
 	"github.com/ybonjour/atr/aapt"
 	"github.com/ybonjour/atr/apks"
 	"github.com/ybonjour/atr/devices"
@@ -14,41 +15,44 @@ import (
 	"gopkg.in/urfave/cli.v1"
 )
 
+var flags = []cli.Flag{
+	cli.StringFlag{
+		Name:  "load, l",
+		Usage: "Specify to file to load flags from",
+	},
+	altsrc.NewStringFlag(cli.StringFlag{
+		Name:  "apk",
+		Usage: "APK under test",
+	}),
+	altsrc.NewStringFlag(cli.StringFlag{
+		Name:  "testapk",
+		Usage: "APK containing instrumentation tests",
+	}),
+	altsrc.NewStringSliceFlag(cli.StringSliceFlag{
+		Name:  "test",
+		Usage: "Test to run formatted as TestClass#test",
+	}),
+	altsrc.NewStringFlag(cli.StringFlag{
+		Name:  "testfile",
+		Usage: "Path to a textfile defining the tests to execute separated by newlines",
+	}),
+	altsrc.NewStringSliceFlag(cli.StringSliceFlag{
+		Name:  "device",
+		Usage: "Id of device on which the test shall run",
+	}),
+	altsrc.NewStringFlag(cli.StringFlag{
+		Name:  "output",
+		Value: "build/atr",
+		Usage: "Folder to write test output",
+	}),
+}
+
 var testCommand = cli.Command{
 	Name:   "test",
 	Usage:  "Execute an android instrumentation test",
+	Before: altsrc.InitInputSourceWithContext(flags, altsrc.NewYamlSourceFromFlagFunc("load")),
 	Action: testAction,
-	Flags: []cli.Flag{
-		cli.StringFlag{
-			Name:  "load, l",
-			Usage: "Specify to file to load flags from",
-		},
-		cli.StringFlag{
-			Name:  "apk, a",
-			Usage: "APK under test",
-		},
-		cli.StringFlag{
-			Name:  "testapk, ta",
-			Usage: "APK containing instrumentation tests",
-		},
-		cli.StringSliceFlag{
-			Name:  "test, t",
-			Usage: "Test to run formatted as TestClass#test",
-		},
-		cli.StringFlag{
-			Name:  "testfile, tf",
-			Usage: "Path to a textfile defining the tests to execute separated by newlines",
-		},
-		cli.StringSliceFlag{
-			Name:  "device, d",
-			Usage: "Id of device on which the test shall run",
-		},
-		cli.StringFlag{
-			Name:  "output, o",
-			Value: "build/atr",
-			Usage: "Folder to write test output",
-		},
-	},
+	Flags:  flags,
 }
 
 func testAction(c *cli.Context) error {
