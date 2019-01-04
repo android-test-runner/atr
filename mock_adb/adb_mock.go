@@ -150,10 +150,10 @@ func (mr *MockAdbMockRecorder) PullFile(deviceSerial, filePathOnDevice, filePath
 }
 
 // RemoveFile mocks base method
-func (m *MockAdb) RemoveFile(deviceSerial, filePathOnDevice string) error {
+func (m *MockAdb) RemoveFile(deviceSerial, filePathOnDevice string) command.ExecutionResult {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RemoveFile", deviceSerial, filePathOnDevice)
-	ret0, _ := ret[0].(error)
+	ret0, _ := ret[0].(command.ExecutionResult)
 	return ret0
 }
 
