@@ -47,6 +47,18 @@ func (mr *MockTestListenerMockRecorder) BeforeTestSuite(device interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BeforeTestSuite", reflect.TypeOf((*MockTestListener)(nil).BeforeTestSuite), device)
 }
 
+// AfterTestSuite mocks base method
+func (m *MockTestListener) AfterTestSuite() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "AfterTestSuite")
+}
+
+// AfterTestSuite indicates an expected call of AfterTestSuite
+func (mr *MockTestListenerMockRecorder) AfterTestSuite() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AfterTestSuite", reflect.TypeOf((*MockTestListener)(nil).AfterTestSuite))
+}
+
 // BeforeTest mocks base method
 func (m *MockTestListener) BeforeTest(test test.Test) {
 	m.ctrl.T.Helper()

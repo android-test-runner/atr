@@ -24,6 +24,8 @@ func (listener *screenRecorderListener) BeforeTestSuite(device devices.Device) {
 	listener.screenRecorder = New(device)
 }
 
+func (listener *screenRecorderListener) AfterTestSuite() {}
+
 func (listener *screenRecorderListener) BeforeTest(test test.Test) {
 	errStartScreenRecording := listener.screenRecorder.StartRecording(test)
 	if errStartScreenRecording != nil {

@@ -8,6 +8,7 @@ import (
 
 type TestListener interface {
 	BeforeTestSuite(device devices.Device)
+	AfterTestSuite()
 	BeforeTest(test test.Test)
 	AfterTest(result result.Result)
 }

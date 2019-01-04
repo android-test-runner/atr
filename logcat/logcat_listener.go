@@ -24,6 +24,8 @@ func (listener *logcatListener) BeforeTestSuite(device devices.Device) {
 	listener.logcat = New(device)
 }
 
+func (listener *logcatListener) AfterTestSuite() {}
+
 func (listener *logcatListener) BeforeTest(test test.Test) {
 	errStartLogcat := listener.logcat.StartRecording(test)
 	if errStartLogcat != nil {

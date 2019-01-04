@@ -170,6 +170,7 @@ func TestExecuteCallsTestListener(t *testing.T) {
 	testListener.EXPECT().BeforeTestSuite(device)
 	testListener.EXPECT().BeforeTest(targetTest)
 	testListener.EXPECT().AfterTest(testResult)
+	testListener.EXPECT().AfterTestSuite()
 	executor := executorImpl{
 		installer:     mockInstaller,
 		adb:           mockAdb,
