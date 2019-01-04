@@ -128,7 +128,7 @@ func getTestListeners(c *cli.Context, apk apks.Apk, writer output.Writer) []test
 	}
 
 	if c.Bool("recordscreen") {
-		listeners = append(listeners, screen_recorder.NewScreenRecorderListener(writer))
+		listeners = append(listeners, screen_recorder.NewTestListener(writer))
 	}
 
 	return listeners

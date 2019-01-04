@@ -9,31 +9,31 @@ import (
 	"github.com/ybonjour/atr/test_listener"
 )
 
-type screenRecorderListener struct {
+type testListener struct {
 	writer         output.Writer
 	screenRecorder ScreenRecorder
 }
 
-func NewScreenRecorderListener(writer output.Writer) test_listener.TestListener {
-	return &screenRecorderListener{
+func NewTestListener(writer output.Writer) test_listener.TestListener {
+	return &testListener{
 		writer: writer,
 	}
 }
 
-func (listener *screenRecorderListener) BeforeTestSuite(device devices.Device) {
+func (listener *testListener) BeforeTestSuite(device devices.Device) {
 	listener.screenRecorder = New(device)
 }
 
-func (listener *screenRecorderListener) AfterTestSuite() {}
+func (listener *testListener) AfterTestSuite() {}
 
-func (listener *screenRecorderListener) BeforeTest(test test.Test) {
+func (listener *testListener) BeforeTest(test test.Test) {
 	errStartScreenRecording := listener.screenRecorder.StartRecording(test)
 	if errStartScreenRecording != nil {
 		fmt.Printf("Could not start screen recording: '%v'\n", errStartScreenRecording)
 	}
 }
 
-func (listener *screenRecorderListener) AfterTest(result result.Result) {
+func (listener *testListener) AfterTest(result result.Result) {
 	errStopScreenRecording := listener.screenRecorder.StopRecording(result.Test)
 	if errStopScreenRecording != nil {
 		fmt.Printf("Could not save screen recording: '%v'\n", errStopScreenRecording)

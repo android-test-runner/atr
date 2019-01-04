@@ -15,7 +15,7 @@ func TestBeforeTestStartsScreenRecording(t *testing.T) {
 	screenRecorderMock := mock_screen_recorder.NewMockScreenRecorder(ctrl)
 	screenRecorderMock.EXPECT().StartRecording(targetTest).Return(nil)
 
-	listener := screenRecorderListener{
+	listener := testListener{
 		screenRecorder: screenRecorderMock,
 	}
 	listener.BeforeTest(targetTest)
@@ -32,7 +32,7 @@ func TestAfterTestStopsScreenRecordingAndSavesForFailedResult(t *testing.T) {
 	screenRecorderMock.EXPECT().StopRecording(targetTest).Return(nil)
 	screenRecorderMock.EXPECT().SaveResult(targetTest, writer).Return(nil)
 	screenRecorderMock.EXPECT().RemoveRecording(targetTest)
-	listener := screenRecorderListener{
+	listener := testListener{
 		writer:         writer,
 		screenRecorder: screenRecorderMock,
 	}
@@ -50,7 +50,7 @@ func TestAfterTestStopsScreenRecordingForPassedResult(t *testing.T) {
 	screenRecorderMock.EXPECT().StopRecording(targetTest).Return(nil)
 	screenRecorderMock.EXPECT().SaveResult(targetTest, writer).Return(nil).Times(0)
 	screenRecorderMock.EXPECT().RemoveRecording(targetTest)
-	listener := screenRecorderListener{
+	listener := testListener{
 		writer:         writer,
 		screenRecorder: screenRecorderMock,
 	}
