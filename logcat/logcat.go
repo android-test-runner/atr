@@ -12,7 +12,7 @@ import (
 
 type Logcat interface {
 	StartRecording(test test.Test) error
-	StopRecording(test test.Test, saveResult bool) error
+	StopRecording(test test.Test, saveResult bool, writer output.Writer) error
 }
 
 type Factory interface {
@@ -50,7 +50,7 @@ func (logcat *logcatImpl) StartRecording(test test.Test) error {
 	return logcat.Adb.ClearLogcat(logcat.Device.Serial)
 }
 
-func (logcat *logcatImpl) StopRecording(test test.Test, saveResult bool) error {
+func (logcat *logcatImpl) StopRecording(test test.Test, saveResult bool, writer output.Writer) error {
 	if logcat.Test != test {
 		return errors.New(fmt.Sprintf("never started recording for test '%v'", test))
 	}
@@ -69,5 +69,5 @@ func (logcat *logcatImpl) StopRecording(test test.Test, saveResult bool) error {
 		Content: logcatOutput,
 	}
 
-	return logcat.Writer.WriteFile(f, logcat.Device)
+	return writer.WriteFile(f, logcat.Device)
 }

@@ -11,12 +11,14 @@ import (
 
 type logcatListener struct {
 	logcatFactory Factory
+	writer        output.Writer
 	logcat        Logcat
 }
 
 func NewLogcatListener(writer output.Writer) test_listener.TestListener {
 	return &logcatListener{
 		logcatFactory: NewFactory(writer),
+		writer:        writer,
 	}
 }
 
@@ -32,7 +34,7 @@ func (listener *logcatListener) BeforeTest(test test.Test) {
 }
 
 func (listener *logcatListener) AfterTest(result result.Result) {
-	errStopLogcat := listener.logcat.StopRecording(result.Test, result.ShallSaveResult())
+	errStopLogcat := listener.logcat.StopRecording(result.Test, result.ShallSaveResult(), listener.writer)
 	if errStopLogcat != nil {
 		fmt.Printf("Could not save logcat: '%v'\n", errStopLogcat)
 	}
