@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestWrite(t *testing.T) {
+func TestWriteFile(t *testing.T) {
 	rootDir := "rootDir"
 	file := files.File{}
 	device := devices.Device{}
@@ -24,7 +24,7 @@ func TestWrite(t *testing.T) {
 		files:   filesMock,
 	}
 
-	err := writer.Write(map[devices.Device][]files.File{device: {file}})
+	err := writer.WriteFile(file, device)
 
 	if err != nil {
 		t.Error(fmt.Sprintf("Expected no error but got '%v'", err))
