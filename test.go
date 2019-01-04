@@ -54,6 +54,10 @@ var flags = []cli.Flag{
 		Name:  "recordlogcat",
 		Usage: "Record logcat for failed tests.",
 	}),
+	altsrc.NewBoolFlag(cli.BoolFlag{
+		Name:  "recordjunit",
+		Usage: "Records test results in JUnit XML report",
+	}),
 }
 
 var testCommand = cli.Command{
@@ -114,7 +118,10 @@ func testAction(c *cli.Context) error {
 
 func getTestListeners(c *cli.Context, apk apks.Apk, writer output.Writer) []test_listener.TestListener {
 	var listeners []test_listener.TestListener
-	listeners = append(listeners, junit_xml.NewTestListener(writer, apk))
+
+	if c.Bool("recordjunit") {
+		listeners = append(listeners, junit_xml.NewTestListener(writer, apk))
+	}
 
 	if c.Bool("recordlogcat") {
 		listeners = append(listeners, logcat.NewLogcatListener(writer))
