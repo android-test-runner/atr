@@ -11,7 +11,7 @@ type Adb interface {
 	Install(apkPath string, deviceSerial string) command.ExecutionResult
 	Uninstall(packageName string, deviceSerial string) command.ExecutionResult
 	ExecuteTest(packageName string, testRunner string, test string, deviceSerial string) (string, error)
-	ClearLogcat(deviceSerial string) error
+	ClearLogcat(deviceSerial string) command.ExecutionResult
 	GetLogcat(deviceSerial string) (string, error)
 	RecordScreen(deviceSerial string, filePath string) (int, error)
 	PullFile(deviceSerial string, filePathOnDevice string, filePathLocal string) command.ExecutionResult
@@ -47,8 +47,8 @@ func (adb adbImpl) Uninstall(packageName string, deviceSerial string) command.Ex
 	return adb.commandExecutor.ExecuteResult(exec.Command("adb", "-s", deviceSerial, "uninstall", packageName))
 }
 
-func (adb adbImpl) ClearLogcat(deviceSerial string) error {
-	return adb.commandExecutor.Execute(exec.Command("adb", "-s", deviceSerial, "logcat", "-c"))
+func (adb adbImpl) ClearLogcat(deviceSerial string) command.ExecutionResult {
+	return adb.commandExecutor.ExecuteResult(exec.Command("adb", "-s", deviceSerial, "logcat", "-c"))
 }
 
 func (adb adbImpl) GetLogcat(deviceSerial string) (string, error) {

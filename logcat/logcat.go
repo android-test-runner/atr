@@ -32,7 +32,8 @@ func New(device devices.Device) Logcat {
 
 func (logcat *logcatImpl) StartRecording(test test.Test) error {
 	logcat.Test = test
-	return logcat.Adb.ClearLogcat(logcat.Device.Serial)
+	result := logcat.Adb.ClearLogcat(logcat.Device.Serial)
+	return result.Error
 }
 
 func (logcat *logcatImpl) StopRecording(test test.Test) error {

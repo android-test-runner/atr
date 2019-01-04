@@ -92,10 +92,10 @@ func (mr *MockAdbMockRecorder) ExecuteTest(packageName, testRunner, test, device
 }
 
 // ClearLogcat mocks base method
-func (m *MockAdb) ClearLogcat(deviceSerial string) error {
+func (m *MockAdb) ClearLogcat(deviceSerial string) command.ExecutionResult {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ClearLogcat", deviceSerial)
-	ret0, _ := ret[0].(error)
+	ret0, _ := ret[0].(command.ExecutionResult)
 	return ret0
 }
 
