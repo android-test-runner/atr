@@ -23,7 +23,7 @@ type logcatImpl struct {
 	Output string
 }
 
-func NewLogcat(device devices.Device) Logcat {
+func New(device devices.Device) Logcat {
 	return &logcatImpl{
 		Device: device,
 		Adb:    adb.New(),

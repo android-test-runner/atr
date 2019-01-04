@@ -21,7 +21,7 @@ func NewLogcatListener(writer output.Writer) test_listener.TestListener {
 }
 
 func (listener *logcatListener) BeforeTestSuite(device devices.Device) {
-	listener.logcat = NewLogcat(device)
+	listener.logcat = New(device)
 }
 
 func (listener *logcatListener) BeforeTest(test test.Test) {
