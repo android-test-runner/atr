@@ -28,7 +28,7 @@ type screenRecorderImpl struct {
 	filePath string
 }
 
-func NewScreenRecorder(device devices.Device) ScreenRecorder {
+func New(device devices.Device) ScreenRecorder {
 	return &screenRecorderImpl{
 		Device: device,
 		Adb:    adb.New(),

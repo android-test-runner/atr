@@ -21,7 +21,7 @@ func NewScreenRecorderListener(writer output.Writer) test_listener.TestListener 
 }
 
 func (listener *screenRecorderListener) BeforeTestSuite(device devices.Device) {
-	listener.screenRecorder = NewScreenRecorder(device)
+	listener.screenRecorder = New(device)
 }
 
 func (listener *screenRecorderListener) BeforeTest(test test.Test) {
