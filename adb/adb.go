@@ -52,7 +52,8 @@ func (adb adbImpl) ClearLogcat(deviceSerial string) command.ExecutionResult {
 }
 
 func (adb adbImpl) GetLogcat(deviceSerial string) (string, error) {
-	return adb.commandExecutor.ExecuteOutput(exec.Command("adb", "-s", deviceSerial, "logcat", "-d"))
+	result := adb.commandExecutor.Execute(exec.Command("adb", "-s", deviceSerial, "logcat", "-d"))
+	return result.StdOut, result.Error
 }
 
 func (adb adbImpl) RecordScreen(deviceSerial string, filePath string) (int, error) {
