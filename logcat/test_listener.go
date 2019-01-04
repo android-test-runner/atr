@@ -9,31 +9,31 @@ import (
 	"github.com/ybonjour/atr/test_listener"
 )
 
-type logcatListener struct {
+type testListener struct {
 	writer output.Writer
 	logcat Logcat
 }
 
-func NewLogcatListener(writer output.Writer) test_listener.TestListener {
-	return &logcatListener{
+func NewTestListener(writer output.Writer) test_listener.TestListener {
+	return &testListener{
 		writer: writer,
 	}
 }
 
-func (listener *logcatListener) BeforeTestSuite(device devices.Device) {
+func (listener *testListener) BeforeTestSuite(device devices.Device) {
 	listener.logcat = New(device)
 }
 
-func (listener *logcatListener) AfterTestSuite() {}
+func (listener *testListener) AfterTestSuite() {}
 
-func (listener *logcatListener) BeforeTest(test test.Test) {
+func (listener *testListener) BeforeTest(test test.Test) {
 	errStartLogcat := listener.logcat.StartRecording(test)
 	if errStartLogcat != nil {
 		fmt.Printf("Could not clear logcat: '%v'\n", errStartLogcat)
 	}
 }
 
-func (listener *logcatListener) AfterTest(result result.Result) {
+func (listener *testListener) AfterTest(result result.Result) {
 	errStopLogcat := listener.logcat.StopRecording(result.Test)
 	if errStopLogcat != nil {
 		fmt.Printf("Could not get logcat: '%v'\n", errStopLogcat)

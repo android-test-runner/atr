@@ -124,7 +124,7 @@ func getTestListeners(c *cli.Context, apk apks.Apk, writer output.Writer) []test
 	}
 
 	if c.Bool("recordlogcat") {
-		listeners = append(listeners, logcat.NewLogcatListener(writer))
+		listeners = append(listeners, logcat.NewTestListener(writer))
 	}
 
 	if c.Bool("recordscreen") {

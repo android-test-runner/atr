@@ -15,7 +15,7 @@ func TestBeforeTestStartsLogcatRecording(t *testing.T) {
 	logcatMock := mock_logcat.NewMockLogcat(ctrl)
 	logcatMock.EXPECT().StartRecording(targetTest).Return(nil)
 
-	listener := logcatListener{
+	listener := testListener{
 		logcat: logcatMock,
 	}
 	listener.BeforeTest(targetTest)
@@ -31,7 +31,7 @@ func TestAfterTestStopsLogcatRecordingAndSavesForFailedResult(t *testing.T) {
 	logcatMock := mock_logcat.NewMockLogcat(ctrl)
 	logcatMock.EXPECT().StopRecording(targetTest).Return(nil)
 	logcatMock.EXPECT().SaveRecording(targetTest, writer).Return(nil)
-	listener := logcatListener{
+	listener := testListener{
 		writer: writer,
 		logcat: logcatMock,
 	}
@@ -48,7 +48,7 @@ func TestAfterTestStopsLogcatRecordingForPassedResult(t *testing.T) {
 	logcatMock := mock_logcat.NewMockLogcat(ctrl)
 	logcatMock.EXPECT().StopRecording(targetTest).Return(nil)
 	logcatMock.EXPECT().SaveRecording(targetTest, writer).Return(nil).Times(0)
-	listener := logcatListener{
+	listener := testListener{
 		writer: writer,
 		logcat: logcatMock,
 	}
