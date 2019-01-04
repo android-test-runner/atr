@@ -12,6 +12,9 @@ type Result struct {
 	Duration time.Duration
 }
 
+func (result Result) IsFailure() bool {
+	return result.Status == Failed || result.Status == Errored
+}
 func (result Result) ShallSaveResult() bool {
 	return result.Status == Failed || result.Status == Errored
 }

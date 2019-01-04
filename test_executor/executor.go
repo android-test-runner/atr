@@ -1,6 +1,8 @@
 package test_executor
 
 import (
+	"errors"
+	"fmt"
 	"github.com/hashicorp/go-multierror"
 	"github.com/ybonjour/atr/adb"
 	"github.com/ybonjour/atr/apks"
@@ -87,8 +89,7 @@ func (executor executorImpl) executeOnDevice(config Config, device devices.Devic
 	if removeError != nil {
 		return removeError
 	}
-	executor.executeTests(config, device)
-	return nil
+	return executor.executeTests(config, device)
 }
 
 func (executor executorImpl) reinstallApks(config Config, device devices.Device) error {
@@ -104,15 +105,21 @@ func (executor executorImpl) reinstallApks(config Config, device devices.Device)
 	return nil
 }
 
-func (executor executorImpl) executeTests(testConfig Config, device devices.Device) {
+func (executor executorImpl) executeTests(testConfig Config, device devices.Device) error {
 	executor.beforeTestSuite(device)
+	var testSuiteResult error
 	for _, t := range testConfig.Tests {
 		executor.beforeTest(t)
 		testOutput, errTest, duration := executor.executeSingleTest(t, device, testConfig.TestApk.PackageName, testConfig.TestRunner)
 		r := executor.resultParser.ParseFromOutput(t, errTest, testOutput, duration)
+		if r.IsFailure() {
+			testSuiteResult = multierror.Append(testSuiteResult, errors.New(fmt.Sprintf("Test '%v' failed on device '%v'", r.Test.FullName(), device)))
+		}
 		executor.afterTest(r)
 	}
 	executor.afterTestSuite()
+
+	return testSuiteResult
 }
 
 func (executor executorImpl) forAllTestListeners(f func(listener test_listener.TestListener)) {
