@@ -2,7 +2,6 @@ package command
 
 import (
 	"bytes"
-	"fmt"
 	"log"
 	"os/exec"
 )
@@ -14,7 +13,6 @@ type ExecutionResult struct {
 }
 
 type Executor interface {
-	Execute(cmd *exec.Cmd) error
 	ExecuteResult(cmd *exec.Cmd) ExecutionResult
 	ExecuteOutput(cmd *exec.Cmd) (string, error)
 	ExecuteInBackground(cmd *exec.Cmd) (int, error)
@@ -40,17 +38,6 @@ func (executorImpl) ExecuteResult(cmd *exec.Cmd) ExecutionResult {
 		StdErr: err.String(),
 		Error:  runError,
 	}
-}
-
-func (executor executorImpl) Execute(cmd *exec.Cmd) error {
-	out, executeError := executor.ExecuteOutput(cmd)
-
-	if executeError != nil {
-		return executeError
-	}
-
-	fmt.Printf("%v", out)
-	return nil
 }
 
 func (executor executorImpl) ExecuteInBackground(cmd *exec.Cmd) (int, error) {
