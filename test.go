@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/urfave/cli"
 	"github.com/ybonjour/atr/aapt"
 	"github.com/ybonjour/atr/apks"
 	"github.com/ybonjour/atr/devices"
@@ -12,6 +11,7 @@ import (
 	"github.com/ybonjour/atr/result"
 	"github.com/ybonjour/atr/test"
 	"github.com/ybonjour/atr/test_executor"
+	"gopkg.in/urfave/cli.v1"
 )
 
 var testCommand = cli.Command{
@@ -19,6 +19,10 @@ var testCommand = cli.Command{
 	Usage:  "Execute an android instrumentation test",
 	Action: testAction,
 	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:  "load, l",
+			Usage: "Specify to file to load flags from",
+		},
 		cli.StringFlag{
 			Name:  "apk, a",
 			Usage: "APK under test",
