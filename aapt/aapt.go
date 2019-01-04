@@ -39,10 +39,10 @@ func (aapt aaptImpl) TestRunner(apkPath string) (string, error) {
 		"AndroidManifest.xml",
 	}
 
-	out, err := aapt.commandExecutor.ExecuteOutput(exec.Command("aapt", arguments...))
-	if err != nil {
-		return "", err
+	result := aapt.commandExecutor.Execute(exec.Command("aapt", arguments...))
+	if result.Error != nil {
+		return "", result.Error
 	}
 
-	return aapt.outputParser.ParseTestRunner(out)
+	return aapt.outputParser.ParseTestRunner(result.StdOut)
 }

@@ -80,10 +80,8 @@ func TestTestRunner(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	commandExecutorMock := mock_command.NewMockExecutor(ctrl)
-	commandExecutorMock.
-		EXPECT().
-		ExecuteOutput(gomock.Any()).
-		Return(unparsedTestRunner, nil)
+	executionResult := command.ExecutionResult{StdOut: unparsedTestRunner, Error: nil}
+	commandExecutorMock.EXPECT().Execute(gomock.Any()).Return(executionResult)
 	outputParserMock := mock_aapt.NewMockoutputParser(ctrl)
 	outputParserMock.
 		EXPECT().
@@ -109,7 +107,8 @@ func TestTestRunnerReturnsCommandError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	commandExecutorMock := mock_command.NewMockExecutor(ctrl)
-	commandExecutorMock.EXPECT().ExecuteOutput(gomock.Any()).Return("", expectedErr)
+	executionResult := command.ExecutionResult{Error: expectedErr}
+	commandExecutorMock.EXPECT().Execute(gomock.Any()).Return(executionResult)
 	aapt := aaptImpl{
 		commandExecutor: commandExecutorMock,
 	}
@@ -126,7 +125,8 @@ func TestTestRunnerReturnsParseError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	commandExecutorMock := mock_command.NewMockExecutor(ctrl)
-	commandExecutorMock.EXPECT().ExecuteOutput(gomock.Any()).Return("", nil)
+	executionResult := command.ExecutionResult{StdOut: "", Error: nil}
+	commandExecutorMock.EXPECT().Execute(gomock.Any()).Return(executionResult)
 	outputParserMock := mock_aapt.NewMockoutputParser(ctrl)
 	outputParserMock.EXPECT().ParseTestRunner(gomock.Any()).Return("", expectedErr)
 	aapt := aaptImpl{
