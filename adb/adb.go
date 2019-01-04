@@ -79,5 +79,6 @@ func (adb adbImpl) ExecuteTest(packageName string, testRunner string, test strin
 		fmt.Sprintf("-e class %v", test),
 		fmt.Sprintf("%v/%v", packageName, testRunner),
 	}
-	return adb.commandExecutor.ExecuteOutput(exec.Command("adb", arguments...))
+	result := adb.commandExecutor.Execute(exec.Command("adb", arguments...))
+	return result.StdOut, result.Error
 }
