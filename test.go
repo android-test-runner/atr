@@ -72,26 +72,26 @@ func testAction(c *cli.Context) error {
 	apkPath := c.String("apk")
 	apkUnderTest, apkGetError := apks.New().GetApk(apkPath)
 	if apkGetError != nil {
-		return cli.NewExitError(fmt.Sprintf("Could not get apk %v", apkPath), 1)
+		return cli.NewExitError(fmt.Sprintf("Could not get apk '%v'", apkPath), 1)
 	}
 
 	testApkPath := c.String("testapk")
 	testApk, apkGetError := apks.New().GetApk(testApkPath)
 	if apkGetError != nil {
-		return cli.NewExitError(fmt.Sprintf("Could not get apk %v", testApkPath), 1)
+		return cli.NewExitError(fmt.Sprintf("Could not get apk '%v'", testApkPath), 1)
 	}
 
 	allTests, testsError := allTests(c)
 	if testsError != nil {
-		return cli.NewExitError(fmt.Sprintf("Invalid tests: %v", testsError), 1)
+		return cli.NewExitError(fmt.Sprintf("Invalid tests: '%v'", testsError), 1)
 	}
 
 	configDevices, devicesError := getDevices(c)
 	if devicesError != nil {
-		return cli.NewExitError(fmt.Sprintf("Invalid devices: %v", devicesError), 1)
+		return cli.NewExitError(fmt.Sprintf("Invalid devices: '%v'", devicesError), 1)
 	}
 
-	fmt.Printf("Executing %v Tests on the following devices: '%v'", len(allTests), configDevices)
+	fmt.Printf("Executing %v Tests on the following devices: '%v'\n", len(allTests), configDevices)
 
 	testRunner, testRunnerError := aapt.New().TestRunner(testApk.Path)
 	if testRunnerError != nil {
