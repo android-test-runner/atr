@@ -6,6 +6,7 @@ package mock_command
 
 import (
 	gomock "github.com/golang/mock/gomock"
+	command "github.com/ybonjour/atr/command"
 	exec "os/exec"
 	reflect "reflect"
 )
@@ -45,6 +46,20 @@ func (m *MockExecutor) Execute(cmd *exec.Cmd) error {
 func (mr *MockExecutorMockRecorder) Execute(cmd interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Execute", reflect.TypeOf((*MockExecutor)(nil).Execute), cmd)
+}
+
+// ExecuteResult mocks base method
+func (m *MockExecutor) ExecuteResult(cmd *exec.Cmd) command.ExecutionResult {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ExecuteResult", cmd)
+	ret0, _ := ret[0].(command.ExecutionResult)
+	return ret0
+}
+
+// ExecuteResult indicates an expected call of ExecuteResult
+func (mr *MockExecutorMockRecorder) ExecuteResult(cmd interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExecuteResult", reflect.TypeOf((*MockExecutor)(nil).ExecuteResult), cmd)
 }
 
 // ExecuteOutput mocks base method

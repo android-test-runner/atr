@@ -14,7 +14,7 @@ type Adb interface {
 	ClearLogcat(deviceSerial string) error
 	GetLogcat(deviceSerial string) (string, error)
 	RecordScreen(deviceSerial string, filePath string) (int, error)
-	PullFile(deviceSerial string, filePathOnDevice string, filePathLocal string) error
+	PullFile(deviceSerial string, filePathOnDevice string, filePathLocal string) command.ExecutionResult
 	RemoveFile(deviceSerial string, filePathOnDevice string) error
 }
 
@@ -59,8 +59,8 @@ func (adb adbImpl) RecordScreen(deviceSerial string, filePath string) (int, erro
 	return adb.commandExecutor.ExecuteInBackground(exec.Command("adb", "-s", deviceSerial, "shell", "screenrecord", filePath))
 }
 
-func (adb adbImpl) PullFile(deviceSerial string, filePathOnDevice string, filePathLocal string) error {
-	return adb.commandExecutor.Execute(exec.Command("adb", "-s", deviceSerial, "pull", filePathOnDevice, filePathLocal))
+func (adb adbImpl) PullFile(deviceSerial string, filePathOnDevice string, filePathLocal string) command.ExecutionResult {
+	return adb.commandExecutor.ExecuteResult(exec.Command("adb", "-s", deviceSerial, "pull", filePathOnDevice, filePathLocal))
 }
 
 func (adb adbImpl) RemoveFile(deviceSerial string, filePathOnDevice string) error {

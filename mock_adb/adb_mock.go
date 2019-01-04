@@ -6,6 +6,7 @@ package mock_adb
 
 import (
 	gomock "github.com/golang/mock/gomock"
+	command "github.com/ybonjour/atr/command"
 	reflect "reflect"
 )
 
@@ -135,10 +136,10 @@ func (mr *MockAdbMockRecorder) RecordScreen(deviceSerial, filePath interface{}) 
 }
 
 // PullFile mocks base method
-func (m *MockAdb) PullFile(deviceSerial, filePathOnDevice, filePathLocal string) error {
+func (m *MockAdb) PullFile(deviceSerial, filePathOnDevice, filePathLocal string) command.ExecutionResult {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PullFile", deviceSerial, filePathOnDevice, filePathLocal)
-	ret0, _ := ret[0].(error)
+	ret0, _ := ret[0].(command.ExecutionResult)
 	return ret0
 }
 

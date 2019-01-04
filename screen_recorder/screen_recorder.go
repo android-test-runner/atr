@@ -78,7 +78,9 @@ func (screenRecorder *screenRecorderImpl) SaveResult(test test.Test, writer outp
 	// Give screen recorder some time to properly write the video file
 	time.Sleep(2 * time.Second)
 
-	return screenRecorder.Adb.PullFile(screenRecorder.Device.Serial, screenRecorder.filePath, localFile)
+	r := screenRecorder.Adb.PullFile(screenRecorder.Device.Serial, screenRecorder.filePath, localFile)
+
+	return r.Error
 }
 
 func interruptProcess(pid int) error {

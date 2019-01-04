@@ -7,7 +7,7 @@ import (
 	"os/exec"
 )
 
-type executionResult struct {
+type ExecutionResult struct {
 	StdOut string
 	StdErr string
 	Error  error
@@ -15,7 +15,7 @@ type executionResult struct {
 
 type Executor interface {
 	Execute(cmd *exec.Cmd) error
-	ExecuteResult(cmd *exec.Cmd) executionResult
+	ExecuteResult(cmd *exec.Cmd) ExecutionResult
 	ExecuteOutput(cmd *exec.Cmd) (string, error)
 	ExecuteInBackground(cmd *exec.Cmd) (int, error)
 }
@@ -26,7 +26,7 @@ func NewExecutor() Executor {
 	return executorImpl{}
 }
 
-func (executorImpl) ExecuteResult(cmd *exec.Cmd) executionResult {
+func (executorImpl) ExecuteResult(cmd *exec.Cmd) ExecutionResult {
 	var out bytes.Buffer
 	cmd.Stdout = &out
 
@@ -35,7 +35,7 @@ func (executorImpl) ExecuteResult(cmd *exec.Cmd) executionResult {
 
 	runError := cmd.Run()
 
-	return executionResult{
+	return ExecutionResult{
 		StdOut: out.String(),
 		StdErr: err.String(),
 		Error:  runError,
