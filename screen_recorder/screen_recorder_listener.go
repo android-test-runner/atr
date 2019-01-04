@@ -46,7 +46,6 @@ func (listener *screenRecorderListener) AfterTest(result result.Result) {
 
 	if errSave != nil {
 		fmt.Printf("Could not save screen recording: '%v'\n", errSave)
-		return
 	}
 
 	if errRemove != nil {
