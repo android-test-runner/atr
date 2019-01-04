@@ -10,6 +10,7 @@ import (
 	"github.com/ybonjour/atr/mock_output"
 	"github.com/ybonjour/atr/mock_result"
 	"github.com/ybonjour/atr/mock_test_executor"
+	"github.com/ybonjour/atr/mock_test_listener"
 	"github.com/ybonjour/atr/result"
 	"github.com/ybonjour/atr/test"
 	"github.com/ybonjour/atr/test_listener"
@@ -143,6 +144,45 @@ func TestExecuteMultipleDevices(t *testing.T) {
 	expectedResultsDevice2 := []result.Result{testResult2}
 	if !AreEqualResults(results[device1], expectedResultsDevice2) {
 		t.Error(fmt.Sprintf("Expected results '%v' but got '%v'", expectedResultsDevice2, results[device2]))
+	}
+}
+
+func TestExecuteCallsTestListener(t *testing.T) {
+	targetTest := test.Test{Class: "TestClass", Method: "testMethod"}
+	config := Config{
+		TestApk:    apks.Apk{PackageName: "testPackageName"},
+		Tests:      []test.Test{targetTest},
+		TestRunner: "testRunner",
+	}
+	testResult := result.Result{}
+	device := devices.Device{Serial: "abcd"}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockInstaller := mock_test_executor.NewMockInstaller(ctrl)
+	givenAllApksInstalledSuccessfully(mockInstaller, 1)
+	mockAdb := mock_adb.NewMockAdb(ctrl)
+	mockResultParser := mock_result.NewMockParser(ctrl)
+	givenTestOnDeviceReturns(targetTest, device, testResult, mockAdb, mockResultParser)
+	mockWriter := mock_output.NewMockWriter(ctrl)
+	mockFiles := mock_files.NewMockFiles(ctrl)
+	givenDeviceDirectoryCanBeRemoved(device, mockWriter, mockFiles)
+	testListener := mock_test_listener.NewMockTestListener(ctrl)
+	testListener.EXPECT().BeforeTestSuite(device)
+	testListener.EXPECT().BeforeTest(targetTest)
+	testListener.EXPECT().AfterTest(testResult)
+	executor := executorImpl{
+		installer:     mockInstaller,
+		adb:           mockAdb,
+		resultParser:  mockResultParser,
+		testListeners: []test_listener.TestListener{testListener},
+		writer:        mockWriter,
+		files:         mockFiles,
+	}
+
+	_, err := executor.Execute(config, []devices.Device{device})
+
+	if err != nil {
+		t.Error(fmt.Sprintf("Expected no error but got '%v'", err))
 	}
 }
 
