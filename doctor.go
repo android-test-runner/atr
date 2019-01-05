@@ -17,18 +17,37 @@ var doctorCommand = cli.Command{
 
 func doctorAction(c *cli.Context) {
 	fmt.Printf("Results:\n")
-	checkAdb()
+	checkAdbResult := checkAdb()
 	checkAapt()
+	if checkAdbResult {
+		checkConnectedDevices()
+	}
 }
 
-func checkAdb() {
+func checkAdb() bool {
 	adbVersion, err := adb.New().Version()
 	if err != nil {
 		printError("adb is not installed or not in PATH",
 			"- Install the Android Debug Bridge (ADB). See https://developer.android.com/studio/command-line/adb for more information.\n"+
 				"- Make sure adb can be executed from the command line. You might need to add the path to adb to the PATH environment variable.")
+		return false
 	} else {
 		printOk(fmt.Sprintf("adb version %v installed", adbVersion))
+		return true
+	}
+}
+
+func checkConnectedDevices() {
+	connectedDevices, err := adb.New().ConnectedDevices()
+	if err != nil {
+		printError("unable to get connected devices", err.Error())
+	} else if len(connectedDevices) == 0 {
+		printError("no connected devices",
+			"- Make sure a device is plugged in or an emluator is started.\n"+
+				"- Make sure the devices are reachable through adb: \n"+
+				"  Execute 'adb devices' and check if the devices are listed with status `device`.")
+	} else {
+		printOk(fmt.Sprintf("%v connected devices", len(connectedDevices)))
 	}
 }
 
