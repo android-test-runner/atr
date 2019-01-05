@@ -27,9 +27,9 @@ func (listener *testListener) BeforeTest(test test.Test) {}
 func (listener *testListener) AfterTest(result result.Result) {
 	var resultOutput string
 	if result.IsFailure() {
-		resultOutput = color("FAILED", Red)
+		resultOutput = Color("FAILED", Red)
 	} else {
-		resultOutput = color("PASSED", Green)
+		resultOutput = Color("PASSED", Green)
 	}
 	fmt.Printf(
 		"'%v' on '%v': %v\n",

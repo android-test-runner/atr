@@ -8,6 +8,6 @@ const (
 	noColor = "\033[0m"
 )
 
-func color(input string, color string) string {
+func Color(input string, color string) string {
 	return fmt.Sprintf("%v%v%v", color, input, noColor)
 }
