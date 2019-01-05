@@ -15,6 +15,7 @@ func main() {
 	app.EnableBashCompletion = true
 	app.Commands = []cli.Command{
 		testCommand,
+		doctorCommand,
 	}
 
 	app.Run(os.Args)
