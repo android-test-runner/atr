@@ -4,7 +4,7 @@ func AsciiDoctor() string {
 	return `
 ***************************************************
             .----. 
-           ===    (_)==   THIS WONT HURT A BIT...
+           ===(_)==   THIS WONT HURT A BIT...
           // 6  6 \\  /
           (    7   )
            \ '--' /
