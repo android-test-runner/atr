@@ -7,6 +7,7 @@ import (
 )
 
 type outputParser interface {
+	ParseVersion(out string) (string, error)
 	ParsePackageName(out string) (string, error)
 	ParseTestRunner(out string) (string, error)
 }
@@ -15,6 +16,19 @@ type outputParserImpl struct{}
 
 func newOutputParser() outputParser {
 	return outputParserImpl{}
+}
+
+func (outputParserImpl) ParseVersion(out string) (string, error) {
+	lines := strings.Split(out, "\n")
+	for _, line := range lines {
+		r := regexp.MustCompile(`Android Asset Packaging Tool, (v[0-9.-]+)`)
+		matches := r.FindStringSubmatch(line)
+		if matches != nil {
+			return matches[1], nil
+		}
+	}
+
+	return "", errors.New("no version found")
 }
 
 func (outputParserImpl) ParsePackageName(out string) (string, error) {

@@ -32,6 +32,21 @@ func (m *MockoutputParser) EXPECT() *MockoutputParserMockRecorder {
 	return m.recorder
 }
 
+// ParseVersion mocks base method
+func (m *MockoutputParser) ParseVersion(out string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ParseVersion", out)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ParseVersion indicates an expected call of ParseVersion
+func (mr *MockoutputParserMockRecorder) ParseVersion(out interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseVersion", reflect.TypeOf((*MockoutputParser)(nil).ParseVersion), out)
+}
+
 // ParsePackageName mocks base method
 func (m *MockoutputParser) ParsePackageName(out string) (string, error) {
 	m.ctrl.T.Helper()
