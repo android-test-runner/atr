@@ -7,6 +7,7 @@ import (
 )
 
 type Adb interface {
+	Version() (string, error)
 	ConnectedDevices() ([]string, error)
 	Install(apkPath string, deviceSerial string) command.ExecutionResult
 	Uninstall(packageName string, deviceSerial string) command.ExecutionResult
@@ -27,6 +28,19 @@ func New() Adb {
 	return adbImpl{
 		commandExecutor: command.NewExecutor(),
 		outputParser:    newOutputParser(),
+	}
+}
+
+func (adb adbImpl) Version() (string, error) {
+	result := adb.commandExecutor.Execute(exec.Command("adb", "--version"))
+	if result.Error != nil {
+		return "", result.Error
+	}
+	version, parseError := adb.outputParser.ParseVersion(result.StdOut)
+	if parseError != nil {
+		return "Unknown Version", nil
+	} else {
+		return version, nil
 	}
 }
 

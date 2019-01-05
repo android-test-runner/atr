@@ -43,6 +43,46 @@ func TestIgnoresNonDeviceOutput(t *testing.T) {
 	}
 }
 
+func TestParsesVersion(t *testing.T) {
+	expectedVersion := "1.0.40"
+	out := fmt.Sprintf("Android Debug Bridge version %v", expectedVersion)
+
+	version, err := newOutputParser().ParseVersion(out)
+
+	if err != nil {
+		t.Error(fmt.Sprintf("Expected no error but got '%v'", err))
+	}
+
+	if version != expectedVersion {
+		t.Error(fmt.Sprintf("Expected version '%v' but got '%v'", expectedVersion, version))
+	}
+}
+
+func TestParsesVersionFromMultipleLines(t *testing.T) {
+	expectedVersion := "1.0.40"
+	out := fmt.Sprintf("some other line\nAndroid Debug Bridge version %v\nsome other line", expectedVersion)
+
+	version, err := newOutputParser().ParseVersion(out)
+
+	if err != nil {
+		t.Error(fmt.Sprintf("Expected no error but got '%v'", err))
+	}
+
+	if version != expectedVersion {
+		t.Error(fmt.Sprintf("Expected version '%v' but got '%v'", expectedVersion, version))
+	}
+}
+
+func TestReturnsErrorWhenNoVersionProvided(t *testing.T) {
+	out := "some output without a version"
+
+	_, err := newOutputParser().ParseVersion(out)
+
+	if err == nil {
+		t.Error("Expected an error because no version present but did not get any")
+	}
+}
+
 func verifySerials(expected, actual []string, t *testing.T) {
 	if !AreEqual(expected, actual) {
 		t.Error(fmt.Sprintf("Got serials %v instead of %v.", actual, expected))

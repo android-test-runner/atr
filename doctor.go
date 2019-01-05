@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -12,5 +11,9 @@ var doctorCommand = cli.Command{
 }
 
 func doctorAction(c *cli.Context) {
-	fmt.Println("Doctor")
+
+}
+
+func isAdbInstalled() bool {
+
 }
