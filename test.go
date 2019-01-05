@@ -20,32 +20,32 @@ import (
 var flags = []cli.Flag{
 	cli.StringFlag{
 		Name:  "load, l",
-		Usage: "Specify to file to load flags from",
+		Usage: "Specify file to load flag values from.",
 	},
 	altsrc.NewStringFlag(cli.StringFlag{
 		Name:  "apk",
-		Usage: "APK under test",
+		Usage: "APK under test.",
 	}),
 	altsrc.NewStringFlag(cli.StringFlag{
 		Name:  "testapk",
-		Usage: "APK containing instrumentation tests",
+		Usage: "APK containing instrumentation tests.",
 	}),
 	altsrc.NewStringSliceFlag(cli.StringSliceFlag{
 		Name:  "test",
-		Usage: "Test to run formatted as TestClass#test",
+		Usage: "Test to run formatted as TestClass#testMethod.",
 	}),
 	altsrc.NewStringFlag(cli.StringFlag{
 		Name:  "testfile",
-		Usage: "Path to a textfile defining the tests to execute separated by newlines",
+		Usage: "Path to a text file defining the tests to execute separated by newlines.",
 	}),
 	altsrc.NewStringSliceFlag(cli.StringSliceFlag{
 		Name:  "device",
-		Usage: "Id of device on which the test shall run",
+		Usage: "Serial number of device on which the test shall run.",
 	}),
 	altsrc.NewStringFlag(cli.StringFlag{
 		Name:  "output",
 		Value: "build/atr",
-		Usage: "Folder to write test output",
+		Usage: "Folder to write test output to.",
 	}),
 	altsrc.NewBoolFlag(cli.BoolFlag{
 		Name:  "recordscreen",
@@ -64,9 +64,24 @@ var flags = []cli.Flag{
 var testCommand = cli.Command{
 	Name:   "test",
 	Usage:  "Execute an android instrumentation test",
-	Before: altsrc.InitInputSourceWithContext(flags, altsrc.NewYamlSourceFromFlagFunc("load")),
+	Before: readYaml,
 	Action: testAction,
 	Flags:  flags,
+}
+
+func readYaml(c *cli.Context) error {
+	if c.String("load") == "" {
+		return nil
+	}
+
+	err := altsrc.InitInputSourceWithContext(flags, altsrc.NewYamlSourceFromFlagFunc("load"))(c)
+	if err != nil {
+		// Print a meaningful error message,
+		// because urfave/cli will not print an error message if the Before function fails.
+		errorMessage := fmt.Sprintf("Could not read YAML configuration file '%v': \n%v\n", c.String("load"), err)
+		fmt.Print(console.Color(errorMessage, console.Red))
+	}
+	return err
 }
 
 func testAction(c *cli.Context) error {
@@ -79,7 +94,7 @@ func testAction(c *cli.Context) error {
 	testApkPath := c.String("testapk")
 	testApk, apkGetError := apks.New().GetApk(testApkPath)
 	if apkGetError != nil {
-		return cli.NewExitError(fmt.Sprintf("Could not get apk '%v'", testApkPath), 1)
+		return cli.NewExitError(fmt.Sprintf("Could not get testapk '%v'", testApkPath), 1)
 	}
 
 	allTests, testsError := allTests(c)
