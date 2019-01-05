@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/ybonjour/atr/aapt"
 	"github.com/ybonjour/atr/adb"
 	"github.com/ybonjour/atr/console"
 	"gopkg.in/urfave/cli.v1"
@@ -16,13 +17,29 @@ var doctorCommand = cli.Command{
 
 func doctorAction(c *cli.Context) {
 	fmt.Printf("Results:\n")
-	adbVersion, adbError := adb.New().Version()
-	if adbError != nil {
-		printError("adb is not installed or not reachable",
-			"- Please install the Android Debug Bridge (ADB). See https://developer.android.com/studio/command-line/adb for more information.\n"+
-				"- Make sure adb can be executed from the command line. You might need to add the path to adb to the PATH directory.")
+	checkAdb()
+	checkAapt()
+}
+
+func checkAdb() {
+	adbVersion, err := adb.New().Version()
+	if err != nil {
+		printError("adb is not installed or not in PATH",
+			"- Install the Android Debug Bridge (ADB). See https://developer.android.com/studio/command-line/adb for more information.\n"+
+				"- Make sure adb can be executed from the command line. You might need to add the path to adb to the PATH environment variable.")
 	} else {
 		printOk(fmt.Sprintf("adb version %v installed", adbVersion))
+	}
+}
+
+func checkAapt() {
+	aaptVersion, err := aapt.New().Version()
+	if err != nil {
+		printError("aapt is not installed or not in PATH",
+			"- Install the Android Asset Packaging Tool (aapt). See https://developer.android.com/studio/command-line/aapt2 \n"+
+				"- Make sure aapt can be executed from the command line. You might need to add the path to aapt to the PATH environment variable")
+	} else {
+		printOk(fmt.Sprintf("aapt version %v installed", aaptVersion))
 	}
 }
 
