@@ -26,13 +26,10 @@ func (listener *testListener) BeforeTest(test test.Test) {}
 
 func (listener *testListener) AfterTest(result result.Result) {
 	var resultOutput string
-	noColor := "\033[0m"
 	if result.IsFailure() {
-		red := "\033[0;31m"
-		resultOutput = fmt.Sprintf("%vFAILED%v", red, noColor)
+		resultOutput = color("FAILED", Red)
 	} else {
-		green := "\033[0;32m"
-		resultOutput = fmt.Sprintf("%vPASSED%v", green, noColor)
+		resultOutput = color("PASSED", Green)
 	}
 	fmt.Printf(
 		"'%v' on '%v': %v\n",
