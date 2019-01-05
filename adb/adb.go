@@ -9,6 +9,7 @@ import (
 type Adb interface {
 	Version() (string, error)
 	ConnectedDevices() ([]string, error)
+	DisableAnimations(deviceSerial string) error
 	Install(apkPath string, deviceSerial string) command.ExecutionResult
 	Uninstall(packageName string, deviceSerial string) command.ExecutionResult
 	ExecuteTest(packageName string, testRunner string, test string, deviceSerial string) (string, error)
@@ -51,6 +52,32 @@ func (adb adbImpl) ConnectedDevices() ([]string, error) {
 	}
 
 	return adb.outputParser.ParseConnectedDeviceSerials(result.StdOut), nil
+}
+
+func (adb adbImpl) DisableAnimations(deviceSerial string) error {
+	windowAnimationScaleError := adb.setGlobalSetting(deviceSerial, "window_animation_scale", "0.0")
+	if windowAnimationScaleError != nil {
+		return windowAnimationScaleError
+	}
+
+	transitionAnimationScaleError := adb.setGlobalSetting(deviceSerial, "transition_animation_scale", "0.0")
+	if transitionAnimationScaleError != nil {
+		return transitionAnimationScaleError
+	}
+
+	return adb.setGlobalSetting(deviceSerial, "animator_duration_scale", "0.0")
+}
+
+func (adb adbImpl) setGlobalSetting(deviceSerial string, key string, value string) error {
+	arguments := []string{
+		"-s", deviceSerial,
+		"shell",
+		"settings", "put", "global",
+		key, value,
+	}
+
+	result := adb.commandExecutor.Execute(exec.Command("adb", arguments...))
+	return result.Error
 }
 
 func (adb adbImpl) Install(apkPath string, deviceSerial string) command.ExecutionResult {

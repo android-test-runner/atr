@@ -17,11 +17,12 @@ import (
 )
 
 type Config struct {
-	Apk          apks.Apk
-	TestApk      apks.Apk
-	TestRunner   string
-	Tests        []test.Test
-	OutputFolder string
+	Apk               apks.Apk
+	TestApk           apks.Apk
+	TestRunner        string
+	Tests             []test.Test
+	OutputFolder      string
+	DisableAnimations bool
 }
 
 type Executor interface {
@@ -89,6 +90,13 @@ func (executor executorImpl) executeOnDevice(config Config, device devices.Devic
 	if removeError != nil {
 		return removeError
 	}
+	if config.DisableAnimations {
+		disableAnimationsError := executor.adb.DisableAnimations(device.Serial)
+		if disableAnimationsError != nil {
+			return disableAnimationsError
+		}
+	}
+
 	return executor.executeTests(config, device)
 }
 

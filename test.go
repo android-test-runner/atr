@@ -57,7 +57,11 @@ var flags = []cli.Flag{
 	}),
 	altsrc.NewBoolFlag(cli.BoolFlag{
 		Name:  "recordjunit",
-		Usage: "Records test results in JUnit XML report",
+		Usage: "Record test results in JUnit XML report.",
+	}),
+	altsrc.NewBoolFlag(cli.BoolFlag{
+		Name:  "disableanimations",
+		Usage: "Disable animations before test execution. This is recommended for Espresso tests.",
 	}),
 }
 
@@ -115,11 +119,12 @@ func testAction(c *cli.Context) error {
 	}
 
 	config := test_executor.Config{
-		Apk:          apkUnderTest,
-		TestApk:      testApk,
-		TestRunner:   testRunner,
-		Tests:        allTests,
-		OutputFolder: c.String("output"),
+		Apk:               apkUnderTest,
+		TestApk:           testApk,
+		TestRunner:        testRunner,
+		Tests:             allTests,
+		OutputFolder:      c.String("output"),
+		DisableAnimations: c.Bool("disableanimations"),
 	}
 	writer := output.NewWriter(c.String("output"))
 

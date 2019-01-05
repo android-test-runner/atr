@@ -63,6 +63,20 @@ func (mr *MockAdbMockRecorder) ConnectedDevices() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConnectedDevices", reflect.TypeOf((*MockAdb)(nil).ConnectedDevices))
 }
 
+// DisableAnimations mocks base method
+func (m *MockAdb) DisableAnimations(deviceSerial string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DisableAnimations", deviceSerial)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DisableAnimations indicates an expected call of DisableAnimations
+func (mr *MockAdbMockRecorder) DisableAnimations(deviceSerial interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DisableAnimations", reflect.TypeOf((*MockAdb)(nil).DisableAnimations), deviceSerial)
+}
+
 // Install mocks base method
 func (m *MockAdb) Install(apkPath, deviceSerial string) command.ExecutionResult {
 	m.ctrl.T.Helper()

@@ -20,9 +20,10 @@ import (
 func TestExecute(t *testing.T) {
 	targetTest := test.Test{Class: "TestClass", Method: "testMethod"}
 	config := Config{
-		TestApk:    apks.Apk{PackageName: "testPackageName"},
-		Tests:      []test.Test{targetTest},
-		TestRunner: "testRunner",
+		TestApk:           apks.Apk{PackageName: "testPackageName"},
+		Tests:             []test.Test{targetTest},
+		TestRunner:        "testRunner",
+		DisableAnimations: true,
 	}
 	testOutput := "testOutput"
 	testResult := result.Result{}
@@ -37,6 +38,7 @@ func TestExecute(t *testing.T) {
 		EXPECT().
 		ExecuteTest(config.TestApk.PackageName, config.TestRunner, targetTest.FullName(), device.Serial).
 		Return(testOutput, nil)
+	mockAdb.EXPECT().DisableAnimations(device.Serial).Return(nil)
 	mockResultParser := mock_result.NewMockParser(ctrl)
 	mockResultParser.EXPECT().ParseFromOutput(gomock.Eq(targetTest), gomock.Eq(nil), gomock.Eq(testOutput), gomock.Any()).Return(testResult)
 	mockWriter := mock_output.NewMockWriter(ctrl)
