@@ -32,6 +32,21 @@ func (m *MockAapt) EXPECT() *MockAaptMockRecorder {
 	return m.recorder
 }
 
+// Version mocks base method
+func (m *MockAapt) Version() (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Version")
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Version indicates an expected call of Version
+func (mr *MockAaptMockRecorder) Version() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Version", reflect.TypeOf((*MockAapt)(nil).Version))
+}
+
 // PackageName mocks base method
 func (m *MockAapt) PackageName(apkPath string) (string, error) {
 	m.ctrl.T.Helper()
