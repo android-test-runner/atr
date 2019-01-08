@@ -116,6 +116,7 @@ func (executor executorImpl) reinstallApks(config Config, device devices.Device)
 func (executor executorImpl) executeTests(testConfig Config, device devices.Device) error {
 	executor.beforeTestSuite(device)
 	var testSuiteResult error
+	var results []result.Result
 	for _, t := range testConfig.Tests {
 		executor.beforeTest(t)
 		testOutput, errTest, duration := executor.executeSingleTest(t, device, testConfig.TestApk.PackageName, testConfig.TestRunner)
@@ -123,7 +124,9 @@ func (executor executorImpl) executeTests(testConfig Config, device devices.Devi
 		if r.IsFailure() {
 			testSuiteResult = multierror.Append(testSuiteResult, errors.New(fmt.Sprintf("Test '%v' failed on device '%v'", r.Test.FullName(), device)))
 		}
-		executor.afterTest(r)
+		extendedResult := executor.afterTest(r)
+		results = append(results, extendedResult)
+
 	}
 	executor.afterTestSuite()
 
@@ -154,10 +157,13 @@ func (executor executorImpl) beforeTest(t test.Test) {
 	})
 }
 
-func (executor executorImpl) afterTest(r result.Result) {
+func (executor executorImpl) afterTest(r result.Result) result.Result {
 	executor.forAllTestListeners(func(listener test_listener.TestListener) {
-		listener.AfterTest(r)
+		extras := listener.AfterTest(r)
+		r.Extras = append(r.Extras, extras...)
 	})
+
+	return r
 }
 
 func (executor executorImpl) executeSingleTest(t test.Test, device devices.Device, testPackage string, testRunner string) (string, error, time.Duration) {
