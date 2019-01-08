@@ -72,13 +72,15 @@ func (mr *MockTestListenerMockRecorder) BeforeTest(test interface{}) *gomock.Cal
 }
 
 // AfterTest mocks base method
-func (m *MockTestListener) AfterTest(result result.Result) {
+func (m *MockTestListener) AfterTest(r result.Result) []result.Extra {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "AfterTest", result)
+	ret := m.ctrl.Call(m, "AfterTest", r)
+	ret0, _ := ret[0].([]result.Extra)
+	return ret0
 }
 
 // AfterTest indicates an expected call of AfterTest
-func (mr *MockTestListenerMockRecorder) AfterTest(result interface{}) *gomock.Call {
+func (mr *MockTestListenerMockRecorder) AfterTest(r interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AfterTest", reflect.TypeOf((*MockTestListener)(nil).AfterTest), result)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AfterTest", reflect.TypeOf((*MockTestListener)(nil).AfterTest), r)
 }

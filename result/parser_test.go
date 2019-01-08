@@ -16,7 +16,7 @@ func TestResultFromOutputPassed(t *testing.T) {
 	result := NewParser().ParseFromOutput(testForResult, nil, okOutput, duration)
 
 	expected := Result{Test: testForResult, Status: Passed, Output: okOutput, Duration: duration}
-	if expected != result {
+	if !expected.equals(result) {
 		t.Error(fmt.Sprintf("Test result is %v instead of %v", result, expected))
 	}
 }
@@ -29,7 +29,7 @@ func TestResultFromOutputSkipped(t *testing.T) {
 	result := NewParser().ParseFromOutput(testForResult, nil, skippedOutput, duration)
 
 	expected := Result{Test: testForResult, Status: Skipped, Output: skippedOutput, Duration: duration}
-	if expected != result {
+	if !expected.equals(result) {
 		t.Error(fmt.Sprintf("Test result is %v instead of %v", result, expected))
 	}
 }
@@ -42,7 +42,7 @@ func TestResultFromOutputPassedWithMultilineOutput(t *testing.T) {
 	result := NewParser().ParseFromOutput(testForResult, nil, okOutput, duration)
 
 	expected := Result{Test: testForResult, Status: Passed, Output: okOutput, Duration: duration}
-	if expected != result {
+	if !expected.equals(result) {
 		t.Error(fmt.Sprintf("Test result is %v instead of %v", result, expected))
 	}
 }
@@ -56,7 +56,7 @@ func TestResultFromOutputErrored(t *testing.T) {
 	result := NewParser().ParseFromOutput(testForResult, err, okOutput, duration)
 
 	expected := Result{Test: testForResult, Status: Errored, Output: okOutput, Duration: duration}
-	if expected != result {
+	if !expected.equals(result) {
 		t.Error(fmt.Sprintf("Test result is %v instead of %v", result, expected))
 	}
 }
@@ -68,7 +68,7 @@ func TestResultFromOutputFailed(t *testing.T) {
 	result := NewParser().ParseFromOutput(testForResult, nil, failureOutput, 0)
 
 	expected := Result{Test: testForResult, Status: Failed, Output: failureOutput}
-	if expected != result {
+	if !expected.equals(result) {
 		t.Error(fmt.Sprintf("Test result is %v instead of %v", result, expected))
 	}
 }

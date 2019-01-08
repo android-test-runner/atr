@@ -33,8 +33,9 @@ func (listener *testListener) BeforeTestSuite(device devices.Device) {
 
 func (listener *testListener) BeforeTest(test test.Test) {}
 
-func (listener *testListener) AfterTest(result result.Result) {
-	listener.results = append(listener.results, result)
+func (listener *testListener) AfterTest(r result.Result) []result.Extra {
+	listener.results = append(listener.results, r)
+	return []result.Extra{}
 }
 
 func (listener *testListener) AfterTestSuite() {

@@ -24,16 +24,18 @@ func (listener *testListener) AfterTestSuite() {}
 
 func (listener *testListener) BeforeTest(test test.Test) {}
 
-func (listener *testListener) AfterTest(result result.Result) {
+func (listener *testListener) AfterTest(r result.Result) []result.Extra {
 	var resultOutput string
-	if result.IsFailure() {
+	if r.IsFailure() {
 		resultOutput = Color("FAILED", Red)
 	} else {
 		resultOutput = Color("PASSED", Green)
 	}
 	fmt.Printf(
 		"'%v' on '%v': %v\n",
-		result.Test.FullName(),
+		r.Test.FullName(),
 		listener.device.Serial,
 		resultOutput)
+
+	return []result.Extra{}
 }

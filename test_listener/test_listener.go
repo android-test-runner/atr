@@ -10,5 +10,5 @@ type TestListener interface {
 	BeforeTestSuite(device devices.Device)
 	AfterTestSuite()
 	BeforeTest(test test.Test)
-	AfterTest(result result.Result)
+	AfterTest(r result.Result) []result.Extra
 }
