@@ -23,6 +23,14 @@ func NewWriter(rootDirectory string) Writer {
 	}
 }
 
+func (writer writerImpl) WriteFileToRoot(file files.File) error {
+	err := writer.files.MakeDirectory(writer.rootDir)
+	if err != nil {
+		return err
+	}
+	return writer.files.WriteFile(writer.rootDir, file)
+}
+
 func (writer writerImpl) WriteFile(file files.File, device devices.Device) error {
 	deviceDirectory, errDirectory := writer.GetDeviceDirectory(device)
 	if errDirectory != nil {
