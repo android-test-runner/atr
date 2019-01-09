@@ -59,3 +59,18 @@ const (
 	Errored Status = iota
 	Skipped Status = iota
 )
+
+func (status Status) toString() string {
+	switch status {
+	case Passed:
+		return "Passed"
+	case Failed:
+		return "Failed"
+	case Errored:
+		return "Errored"
+	case Skipped:
+		return "Skipped"
+	default:
+		return "Unknown"
+	}
+}
