@@ -49,20 +49,6 @@ func (mr *MockWriterMockRecorder) GetDeviceDirectory(device interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDeviceDirectory", reflect.TypeOf((*MockWriter)(nil).GetDeviceDirectory), device)
 }
 
-// Write mocks base method
-func (m *MockWriter) Write(files map[devices.Device][]files.File) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Write", files)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Write indicates an expected call of Write
-func (mr *MockWriterMockRecorder) Write(files interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Write", reflect.TypeOf((*MockWriter)(nil).Write), files)
-}
-
 // WriteFile mocks base method
 func (m *MockWriter) WriteFile(file files.File, device devices.Device) error {
 	m.ctrl.T.Helper()
@@ -75,4 +61,18 @@ func (m *MockWriter) WriteFile(file files.File, device devices.Device) error {
 func (mr *MockWriterMockRecorder) WriteFile(file, device interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WriteFile", reflect.TypeOf((*MockWriter)(nil).WriteFile), file, device)
+}
+
+// WriteFileToRoot mocks base method
+func (m *MockWriter) WriteFileToRoot(file files.File) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WriteFileToRoot", file)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// WriteFileToRoot indicates an expected call of WriteFileToRoot
+func (mr *MockWriterMockRecorder) WriteFileToRoot(file interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WriteFileToRoot", reflect.TypeOf((*MockWriter)(nil).WriteFileToRoot), file)
 }

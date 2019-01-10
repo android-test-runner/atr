@@ -9,6 +9,7 @@ import (
 type Writer interface {
 	GetDeviceDirectory(device devices.Device) (string, error)
 	WriteFile(file files.File, device devices.Device) error
+	WriteFileToRoot(file files.File) error
 }
 
 type writerImpl struct {
