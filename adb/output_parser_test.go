@@ -83,6 +83,56 @@ func TestReturnsErrorWhenNoVersionProvided(t *testing.T) {
 	}
 }
 
+func TestParsesDimensions(t *testing.T) {
+	expectedWidth := 1440
+	expectedHeight := 2880
+	out := fmt.Sprintf("Physical size: %vx%v", expectedWidth, expectedHeight)
+
+	width, height, err := newOutputParser().ParseDimensions(out)
+
+	if err != nil {
+		t.Error(fmt.Sprintf("Expected no error but got '%v'", err))
+	}
+
+	if width != expectedWidth {
+		t.Error(fmt.Sprintf("Expected width to be '%v' but it was '%v'", expectedWidth, width))
+	}
+
+	if height != expectedHeight {
+		t.Error(fmt.Sprintf("Expected height to be '%v' but it was '%v'", expectedHeight, height))
+	}
+}
+
+func TestParsesDimensionsFromMultipleLines(t *testing.T) {
+	expectedWidth := 1440
+	expectedHeight := 2880
+	out := fmt.Sprintf("other line\nPhysical size: %vx%v\n other line", expectedWidth, expectedHeight)
+
+	width, height, err := newOutputParser().ParseDimensions(out)
+
+	if err != nil {
+		t.Error(fmt.Sprintf("Expected no error but got '%v'", err))
+	}
+
+	if width != expectedWidth {
+		t.Error(fmt.Sprintf("Expected width to be '%v' but it was '%v'", expectedWidth, width))
+	}
+
+	if height != expectedHeight {
+		t.Error(fmt.Sprintf("Expected height to be '%v' but it was '%v'", expectedHeight, height))
+	}
+}
+
+func TestReturnsErrorWhenNoDimensionFound(t *testing.T) {
+	out := "not a dimension"
+
+	_, _, err := newOutputParser().ParseDimensions(out)
+
+	if err == nil {
+		t.Error("Expected an error because no dimension found but did not get any")
+	}
+}
+
 func verifySerials(expected, actual []string, t *testing.T) {
 	if !AreEqual(expected, actual) {
 		t.Error(fmt.Sprintf("Got serials %v instead of %v.", actual, expected))
