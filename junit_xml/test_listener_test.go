@@ -27,12 +27,13 @@ func TestCollectsAndWritesResults(t *testing.T) {
 		formatter: formatterMock,
 		writer:    writerMock,
 		apk:       apk,
+		results:   map[devices.Device][]result.Result{},
 	}
 	listener.BeforeTestSuite(device)
-	listener.AfterTest(testResult1)
-	listener.AfterTest(testResult2)
+	listener.AfterTest(testResult1, device)
+	listener.AfterTest(testResult2, device)
 
-	listener.AfterTestSuite()
+	listener.AfterTestSuite(device)
 
 	ctrl.Finish()
 }

@@ -48,7 +48,7 @@ func (logcat *logcatImpl) StopRecording(test test.Test) error {
 
 func (logcat *logcatImpl) SaveRecording(test test.Test, writer output.Writer) (string, error) {
 	if logcat.Test != test {
-		return "", errors.New(fmt.Sprintf("never started recording for test '%v'", test))
+		return "", errors.New(fmt.Sprintf("never started recording for test '%v' on device '%v", test.FullName(), logcat.Device.Serial))
 	}
 
 	f := files.File{

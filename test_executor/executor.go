@@ -137,14 +137,14 @@ func (executor executorImpl) executeTests(testConfig Config, device devices.Devi
 	executor.beforeTestSuite(device)
 	var results []result.Result
 	for _, t := range testConfig.Tests {
-		executor.beforeTest(t)
+		executor.beforeTest(t, device)
 		testOutput, errTest, duration := executor.executeSingleTest(t, device, testConfig.TestApk.PackageName, testConfig.TestRunner)
 		r := executor.resultParser.ParseFromOutput(t, errTest, testOutput, duration)
-		extendedResult := executor.afterTest(r)
+		extendedResult := executor.afterTest(r, device)
 		results = append(results, extendedResult)
 
 	}
-	executor.afterTestSuite()
+	executor.afterTestSuite(device)
 
 	return results
 }
@@ -161,21 +161,21 @@ func (executor executorImpl) beforeTestSuite(device devices.Device) {
 	})
 }
 
-func (executor executorImpl) afterTestSuite() {
+func (executor executorImpl) afterTestSuite(device devices.Device) {
 	executor.forAllTestListeners(func(listener test_listener.TestListener) {
-		listener.AfterTestSuite()
+		listener.AfterTestSuite(device)
 	})
 }
 
-func (executor executorImpl) beforeTest(t test.Test) {
+func (executor executorImpl) beforeTest(t test.Test, device devices.Device) {
 	executor.forAllTestListeners(func(listener test_listener.TestListener) {
-		listener.BeforeTest(t)
+		listener.BeforeTest(t, device)
 	})
 }
 
-func (executor executorImpl) afterTest(r result.Result) result.Result {
+func (executor executorImpl) afterTest(r result.Result, device devices.Device) result.Result {
 	executor.forAllTestListeners(func(listener test_listener.TestListener) {
-		extras := listener.AfterTest(r)
+		extras := listener.AfterTest(r, device)
 		r.Extras = append(r.Extras, extras...)
 	})
 

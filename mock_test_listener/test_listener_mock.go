@@ -48,39 +48,39 @@ func (mr *MockTestListenerMockRecorder) BeforeTestSuite(device interface{}) *gom
 }
 
 // AfterTestSuite mocks base method
-func (m *MockTestListener) AfterTestSuite() {
+func (m *MockTestListener) AfterTestSuite(device devices.Device) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "AfterTestSuite")
+	m.ctrl.Call(m, "AfterTestSuite", device)
 }
 
 // AfterTestSuite indicates an expected call of AfterTestSuite
-func (mr *MockTestListenerMockRecorder) AfterTestSuite() *gomock.Call {
+func (mr *MockTestListenerMockRecorder) AfterTestSuite(device interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AfterTestSuite", reflect.TypeOf((*MockTestListener)(nil).AfterTestSuite))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AfterTestSuite", reflect.TypeOf((*MockTestListener)(nil).AfterTestSuite), device)
 }
 
 // BeforeTest mocks base method
-func (m *MockTestListener) BeforeTest(test test.Test) {
+func (m *MockTestListener) BeforeTest(test test.Test, device devices.Device) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "BeforeTest", test)
+	m.ctrl.Call(m, "BeforeTest", test, device)
 }
 
 // BeforeTest indicates an expected call of BeforeTest
-func (mr *MockTestListenerMockRecorder) BeforeTest(test interface{}) *gomock.Call {
+func (mr *MockTestListenerMockRecorder) BeforeTest(test, device interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BeforeTest", reflect.TypeOf((*MockTestListener)(nil).BeforeTest), test)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BeforeTest", reflect.TypeOf((*MockTestListener)(nil).BeforeTest), test, device)
 }
 
 // AfterTest mocks base method
-func (m *MockTestListener) AfterTest(r result.Result) []result.Extra {
+func (m *MockTestListener) AfterTest(r result.Result, device devices.Device) []result.Extra {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AfterTest", r)
+	ret := m.ctrl.Call(m, "AfterTest", r, device)
 	ret0, _ := ret[0].([]result.Extra)
 	return ret0
 }
 
 // AfterTest indicates an expected call of AfterTest
-func (mr *MockTestListenerMockRecorder) AfterTest(r interface{}) *gomock.Call {
+func (mr *MockTestListenerMockRecorder) AfterTest(r, device interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AfterTest", reflect.TypeOf((*MockTestListener)(nil).AfterTest), r)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AfterTest", reflect.TypeOf((*MockTestListener)(nil).AfterTest), r, device)
 }

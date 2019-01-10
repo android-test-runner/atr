@@ -8,7 +8,7 @@ import (
 
 type TestListener interface {
 	BeforeTestSuite(device devices.Device)
-	AfterTestSuite()
-	BeforeTest(test test.Test)
-	AfterTest(r result.Result) []result.Extra
+	AfterTestSuite(device devices.Device)
+	BeforeTest(test test.Test, device devices.Device)
+	AfterTest(r result.Result, device devices.Device) []result.Extra
 }

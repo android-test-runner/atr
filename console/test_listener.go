@@ -9,22 +9,19 @@ import (
 )
 
 type testListener struct {
-	device devices.Device
 }
 
 func NewTestListener() test_listener.TestListener {
 	return &testListener{}
 }
 
-func (listener *testListener) BeforeTestSuite(device devices.Device) {
-	listener.device = device
-}
+func (listener *testListener) BeforeTestSuite(device devices.Device) {}
 
-func (listener *testListener) AfterTestSuite() {}
+func (listener *testListener) AfterTestSuite(device devices.Device) {}
 
-func (listener *testListener) BeforeTest(test test.Test) {}
+func (listener *testListener) BeforeTest(test test.Test, device devices.Device) {}
 
-func (listener *testListener) AfterTest(r result.Result) []result.Extra {
+func (listener *testListener) AfterTest(r result.Result, device devices.Device) []result.Extra {
 	var resultOutput string
 	if r.IsFailure() {
 		resultOutput = Color("FAILED", Red)
@@ -34,7 +31,7 @@ func (listener *testListener) AfterTest(r result.Result) []result.Extra {
 	fmt.Printf(
 		"'%v' on '%v': %v\n",
 		r.Test.FullName(),
-		listener.device.Serial,
+		device.Serial,
 		resultOutput)
 
 	return []result.Extra{}

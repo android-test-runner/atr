@@ -11,42 +11,43 @@ import (
 
 type testListener struct {
 	writer         output.Writer
-	screenRecorder ScreenRecorder
+	screenRecorder map[devices.Device]ScreenRecorder
 }
 
 func NewTestListener(writer output.Writer) test_listener.TestListener {
 	return &testListener{
-		writer: writer,
+		writer:         writer,
+		screenRecorder: map[devices.Device]ScreenRecorder{},
 	}
 }
 
 func (listener *testListener) BeforeTestSuite(device devices.Device) {
-	listener.screenRecorder = New(device)
+	listener.screenRecorder[device] = New(device)
 }
 
-func (listener *testListener) AfterTestSuite() {}
+func (listener *testListener) AfterTestSuite(device devices.Device) {}
 
-func (listener *testListener) BeforeTest(test test.Test) {
-	errStartScreenRecording := listener.screenRecorder.StartRecording(test)
+func (listener *testListener) BeforeTest(test test.Test, device devices.Device) {
+	errStartScreenRecording := listener.screenRecorder[device].StartRecording(test)
 	if errStartScreenRecording != nil {
 		fmt.Printf("Could not start screen recording: '%v'\n", errStartScreenRecording)
 	}
 }
 
-func (listener *testListener) AfterTest(r result.Result) []result.Extra {
-	errStopScreenRecording := listener.screenRecorder.StopRecording(r.Test)
+func (listener *testListener) AfterTest(r result.Result, device devices.Device) []result.Extra {
+	errStopScreenRecording := listener.screenRecorder[device].StopRecording(r.Test)
 	if errStopScreenRecording != nil {
 		fmt.Printf("Could not save screen recording: '%v'\n", errStopScreenRecording)
 	}
 
 	if r.IsFailure() {
-		errSave := listener.screenRecorder.SaveResult(r.Test, listener.writer)
+		errSave := listener.screenRecorder[device].SaveResult(r.Test, listener.writer)
 		if errSave != nil {
 			fmt.Printf("Could not save screen recording: '%v'\n", errSave)
 		}
 	}
 
-	errRemove := listener.screenRecorder.RemoveRecording(r.Test)
+	errRemove := listener.screenRecorder[device].RemoveRecording(r.Test)
 
 	if errRemove != nil {
 		fmt.Printf("Could not remove screen recording: '%v'\n", errRemove)

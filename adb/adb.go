@@ -98,7 +98,20 @@ func (adb adbImpl) GetLogcat(deviceSerial string) (string, error) {
 }
 
 func (adb adbImpl) RecordScreen(deviceSerial string, filePath string) (int, error) {
-	return adb.commandExecutor.ExecuteInBackground(exec.Command("adb", "-s", deviceSerial, "shell", "screenrecord", filePath))
+	width, height, err := adb.getScreenDimensions(deviceSerial)
+	if err != nil {
+		return 0, err
+	}
+	dimensions := fmt.Sprintf("%vx%v", width, height)
+	return adb.commandExecutor.ExecuteInBackground(exec.Command("adb", "-s", deviceSerial, "shell", "screenrecord", "--size", dimensions, filePath))
+}
+
+func (adb adbImpl) getScreenDimensions(deviceSerial string) (int, int, error) {
+	result := adb.commandExecutor.Execute(exec.Command("adb", "-s", deviceSerial, "shell", "wm", "size"))
+	if result.Error != nil {
+		return 0, 0, result.Error
+	}
+	return adb.outputParser.ParseDimensions(result.StdOut)
 }
 
 func (adb adbImpl) PullFile(deviceSerial string, filePathOnDevice string, filePathLocal string) command.ExecutionResult {

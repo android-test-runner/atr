@@ -158,9 +158,9 @@ func TestExecuteCallsTestListener(t *testing.T) {
 	givenJsonFileCanBeWritten(mockJsonFormatter, mockWriter)
 	testListener := mock_test_listener.NewMockTestListener(ctrl)
 	testListener.EXPECT().BeforeTestSuite(device)
-	testListener.EXPECT().BeforeTest(targetTest)
-	testListener.EXPECT().AfterTest(testResult)
-	testListener.EXPECT().AfterTestSuite()
+	testListener.EXPECT().BeforeTest(targetTest, device)
+	testListener.EXPECT().AfterTest(testResult, device)
+	testListener.EXPECT().AfterTestSuite(device)
 	executor := executorImpl{
 		installer:     mockInstaller,
 		adb:           mockAdb,
