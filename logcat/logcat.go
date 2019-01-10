@@ -56,5 +56,5 @@ func (logcat *logcatImpl) SaveRecording(test test.Test, writer output.Writer) (s
 		Content: logcat.Output,
 	}
 
-	return f.Name, writer.WriteFile(f, logcat.Device)
+	return writer.WriteFile(f, logcat.Device)
 }

@@ -34,27 +34,13 @@ func (m *MockWriter) EXPECT() *MockWriterMockRecorder {
 	return m.recorder
 }
 
-// GetDeviceDirectory mocks base method
-func (m *MockWriter) GetDeviceDirectory(device devices.Device) (string, error) {
+// WriteFile mocks base method
+func (m *MockWriter) WriteFile(file files.File, device devices.Device) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDeviceDirectory", device)
+	ret := m.ctrl.Call(m, "WriteFile", file, device)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
-}
-
-// GetDeviceDirectory indicates an expected call of GetDeviceDirectory
-func (mr *MockWriterMockRecorder) GetDeviceDirectory(device interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDeviceDirectory", reflect.TypeOf((*MockWriter)(nil).GetDeviceDirectory), device)
-}
-
-// WriteFile mocks base method
-func (m *MockWriter) WriteFile(file files.File, device devices.Device) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "WriteFile", file, device)
-	ret0, _ := ret[0].(error)
-	return ret0
 }
 
 // WriteFile indicates an expected call of WriteFile
@@ -64,15 +50,45 @@ func (mr *MockWriterMockRecorder) WriteFile(file, device interface{}) *gomock.Ca
 }
 
 // WriteFileToRoot mocks base method
-func (m *MockWriter) WriteFileToRoot(file files.File) error {
+func (m *MockWriter) WriteFileToRoot(file files.File) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "WriteFileToRoot", file)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // WriteFileToRoot indicates an expected call of WriteFileToRoot
 func (mr *MockWriterMockRecorder) WriteFileToRoot(file interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WriteFileToRoot", reflect.TypeOf((*MockWriter)(nil).WriteFileToRoot), file)
+}
+
+// RemoveDeviceDirectory mocks base method
+func (m *MockWriter) RemoveDeviceDirectory(device devices.Device) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemoveDeviceDirectory", device)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RemoveDeviceDirectory indicates an expected call of RemoveDeviceDirectory
+func (mr *MockWriterMockRecorder) RemoveDeviceDirectory(device interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveDeviceDirectory", reflect.TypeOf((*MockWriter)(nil).RemoveDeviceDirectory), device)
+}
+
+// MakeDeviceDirectory mocks base method
+func (m *MockWriter) MakeDeviceDirectory(device devices.Device) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MakeDeviceDirectory", device)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// MakeDeviceDirectory indicates an expected call of MakeDeviceDirectory
+func (mr *MockWriterMockRecorder) MakeDeviceDirectory(device interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MakeDeviceDirectory", reflect.TypeOf((*MockWriter)(nil).MakeDeviceDirectory), device)
 }

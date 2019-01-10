@@ -7,7 +7,6 @@ import (
 	"github.com/ybonjour/atr/devices"
 	"github.com/ybonjour/atr/files"
 	"github.com/ybonjour/atr/mock_adb"
-	"github.com/ybonjour/atr/mock_files"
 	"github.com/ybonjour/atr/mock_output"
 	"github.com/ybonjour/atr/mock_result"
 	"github.com/ybonjour/atr/mock_test_executor"
@@ -44,8 +43,7 @@ func TestExecute(t *testing.T) {
 	mockResultParser.EXPECT().ParseFromOutput(gomock.Eq(targetTest), gomock.Eq(nil), gomock.Eq(testOutput), gomock.Any()).Return(testResult)
 	mockJsonFormatter := mock_result.NewMockJsonFormatter(ctrl)
 	mockWriter := mock_output.NewMockWriter(ctrl)
-	mockFiles := mock_files.NewMockFiles(ctrl)
-	givenDeviceDirectoryCanBeRemoved(device, mockWriter, mockFiles)
+	givenDeviceDirectoryCanBeRemoved(device, mockWriter)
 	givenJsonFileCanBeWritten(mockJsonFormatter, mockWriter)
 	executor := executorImpl{
 		installer:     mockInstaller,
@@ -54,7 +52,6 @@ func TestExecute(t *testing.T) {
 		testListeners: []test_listener.TestListener{},
 		jsonFormatter: mockJsonFormatter,
 		writer:        mockWriter,
-		files:         mockFiles,
 	}
 
 	err := executor.Execute(config, []devices.Device{device})
@@ -83,8 +80,7 @@ func TestExecuteMultipleTests(t *testing.T) {
 	givenTestOnDeviceReturns(test2, device, testResult2, mockAdb, mockResultParser)
 	mockJsonFormatter := mock_result.NewMockJsonFormatter(ctrl)
 	mockWriter := mock_output.NewMockWriter(ctrl)
-	mockFiles := mock_files.NewMockFiles(ctrl)
-	givenDeviceDirectoryCanBeRemoved(device, mockWriter, mockFiles)
+	givenDeviceDirectoryCanBeRemoved(device, mockWriter)
 	givenJsonFileCanBeWritten(mockJsonFormatter, mockWriter)
 	executor := executorImpl{
 		installer:     mockInstaller,
@@ -93,7 +89,6 @@ func TestExecuteMultipleTests(t *testing.T) {
 		testListeners: []test_listener.TestListener{},
 		jsonFormatter: mockJsonFormatter,
 		writer:        mockWriter,
-		files:         mockFiles,
 	}
 
 	err := executor.Execute(config, []devices.Device{device})
@@ -122,9 +117,8 @@ func TestExecuteMultipleDevices(t *testing.T) {
 	givenTestOnDeviceReturns(targetTest, device2, testResult2, mockAdb, mockResultParser)
 	mockJsonFormatter := mock_result.NewMockJsonFormatter(ctrl)
 	mockWriter := mock_output.NewMockWriter(ctrl)
-	mockFiles := mock_files.NewMockFiles(ctrl)
-	givenDeviceDirectoryCanBeRemoved(device1, mockWriter, mockFiles)
-	givenDeviceDirectoryCanBeRemoved(device2, mockWriter, mockFiles)
+	givenDeviceDirectoryCanBeRemoved(device1, mockWriter)
+	givenDeviceDirectoryCanBeRemoved(device2, mockWriter)
 	givenJsonFileCanBeWritten(mockJsonFormatter, mockWriter)
 	executor := executorImpl{
 		installer:     mockInstaller,
@@ -133,7 +127,6 @@ func TestExecuteMultipleDevices(t *testing.T) {
 		testListeners: []test_listener.TestListener{},
 		jsonFormatter: mockJsonFormatter,
 		writer:        mockWriter,
-		files:         mockFiles,
 	}
 
 	err := executor.Execute(config, []devices.Device{device1, device2})
@@ -161,8 +154,7 @@ func TestExecuteCallsTestListener(t *testing.T) {
 	givenTestOnDeviceReturns(targetTest, device, testResult, mockAdb, mockResultParser)
 	mockJsonFormatter := mock_result.NewMockJsonFormatter(ctrl)
 	mockWriter := mock_output.NewMockWriter(ctrl)
-	mockFiles := mock_files.NewMockFiles(ctrl)
-	givenDeviceDirectoryCanBeRemoved(device, mockWriter, mockFiles)
+	givenDeviceDirectoryCanBeRemoved(device, mockWriter)
 	givenJsonFileCanBeWritten(mockJsonFormatter, mockWriter)
 	testListener := mock_test_listener.NewMockTestListener(ctrl)
 	testListener.EXPECT().BeforeTestSuite(device)
@@ -176,7 +168,6 @@ func TestExecuteCallsTestListener(t *testing.T) {
 		testListeners: []test_listener.TestListener{testListener},
 		jsonFormatter: mockJsonFormatter,
 		writer:        mockWriter,
-		files:         mockFiles,
 	}
 
 	err := executor.Execute(config, []devices.Device{device})
@@ -186,10 +177,8 @@ func TestExecuteCallsTestListener(t *testing.T) {
 	}
 }
 
-func givenDeviceDirectoryCanBeRemoved(device devices.Device, mockWriter *mock_output.MockWriter, mockFiles *mock_files.MockFiles) {
-	deviceDirectory := device.Serial
-	mockWriter.EXPECT().GetDeviceDirectory(device).Return(deviceDirectory, nil)
-	mockFiles.EXPECT().RemoveDirectory(deviceDirectory).Return(nil)
+func givenDeviceDirectoryCanBeRemoved(device devices.Device, mockWriter *mock_output.MockWriter) {
+	mockWriter.EXPECT().RemoveDeviceDirectory(device).Return(nil)
 }
 
 func givenAllApksInstalledSuccessfully(mockInstaller *mock_test_executor.MockInstaller, numDevices int) {
@@ -212,5 +201,5 @@ func givenTestOnDeviceReturns(t test.Test, d devices.Device, r result.Result, mo
 func givenJsonFileCanBeWritten(mockJsonFormatter *mock_result.MockJsonFormatter, mockWriter *mock_output.MockWriter) {
 	f := files.File{}
 	mockJsonFormatter.EXPECT().FormatResults(gomock.Any()).Return(f, nil)
-	mockWriter.EXPECT().WriteFileToRoot(f).Return(nil)
+	mockWriter.EXPECT().WriteFileToRoot(f).Return("", nil)
 }

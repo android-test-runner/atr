@@ -69,7 +69,7 @@ func (screenRecorder *screenRecorderImpl) SaveResult(test test.Test, writer outp
 		return errors.New(fmt.Sprintf("never started recording for test '%v'", test))
 	}
 
-	deviceDirectory, directoryErr := writer.GetDeviceDirectory(screenRecorder.Device)
+	deviceDirectory, directoryErr := writer.MakeDeviceDirectory(screenRecorder.Device)
 	if directoryErr != nil {
 		return directoryErr
 	}

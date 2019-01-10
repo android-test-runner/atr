@@ -6,7 +6,6 @@ import (
 	"github.com/ybonjour/atr/adb"
 	"github.com/ybonjour/atr/apks"
 	"github.com/ybonjour/atr/devices"
-	"github.com/ybonjour/atr/files"
 	"github.com/ybonjour/atr/output"
 	"github.com/ybonjour/atr/result"
 	"github.com/ybonjour/atr/test"
@@ -35,7 +34,6 @@ type executorImpl struct {
 	testListeners []test_listener.TestListener
 	jsonFormatter result.JsonFormatter
 	writer        output.Writer
-	files         files.Files
 }
 
 func NewExecutor(writer output.Writer, testListeners []test_listener.TestListener) Executor {
@@ -46,7 +44,6 @@ func NewExecutor(writer output.Writer, testListeners []test_listener.TestListene
 		testListeners: testListeners,
 		jsonFormatter: result.NewJsonFormatter(),
 		writer:        writer,
-		files:         files.New(),
 	}
 }
 
@@ -93,12 +90,14 @@ func (executor executorImpl) Execute(config Config, targetDevices []devices.Devi
 }
 
 func (executor executorImpl) storeResultsAsJson(resultsByDevice map[devices.Device]result.TestResults) error {
-	file, err := executor.jsonFormatter.FormatResults(resultsByDevice)
-	if err != nil {
-		return err
+	file, errFormat := executor.jsonFormatter.FormatResults(resultsByDevice)
+	if errFormat != nil {
+		return errFormat
 	}
 
-	return executor.writer.WriteFileToRoot(file)
+	_, errWrite := executor.writer.WriteFileToRoot(file)
+
+	return errWrite
 }
 
 func (executor executorImpl) executeOnDevice(config Config, device devices.Device) ([]result.Result, error) {
@@ -106,11 +105,8 @@ func (executor executorImpl) executeOnDevice(config Config, device devices.Devic
 	if installError != nil {
 		return nil, installError
 	}
-	directory, directoryError := executor.writer.GetDeviceDirectory(device)
-	if directoryError != nil {
-		return nil, directoryError
-	}
-	removeError := executor.files.RemoveDirectory(directory)
+
+	removeError := executor.writer.RemoveDeviceDirectory(device)
 	if removeError != nil {
 		return nil, removeError
 	}

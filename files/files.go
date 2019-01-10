@@ -12,7 +12,7 @@ import (
 type Files interface {
 	CanAccess(path string) bool
 	ReadLines(path string) ([]string, error)
-	WriteFile(directory string, file File) error
+	WriteFile(path string, content string) error
 	MakeDirectory(directory string) error
 	RemoveDirectory(directory string) error
 }
@@ -46,9 +46,13 @@ func (files filesImpl) ReadLines(path string) ([]string, error) {
 	return lines, scanner.Err()
 }
 
-func (filesImpl) WriteFile(directory string, file File) error {
-	path := filepath.Join(directory, file.Name)
-	return ioutil.WriteFile(path, []byte(file.Content), 0644)
+func (files filesImpl) WriteFile(path string, content string) error {
+	errDirectory := files.MakeDirectory(filepath.Dir(path))
+	if errDirectory != nil {
+		return errDirectory
+	}
+
+	return ioutil.WriteFile(path, []byte(content), 0644)
 }
 
 func (filesImpl) MakeDirectory(directory string) error {

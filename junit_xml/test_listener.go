@@ -44,8 +44,8 @@ func (listener *testListener) AfterTestSuite() {
 		fmt.Printf("Could not format xml junit results for device '%v': '%v'", listener.device, errFormat)
 		return
 	}
-	errWrite := listener.writer.WriteFile(file, listener.device)
+	filePath, errWrite := listener.writer.WriteFile(file, listener.device)
 	if errWrite != nil {
-		fmt.Printf("Could not write xml junit report '%v'", errWrite)
+		fmt.Printf("Could not write xml junit report to file '%v': '%v'", filePath, errWrite)
 	}
 }

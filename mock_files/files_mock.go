@@ -6,7 +6,6 @@ package mock_files
 
 import (
 	gomock "github.com/golang/mock/gomock"
-	files "github.com/ybonjour/atr/files"
 	reflect "reflect"
 )
 
@@ -63,17 +62,17 @@ func (mr *MockFilesMockRecorder) ReadLines(path interface{}) *gomock.Call {
 }
 
 // WriteFile mocks base method
-func (m *MockFiles) WriteFile(directory string, file files.File) error {
+func (m *MockFiles) WriteFile(path, content string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "WriteFile", directory, file)
+	ret := m.ctrl.Call(m, "WriteFile", path, content)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // WriteFile indicates an expected call of WriteFile
-func (mr *MockFilesMockRecorder) WriteFile(directory, file interface{}) *gomock.Call {
+func (mr *MockFilesMockRecorder) WriteFile(path, content interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WriteFile", reflect.TypeOf((*MockFiles)(nil).WriteFile), directory, file)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WriteFile", reflect.TypeOf((*MockFiles)(nil).WriteFile), path, content)
 }
 
 // MakeDirectory mocks base method
