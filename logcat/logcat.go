@@ -13,7 +13,7 @@ import (
 type Logcat interface {
 	StartRecording(test test.Test) error
 	StopRecording(test test.Test) error
-	SaveRecording(test test.Test, writer output.Writer) error
+	SaveRecording(test test.Test, writer output.Writer) (string, error)
 }
 
 type logcatImpl struct {
@@ -46,9 +46,9 @@ func (logcat *logcatImpl) StopRecording(test test.Test) error {
 	return err
 }
 
-func (logcat *logcatImpl) SaveRecording(test test.Test, writer output.Writer) error {
+func (logcat *logcatImpl) SaveRecording(test test.Test, writer output.Writer) (string, error) {
 	if logcat.Test != test {
-		return errors.New(fmt.Sprintf("never started recording for test '%v'", test))
+		return "", errors.New(fmt.Sprintf("never started recording for test '%v'", test))
 	}
 
 	f := files.File{
@@ -56,5 +56,5 @@ func (logcat *logcatImpl) SaveRecording(test test.Test, writer output.Writer) er
 		Content: logcat.Output,
 	}
 
-	return writer.WriteFile(f, logcat.Device)
+	return f.Name, writer.WriteFile(f, logcat.Device)
 }

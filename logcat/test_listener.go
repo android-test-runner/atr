@@ -39,11 +39,14 @@ func (listener *testListener) AfterTest(r result.Result) []result.Extra {
 		fmt.Printf("Could not get logcat: '%v'\n", errStopLogcat)
 	}
 
+	extras := []result.Extra{}
 	if r.IsFailure() {
-		errSave := listener.logcat.SaveRecording(r.Test, listener.writer)
+		pathToFile, errSave := listener.logcat.SaveRecording(r.Test, listener.writer)
 		if errSave != nil {
 			fmt.Printf("Could not save logcat: '%v'\n", errSave)
+		} else {
+			extras = append(extras, result.Extra{Name: "Logcat", Value: pathToFile, Type: result.File})
 		}
 	}
-	return []result.Extra{}
+	return extras
 }

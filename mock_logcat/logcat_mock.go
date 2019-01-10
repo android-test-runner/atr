@@ -63,11 +63,12 @@ func (mr *MockLogcatMockRecorder) StopRecording(test interface{}) *gomock.Call {
 }
 
 // SaveRecording mocks base method
-func (m *MockLogcat) SaveRecording(test test.Test, writer output.Writer) error {
+func (m *MockLogcat) SaveRecording(test test.Test, writer output.Writer) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SaveRecording", test, writer)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // SaveRecording indicates an expected call of SaveRecording

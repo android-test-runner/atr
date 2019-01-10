@@ -1,6 +1,7 @@
 package logcat
 
 import (
+	"fmt"
 	"github.com/golang/mock/gomock"
 	"github.com/ybonjour/atr/mock_logcat"
 	"github.com/ybonjour/atr/mock_output"
@@ -30,7 +31,7 @@ func TestAfterTestStopsLogcatRecordingAndSavesForFailedResult(t *testing.T) {
 	writer := mock_output.NewMockWriter(ctrl)
 	logcatMock := mock_logcat.NewMockLogcat(ctrl)
 	logcatMock.EXPECT().StopRecording(targetTest).Return(nil)
-	logcatMock.EXPECT().SaveRecording(targetTest, writer).Return(nil)
+	logcatMock.EXPECT().SaveRecording(targetTest, writer).Return("", nil)
 	listener := testListener{
 		writer: writer,
 		logcat: logcatMock,
@@ -47,7 +48,7 @@ func TestAfterTestStopsLogcatRecordingForPassedResult(t *testing.T) {
 	writer := mock_output.NewMockWriter(ctrl)
 	logcatMock := mock_logcat.NewMockLogcat(ctrl)
 	logcatMock.EXPECT().StopRecording(targetTest).Return(nil)
-	logcatMock.EXPECT().SaveRecording(targetTest, writer).Return(nil).Times(0)
+	logcatMock.EXPECT().SaveRecording(targetTest, writer).Return("", nil).Times(0)
 	listener := testListener{
 		writer: writer,
 		logcat: logcatMock,
@@ -55,4 +56,28 @@ func TestAfterTestStopsLogcatRecordingForPassedResult(t *testing.T) {
 	listener.AfterTest(testResult)
 
 	ctrl.Finish()
+}
+
+func TestAfterTestRetunrnsFileAsExtra(t *testing.T) {
+	targetTest := test.Test{}
+	testResult := result.Result{Test: targetTest, Status: result.Failed}
+	pathToLogcatFile := "path/to/logcat"
+	ctrl := gomock.NewController(t)
+	writer := mock_output.NewMockWriter(ctrl)
+	logcatMock := mock_logcat.NewMockLogcat(ctrl)
+	logcatMock.EXPECT().StopRecording(targetTest).Return(nil)
+	logcatMock.EXPECT().SaveRecording(targetTest, writer).Return(pathToLogcatFile, nil)
+	listener := testListener{
+		writer: writer,
+		logcat: logcatMock,
+	}
+	extras := listener.AfterTest(testResult)
+
+	if len(extras) != 1 {
+		t.Error(fmt.Sprintf("Expected 1 extra but got %v", len(extras)))
+	}
+	expectedExtra := result.Extra{Name: "Logcat", Value: pathToLogcatFile, Type: result.File}
+	if expectedExtra != extras[0] {
+		t.Error(fmt.Sprintf("Expected extra '%v' but got '%v'", expectedExtra, extras[0]))
+	}
 }
