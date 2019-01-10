@@ -1,6 +1,7 @@
 package result
 
 import (
+	"errors"
 	"fmt"
 	"github.com/ybonjour/atr/devices"
 	"github.com/ybonjour/atr/test"
@@ -35,7 +36,6 @@ func TestConvertResultsToJson(t *testing.T) {
 	if err != nil {
 		t.Error(fmt.Printf("Did not expect an error but got '%v'", err))
 	}
-
 	expectedJson := `{
 		"deviceSerial": {
 			"setupError": null,
@@ -56,6 +56,26 @@ func TestConvertResultsToJson(t *testing.T) {
 				"durationSeconds": 2,
 				"extras": []
 			}]
+		}
+	}`
+	if removeWhitespaces(expectedJson) != removeWhitespaces(json) {
+		t.Error(fmt.Printf("Expected json '%v' but got '%v'", removeWhitespaces(expectedJson), removeWhitespaces(json)))
+	}
+}
+
+func TestCanConvertSetupError(t *testing.T) {
+	setupError := errors.New("setup error")
+	testResults := TestResults{SetupError: setupError}
+	device := devices.Device{Serial: "deviceSerial"}
+
+	json, err := ToJson(map[devices.Device]TestResults{device: testResults})
+	if err != nil {
+		t.Error(fmt.Printf("Did not expect an error but got '%v", err))
+	}
+	expectedJson := `{
+		"deviceSerial": {
+			"setupError": "setup error",
+			"results": []
 		}
 	}`
 	if removeWhitespaces(expectedJson) != removeWhitespaces(json) {
