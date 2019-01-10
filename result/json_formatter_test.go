@@ -31,7 +31,7 @@ func TestConvertResultsToJson(t *testing.T) {
 		Results: []Result{result1, result2},
 	}
 
-	json, err := ToJson(map[devices.Device]TestResults{device: testResults})
+	jsonFile, err := NewJsonFormatter().FormatResults(map[devices.Device]TestResults{device: testResults})
 
 	if err != nil {
 		t.Error(fmt.Printf("Did not expect an error but got '%v'", err))
@@ -58,8 +58,8 @@ func TestConvertResultsToJson(t *testing.T) {
 			}]
 		}
 	}`
-	if removeWhitespaces(expectedJson) != removeWhitespaces(json) {
-		t.Error(fmt.Printf("Expected json '%v' but got '%v'", removeWhitespaces(expectedJson), removeWhitespaces(json)))
+	if removeWhitespaces(expectedJson) != removeWhitespaces(jsonFile.Content) {
+		t.Error(fmt.Printf("Expected json '%v' but got '%v'", removeWhitespaces(expectedJson), removeWhitespaces(jsonFile.Content)))
 	}
 }
 
@@ -68,7 +68,7 @@ func TestCanConvertSetupError(t *testing.T) {
 	testResults := TestResults{SetupError: setupError}
 	device := devices.Device{Serial: "deviceSerial"}
 
-	json, err := ToJson(map[devices.Device]TestResults{device: testResults})
+	jsonFile, err := NewJsonFormatter().FormatResults(map[devices.Device]TestResults{device: testResults})
 	if err != nil {
 		t.Error(fmt.Printf("Did not expect an error but got '%v", err))
 	}
@@ -78,8 +78,8 @@ func TestCanConvertSetupError(t *testing.T) {
 			"results": []
 		}
 	}`
-	if removeWhitespaces(expectedJson) != removeWhitespaces(json) {
-		t.Error(fmt.Printf("Expected json '%v' but got '%v'", removeWhitespaces(expectedJson), removeWhitespaces(json)))
+	if removeWhitespaces(expectedJson) != removeWhitespaces(jsonFile.Content) {
+		t.Error(fmt.Printf("Expected json '%v' but got '%v'", removeWhitespaces(expectedJson), removeWhitespaces(jsonFile.Content)))
 	}
 }
 

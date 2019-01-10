@@ -1,7 +1,6 @@
 package test_executor
 
 import (
-	"errors"
 	"fmt"
 	"github.com/hashicorp/go-multierror"
 	"github.com/ybonjour/atr/adb"
@@ -34,6 +33,7 @@ type executorImpl struct {
 	resultParser  result.Parser
 	adb           adb.Adb
 	testListeners []test_listener.TestListener
+	jsonFormatter result.JsonFormatter
 	writer        output.Writer
 	files         files.Files
 }
@@ -44,60 +44,84 @@ func NewExecutor(writer output.Writer, testListeners []test_listener.TestListene
 		resultParser:  result.NewParser(),
 		adb:           adb.New(),
 		testListeners: testListeners,
+		jsonFormatter: result.NewJsonFormatter(),
 		writer:        writer,
 		files:         files.New(),
 	}
 }
 
 func (executor executorImpl) Execute(config Config, targetDevices []devices.Device) error {
-	errorChannel := make(chan error, len(targetDevices))
+	resultsChannel := make(chan result.TestResults, len(targetDevices))
 
 	var wg sync.WaitGroup
 	wg.Add(len(targetDevices))
 	for _, targetDevice := range targetDevices {
 		go func(d devices.Device) {
-			err := executor.executeOnDevice(config, d)
-			if err != nil {
-				errorChannel <- err
-			}
+			results, err := executor.executeOnDevice(config, d)
+			resultsChannel <- result.TestResults{Device: d, Results: results, SetupError: err}
 
 			wg.Done()
 		}(targetDevice)
 	}
 	go func() {
 		wg.Wait()
-		close(errorChannel)
+		close(resultsChannel)
 	}()
 
-	var collectedErrors error
-	for err := range errorChannel {
-		collectedErrors = multierror.Append(collectedErrors, err)
+	var allErrors error
+	resultsByDevice := map[devices.Device]result.TestResults{}
+
+	for results := range resultsChannel {
+		if results.SetupError != nil {
+			allErrors = multierror.Append(results.SetupError)
+		}
+
+		errorsFromFailure := results.ErrorsFromFailures()
+		if errorsFromFailure != nil {
+			allErrors = multierror.Append(allErrors, errorsFromFailure)
+		}
+
+		resultsByDevice[results.Device] = results
 	}
 
-	return collectedErrors
+	errJson := executor.storeResultsAsJson(resultsByDevice)
+	if errJson != nil {
+		fmt.Printf("Could not write results.json: '%v'", errJson)
+	}
+
+	return allErrors
 }
 
-func (executor executorImpl) executeOnDevice(config Config, device devices.Device) error {
+func (executor executorImpl) storeResultsAsJson(resultsByDevice map[devices.Device]result.TestResults) error {
+	file, err := executor.jsonFormatter.FormatResults(resultsByDevice)
+	if err != nil {
+		return err
+	}
+
+	return executor.writer.WriteFileToRoot(file)
+}
+
+func (executor executorImpl) executeOnDevice(config Config, device devices.Device) ([]result.Result, error) {
 	installError := executor.reinstallApks(config, device)
 	if installError != nil {
-		return installError
+		return nil, installError
 	}
 	directory, directoryError := executor.writer.GetDeviceDirectory(device)
 	if directoryError != nil {
-		return directoryError
+		return nil, directoryError
 	}
 	removeError := executor.files.RemoveDirectory(directory)
 	if removeError != nil {
-		return removeError
+		return nil, removeError
 	}
 	if config.DisableAnimations {
 		disableAnimationsError := executor.adb.DisableAnimations(device.Serial)
 		if disableAnimationsError != nil {
-			return disableAnimationsError
+			return nil, disableAnimationsError
 		}
 	}
 
-	return executor.executeTests(config, device)
+	return executor.executeTests(config, device), nil
 }
 
 func (executor executorImpl) reinstallApks(config Config, device devices.Device) error {
@@ -113,24 +137,20 @@ func (executor executorImpl) reinstallApks(config Config, device devices.Device)
 	return nil
 }
 
-func (executor executorImpl) executeTests(testConfig Config, device devices.Device) error {
+func (executor executorImpl) executeTests(testConfig Config, device devices.Device) []result.Result {
 	executor.beforeTestSuite(device)
-	var testSuiteResult error
 	var results []result.Result
 	for _, t := range testConfig.Tests {
 		executor.beforeTest(t)
 		testOutput, errTest, duration := executor.executeSingleTest(t, device, testConfig.TestApk.PackageName, testConfig.TestRunner)
 		r := executor.resultParser.ParseFromOutput(t, errTest, testOutput, duration)
-		if r.IsFailure() {
-			testSuiteResult = multierror.Append(testSuiteResult, errors.New(fmt.Sprintf("Test '%v' failed on device '%v'", r.Test.FullName(), device)))
-		}
 		extendedResult := executor.afterTest(r)
 		results = append(results, extendedResult)
 
 	}
 	executor.afterTestSuite()
 
-	return testSuiteResult
+	return results
 }
 
 func (executor executorImpl) forAllTestListeners(f func(listener test_listener.TestListener)) {

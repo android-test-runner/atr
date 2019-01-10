@@ -3,6 +3,7 @@ package result
 import (
 	"encoding/json"
 	"github.com/ybonjour/atr/devices"
+	"github.com/ybonjour/atr/files"
 	"github.com/ybonjour/atr/test"
 )
 
@@ -30,7 +31,27 @@ type testResultsJson struct {
 	Results    []resultJson `json:"results"`
 }
 
-func ToJson(resultsByDevice map[devices.Device]TestResults) (string, error) {
+type JsonFormatter interface {
+	FormatResults(map[devices.Device]TestResults) (files.File, error)
+}
+
+type jsonFormatterImpl struct{}
+
+func NewJsonFormatter() JsonFormatter {
+	return jsonFormatterImpl{}
+}
+
+func (parser jsonFormatterImpl) FormatResults(resultsByDevice map[devices.Device]TestResults) (files.File, error) {
+	output, err := parser.parseResultsToString(resultsByDevice)
+	file := files.File{
+		Name:    "results.json",
+		Content: output,
+	}
+
+	return file, err
+}
+
+func (jsonFormatterImpl) parseResultsToString(resultsByDevice map[devices.Device]TestResults) (string, error) {
 	results_json := map[string]testResultsJson{}
 
 	for device, results := range resultsByDevice {

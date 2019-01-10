@@ -5,6 +5,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/ybonjour/atr/apks"
 	"github.com/ybonjour/atr/devices"
+	"github.com/ybonjour/atr/files"
 	"github.com/ybonjour/atr/mock_adb"
 	"github.com/ybonjour/atr/mock_files"
 	"github.com/ybonjour/atr/mock_output"
@@ -41,14 +42,17 @@ func TestExecute(t *testing.T) {
 	mockAdb.EXPECT().DisableAnimations(device.Serial).Return(nil)
 	mockResultParser := mock_result.NewMockParser(ctrl)
 	mockResultParser.EXPECT().ParseFromOutput(gomock.Eq(targetTest), gomock.Eq(nil), gomock.Eq(testOutput), gomock.Any()).Return(testResult)
+	mockJsonFormatter := mock_result.NewMockJsonFormatter(ctrl)
 	mockWriter := mock_output.NewMockWriter(ctrl)
 	mockFiles := mock_files.NewMockFiles(ctrl)
 	givenDeviceDirectoryCanBeRemoved(device, mockWriter, mockFiles)
+	givenJsonFileCanBeWritten(mockJsonFormatter, mockWriter)
 	executor := executorImpl{
 		installer:     mockInstaller,
 		adb:           mockAdb,
 		resultParser:  mockResultParser,
 		testListeners: []test_listener.TestListener{},
+		jsonFormatter: mockJsonFormatter,
 		writer:        mockWriter,
 		files:         mockFiles,
 	}
@@ -77,14 +81,17 @@ func TestExecuteMultipleTests(t *testing.T) {
 	givenAllApksInstalledSuccessfully(mockInstaller, 1)
 	givenTestOnDeviceReturns(test1, device, testResult1, mockAdb, mockResultParser)
 	givenTestOnDeviceReturns(test2, device, testResult2, mockAdb, mockResultParser)
+	mockJsonFormatter := mock_result.NewMockJsonFormatter(ctrl)
 	mockWriter := mock_output.NewMockWriter(ctrl)
 	mockFiles := mock_files.NewMockFiles(ctrl)
 	givenDeviceDirectoryCanBeRemoved(device, mockWriter, mockFiles)
+	givenJsonFileCanBeWritten(mockJsonFormatter, mockWriter)
 	executor := executorImpl{
 		installer:     mockInstaller,
 		adb:           mockAdb,
 		resultParser:  mockResultParser,
 		testListeners: []test_listener.TestListener{},
+		jsonFormatter: mockJsonFormatter,
 		writer:        mockWriter,
 		files:         mockFiles,
 	}
@@ -113,15 +120,18 @@ func TestExecuteMultipleDevices(t *testing.T) {
 	givenAllApksInstalledSuccessfully(mockInstaller, 2)
 	givenTestOnDeviceReturns(targetTest, device1, testResult1, mockAdb, mockResultParser)
 	givenTestOnDeviceReturns(targetTest, device2, testResult2, mockAdb, mockResultParser)
+	mockJsonFormatter := mock_result.NewMockJsonFormatter(ctrl)
 	mockWriter := mock_output.NewMockWriter(ctrl)
 	mockFiles := mock_files.NewMockFiles(ctrl)
 	givenDeviceDirectoryCanBeRemoved(device1, mockWriter, mockFiles)
 	givenDeviceDirectoryCanBeRemoved(device2, mockWriter, mockFiles)
+	givenJsonFileCanBeWritten(mockJsonFormatter, mockWriter)
 	executor := executorImpl{
 		installer:     mockInstaller,
 		adb:           mockAdb,
 		resultParser:  mockResultParser,
 		testListeners: []test_listener.TestListener{},
+		jsonFormatter: mockJsonFormatter,
 		writer:        mockWriter,
 		files:         mockFiles,
 	}
@@ -149,9 +159,11 @@ func TestExecuteCallsTestListener(t *testing.T) {
 	mockAdb := mock_adb.NewMockAdb(ctrl)
 	mockResultParser := mock_result.NewMockParser(ctrl)
 	givenTestOnDeviceReturns(targetTest, device, testResult, mockAdb, mockResultParser)
+	mockJsonFormatter := mock_result.NewMockJsonFormatter(ctrl)
 	mockWriter := mock_output.NewMockWriter(ctrl)
 	mockFiles := mock_files.NewMockFiles(ctrl)
 	givenDeviceDirectoryCanBeRemoved(device, mockWriter, mockFiles)
+	givenJsonFileCanBeWritten(mockJsonFormatter, mockWriter)
 	testListener := mock_test_listener.NewMockTestListener(ctrl)
 	testListener.EXPECT().BeforeTestSuite(device)
 	testListener.EXPECT().BeforeTest(targetTest)
@@ -162,6 +174,7 @@ func TestExecuteCallsTestListener(t *testing.T) {
 		adb:           mockAdb,
 		resultParser:  mockResultParser,
 		testListeners: []test_listener.TestListener{testListener},
+		jsonFormatter: mockJsonFormatter,
 		writer:        mockWriter,
 		files:         mockFiles,
 	}
@@ -194,4 +207,10 @@ func givenTestOnDeviceReturns(t test.Test, d devices.Device, r result.Result, mo
 		EXPECT().
 		ParseFromOutput(gomock.Eq(t), gomock.Eq(nil), gomock.Eq(testOutput), gomock.Any()).
 		Return(r)
+}
+
+func givenJsonFileCanBeWritten(mockJsonFormatter *mock_result.MockJsonFormatter, mockWriter *mock_output.MockWriter) {
+	f := files.File{}
+	mockJsonFormatter.EXPECT().FormatResults(gomock.Any()).Return(f, nil)
+	mockWriter.EXPECT().WriteFileToRoot(f).Return(nil)
 }
