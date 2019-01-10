@@ -40,10 +40,13 @@ func (listener *testListener) AfterTest(r result.Result, device devices.Device) 
 		fmt.Printf("Could not save screen recording: '%v'\n", errStopScreenRecording)
 	}
 
+	extras := []result.Extra{}
 	if r.IsFailure() {
-		errSave := listener.screenRecorder[device].SaveResult(r.Test, listener.writer)
+		filePath, errSave := listener.screenRecorder[device].SaveResult(r.Test, listener.writer)
 		if errSave != nil {
 			fmt.Printf("Could not save screen recording: '%v'\n", errSave)
+		} else {
+			extras = append(extras, result.Extra{Name: "Screen Recording", Value: filePath, Type: result.File})
 		}
 	}
 
@@ -53,5 +56,5 @@ func (listener *testListener) AfterTest(r result.Result, device devices.Device) 
 		fmt.Printf("Could not remove screen recording: '%v'\n", errRemove)
 	}
 
-	return []result.Extra{}
+	return extras
 }

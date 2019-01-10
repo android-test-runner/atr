@@ -16,7 +16,7 @@ import (
 type ScreenRecorder interface {
 	StartRecording(test test.Test) error
 	StopRecording(test test.Test) error
-	SaveResult(test test.Test, writer output.Writer) error
+	SaveResult(test test.Test, writer output.Writer) (string, error)
 	RemoveRecording(test test.Test) error
 }
 
@@ -64,24 +64,24 @@ func (screenRecorder *screenRecorderImpl) RemoveRecording(test test.Test) error 
 	return result.Error
 }
 
-func (screenRecorder *screenRecorderImpl) SaveResult(test test.Test, writer output.Writer) error {
+func (screenRecorder *screenRecorderImpl) SaveResult(test test.Test, writer output.Writer) (string, error) {
 	if screenRecorder.Test != test {
-		return errors.New(fmt.Sprintf("never started recording for test '%v'", test))
+		return "", errors.New(fmt.Sprintf("never started recording for test '%v'", test))
 	}
 
 	deviceDirectory, directoryErr := writer.MakeDeviceDirectory(screenRecorder.Device)
 	if directoryErr != nil {
-		return directoryErr
+		return "", directoryErr
 	}
 
-	localFile := filepath.Join(deviceDirectory, fmt.Sprintf("%v.mp4", test.FullName()))
+	localFile := filepath.Join(writer.ToAbsolute(deviceDirectory), fmt.Sprintf("%v.mp4", test.FullName()))
 
 	// Give screen recorder some time to properly write the video file
 	time.Sleep(2 * time.Second)
 
 	r := screenRecorder.Adb.PullFile(screenRecorder.Device.Serial, screenRecorder.filePath, localFile)
 
-	return r.Error
+	return deviceDirectory, r.Error
 }
 
 func interruptProcess(pid int) error {

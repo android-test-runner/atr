@@ -92,3 +92,17 @@ func (mr *MockWriterMockRecorder) MakeDeviceDirectory(device interface{}) *gomoc
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MakeDeviceDirectory", reflect.TypeOf((*MockWriter)(nil).MakeDeviceDirectory), device)
 }
+
+// ToAbsolute mocks base method
+func (m *MockWriter) ToAbsolute(path string) string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ToAbsolute", path)
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// ToAbsolute indicates an expected call of ToAbsolute
+func (mr *MockWriterMockRecorder) ToAbsolute(path interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ToAbsolute", reflect.TypeOf((*MockWriter)(nil).ToAbsolute), path)
+}

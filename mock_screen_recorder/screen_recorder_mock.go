@@ -63,11 +63,12 @@ func (mr *MockScreenRecorderMockRecorder) StopRecording(test interface{}) *gomoc
 }
 
 // SaveResult mocks base method
-func (m *MockScreenRecorder) SaveResult(test test.Test, writer output.Writer) error {
+func (m *MockScreenRecorder) SaveResult(test test.Test, writer output.Writer) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SaveResult", test, writer)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // SaveResult indicates an expected call of SaveResult
