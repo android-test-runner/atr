@@ -51,6 +51,12 @@ var flags = []cli.Flag{
 		Name:  "recordscreen",
 		Usage: "Record screen for failed tests.",
 	}),
+	altsrc.NewStringFlag(cli.StringFlag{
+		Name: "resolution",
+		Usage: "Overrides the default resolution at which the screen shall be recorded for a device." +
+			"It takes the form deviceSerial@widhtxheight." +
+			"This can be used for devices which can not record videso on their default resolution.",
+	}),
 	altsrc.NewBoolFlag(cli.BoolFlag{
 		Name:  "recordlogcat",
 		Usage: "Record logcat for failed tests.",
