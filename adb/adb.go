@@ -16,6 +16,7 @@ type Adb interface {
 	ClearLogcat(deviceSerial string) command.ExecutionResult
 	GetLogcat(deviceSerial string) (string, error)
 	RecordScreen(deviceSerial string, filePath string) (int, error)
+	GetScreenDimensions(deviceSerial string) (int, int, error)
 	PullFile(deviceSerial string, filePathOnDevice string, filePathLocal string) command.ExecutionResult
 	RemoveFile(deviceSerial string, filePathOnDevice string) command.ExecutionResult
 }
@@ -98,7 +99,7 @@ func (adb adbImpl) GetLogcat(deviceSerial string) (string, error) {
 }
 
 func (adb adbImpl) RecordScreen(deviceSerial string, filePath string) (int, error) {
-	width, height, err := adb.getScreenDimensions(deviceSerial)
+	width, height, err := adb.GetScreenDimensions(deviceSerial)
 	if err != nil {
 		return 0, err
 	}
@@ -106,7 +107,7 @@ func (adb adbImpl) RecordScreen(deviceSerial string, filePath string) (int, erro
 	return adb.commandExecutor.ExecuteInBackground(exec.Command("adb", "-s", deviceSerial, "shell", "screenrecord", "--size", dimensions, filePath))
 }
 
-func (adb adbImpl) getScreenDimensions(deviceSerial string) (int, int, error) {
+func (adb adbImpl) GetScreenDimensions(deviceSerial string) (int, int, error) {
 	result := adb.commandExecutor.Execute(exec.Command("adb", "-s", deviceSerial, "shell", "wm", "size"))
 	if result.Error != nil {
 		return 0, 0, result.Error

@@ -164,6 +164,22 @@ func (mr *MockAdbMockRecorder) RecordScreen(deviceSerial, filePath interface{}) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RecordScreen", reflect.TypeOf((*MockAdb)(nil).RecordScreen), deviceSerial, filePath)
 }
 
+// GetScreenDimensions mocks base method
+func (m *MockAdb) GetScreenDimensions(deviceSerial string) (int, int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetScreenDimensions", deviceSerial)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(int)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// GetScreenDimensions indicates an expected call of GetScreenDimensions
+func (mr *MockAdbMockRecorder) GetScreenDimensions(deviceSerial interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetScreenDimensions", reflect.TypeOf((*MockAdb)(nil).GetScreenDimensions), deviceSerial)
+}
+
 // PullFile mocks base method
 func (m *MockAdb) PullFile(deviceSerial, filePathOnDevice, filePathLocal string) command.ExecutionResult {
 	m.ctrl.T.Helper()

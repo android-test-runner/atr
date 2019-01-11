@@ -6,6 +6,7 @@ import (
 	"github.com/ybonjour/atr/adb"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 type Device struct {
@@ -48,6 +49,27 @@ func New() Devices {
 	return devicesImpl{
 		adb: adb.New(),
 	}
+}
+
+func (d devicesImpl) ParseDevices(deviceDefinitions []string) []Device {
+	parsedDevices := []Device{}
+	for _, deviceDefinition := range deviceDefinitions {
+		tokens := strings.Split(deviceDefinition, "@")
+		if len(tokens) == 2 {
+			dimension, err := ParseToScreenDimension(tokens[1])
+			if err != nil {
+				continue
+			}
+			parsedDevices = append(parsedDevices, Device{Serial: tokens[0], ScreenDimension: dimension})
+		} else if len(tokens) == 1 {
+			width, height, err := d.adb.GetScreenDimensions(tokens[0])
+			if err != nil {
+				continue
+			}
+			parsedDevices = append(parsedDevices, Device{Serial: tokens[0], ScreenDimension: ScreenDimension{Width: width, Height: height}})
+		}
+	}
+	return parsedDevices
 }
 
 func (d devicesImpl) ConnectedDevices(includeDeviceSerials []string) ([]Device, error) {
