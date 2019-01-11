@@ -88,6 +88,40 @@ func TestReturnsErrorIfConnectedDevicesFails(t *testing.T) {
 	}
 }
 
+func TestParsesResolution(t *testing.T) {
+	dimension, err := ParseToScreenDimension("1024x768")
+
+	if err != nil {
+		t.Error(fmt.Sprintf("Expected no error but got '%v'", err))
+	}
+
+	if dimension.Width != 1024 {
+		t.Error(fmt.Sprintf("Expected screen dimension with width 1024 but got %v", dimension.Width))
+	}
+
+	if dimension.Height != 768 {
+		t.Error(fmt.Sprintf("Expected screen dimension with height 768 but got %v", dimension.Height))
+	}
+}
+
+func TestParsesResolutionReturnsErrorIfDimensionIsInvalid(t *testing.T) {
+	_, err := ParseToScreenDimension("notaresultion")
+
+	if err == nil {
+		t.Error("Expected no error because no resultion provided, but did not get one.")
+	}
+}
+
+func TestFormatsResultion(t *testing.T) {
+	dimension := ScreenDimension{Width: 1024, Height: 768}
+
+	result := dimension.ToString()
+
+	if result != "1024x768" {
+		t.Error(fmt.Sprintf("Expected format '1024x768' but got '%v'", result))
+	}
+}
+
 func AreEqual(slice1, slice2 []Device) bool {
 	if len(slice1) != len(slice2) {
 		return false

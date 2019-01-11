@@ -1,11 +1,39 @@
 package devices
 
 import (
+	"errors"
+	"fmt"
 	"github.com/ybonjour/atr/adb"
+	"regexp"
+	"strconv"
 )
 
 type Device struct {
-	Serial string
+	Serial          string
+	ScreenDimension ScreenDimension
+}
+
+type ScreenDimension struct {
+	Width  int
+	Height int
+}
+
+func (dimension ScreenDimension) ToString() string {
+	return fmt.Sprintf("%vx%v", dimension.Width, dimension.Height)
+}
+
+func ParseToScreenDimension(input string) (ScreenDimension, error) {
+	r := regexp.MustCompile(`^([0-9]+)x([0-9]+)$`)
+	matches := r.FindStringSubmatch(input)
+	if matches == nil {
+		return ScreenDimension{}, errors.New(fmt.Sprintf("'%v' is not a screen dimension", input))
+	}
+
+	// no errors possible in conversion to int, because we only match numbers
+	width, _ := strconv.Atoi(matches[1])
+	height, _ := strconv.Atoi(matches[2])
+
+	return ScreenDimension{Width: width, Height: height}, nil
 }
 
 type Devices interface {
