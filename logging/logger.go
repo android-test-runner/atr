@@ -11,22 +11,28 @@ type Logger interface {
 
 type loggerImpl struct{}
 
+func NewLogger() Logger {
+	return loggerImpl{}
+}
+
 func (logger loggerImpl) Debug(message string) {
-	logger.print(message)
+	logger.log(message, Debug)
 }
 
 func (logger loggerImpl) Info(message string) {
-	logger.print(message)
+	logger.log(message, Info)
 }
 
 func (logger loggerImpl) Warn(message string) {
-	logger.print(message)
+	logger.log(message, Warn)
 }
 
 func (logger loggerImpl) Error(message string, err error) {
-	logger.print(fmt.Sprintf("%v: %v", message, err))
+	logger.log(fmt.Sprintf("%v: %v", message, err), Error)
 }
 
-func (logger loggerImpl) print(message string) {
-	fmt.Printf("%v\n", message)
+func (logger loggerImpl) log(message string, level LogLevel) {
+	if level >= globalLogLevel {
+		fmt.Printf("%v\n", message)
+	}
 }

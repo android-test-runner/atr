@@ -9,6 +9,7 @@ import (
 	"github.com/ybonjour/atr/devices"
 	"github.com/ybonjour/atr/junit_xml"
 	"github.com/ybonjour/atr/logcat"
+	"github.com/ybonjour/atr/logging"
 	"github.com/ybonjour/atr/output"
 	"github.com/ybonjour/atr/screen_recorder"
 	"github.com/ybonjour/atr/test"
@@ -63,6 +64,10 @@ var flags = []cli.Flag{
 		Name:  "disableanimations",
 		Usage: "Disable animations before test execution. This is recommended for Espresso tests.",
 	}),
+	altsrc.NewBoolFlag(cli.BoolFlag{
+		Name:  "verbose",
+		Usage: "Enables debug messages",
+	}),
 }
 
 var testCommand = cli.Command{
@@ -89,6 +94,10 @@ func readYaml(c *cli.Context) error {
 }
 
 func testAction(c *cli.Context) error {
+	if c.Bool("verbose") {
+		logging.SetLogLevel(logging.Debug)
+	}
+
 	apkPath := c.String("apk")
 	apkUnderTest, apkGetError := apks.New().GetApk(apkPath)
 	if apkGetError != nil {

@@ -6,31 +6,33 @@ import (
 )
 
 type deviceLogger struct {
-	Device devices.Device
+	device   devices.Device
+	delegate Logger
 }
 
 func NewForDevice(device devices.Device) Logger {
 	return deviceLogger{
-		Device: device,
+		device:   device,
+		delegate: NewLogger(),
 	}
 }
 
 func (logger deviceLogger) Debug(message string) {
-	logger.print(message)
+	logger.delegate.Debug(logger.addDevice(message))
 }
 
 func (logger deviceLogger) Info(message string) {
-	logger.print(message)
+	logger.delegate.Info(logger.addDevice(message))
 }
 
 func (logger deviceLogger) Warn(message string) {
-	logger.print(message)
+	logger.delegate.Warn(logger.addDevice(message))
 }
 
 func (logger deviceLogger) Error(message string, err error) {
-	logger.print(fmt.Sprintf("%v: %v", message, err))
+	logger.delegate.Error(logger.addDevice(message), err)
 }
 
-func (logger deviceLogger) print(message string) {
-	fmt.Printf("%v: %v\n", logger.Device.Serial, message)
+func (logger deviceLogger) addDevice(message string) string {
+	return fmt.Sprintf("%v: %v", logger.device.Serial, message)
 }
