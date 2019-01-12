@@ -16,7 +16,8 @@ type Adb interface {
 	ExecuteTest(packageName string, testRunner string, test string, deviceSerial string) (string, error)
 	ClearLogcat(deviceSerial string) command.ExecutionResult
 	GetLogcat(deviceSerial string) (string, error)
-	RecordScreen(deviceSerial string, filePath string, timeLimitSeconds int, screenDimensions string) (int, error)
+	RecordScreenInBackground(deviceSerial string, filePath string, screenDimensions string) (int, error)
+	RecordScreen(deviceSerial string, filePath string, screenDimensions string, timeLimitSeconds int) command.ExecutionResult
 	GetScreenDimensions(deviceSerial string) (int, int, error)
 	PullFile(deviceSerial string, filePathOnDevice string, filePathLocal string) command.ExecutionResult
 	RemoveFile(deviceSerial string, filePathOnDevice string) command.ExecutionResult
@@ -99,8 +100,13 @@ func (adb adbImpl) GetLogcat(deviceSerial string) (string, error) {
 	return result.StdOut, result.Error
 }
 
-func (adb adbImpl) RecordScreen(deviceSerial string, filePath string, timeLimitSeconds int, screenDimensions string) (int, error) {
-	return adb.commandExecutor.ExecuteInBackground(exec.Command("adb", "-s", deviceSerial, "shell", "screenrecord", "--time-limit", strconv.Itoa(timeLimitSeconds), "--size", screenDimensions, filePath))
+func (adb adbImpl) RecordScreenInBackground(deviceSerial string, filePath string, screenDimensions string) (int, error) {
+	maxScreenRecordDurationSeconds := 180
+	return adb.commandExecutor.ExecuteInBackground(getScreenRecordCommand(deviceSerial, filePath, screenDimensions, maxScreenRecordDurationSeconds))
+}
+
+func (adb adbImpl) RecordScreen(deviceSerial string, filePath string, screenDimensions string, timeLimitSeconds int) command.ExecutionResult {
+	return adb.commandExecutor.Execute(getScreenRecordCommand(deviceSerial, filePath, screenDimensions, timeLimitSeconds))
 }
 
 func (adb adbImpl) GetScreenDimensions(deviceSerial string) (int, int, error) {
@@ -132,4 +138,8 @@ func (adb adbImpl) ExecuteTest(packageName string, testRunner string, test strin
 	}
 	result := adb.commandExecutor.Execute(exec.Command("adb", arguments...))
 	return result.StdOut, result.Error
+}
+
+func getScreenRecordCommand(deviceSerial string, filePath string, screenDimensions string, timeLimitSeconds int) *exec.Cmd {
+	return exec.Command("adb", "-s", deviceSerial, "shell", "screenrecord", "--time-limit", strconv.Itoa(timeLimitSeconds), "--size", screenDimensions, filePath)
 }

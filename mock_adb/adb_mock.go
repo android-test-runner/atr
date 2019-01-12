@@ -149,19 +149,33 @@ func (mr *MockAdbMockRecorder) GetLogcat(deviceSerial interface{}) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLogcat", reflect.TypeOf((*MockAdb)(nil).GetLogcat), deviceSerial)
 }
 
-// RecordScreen mocks base method
-func (m *MockAdb) RecordScreen(deviceSerial, filePath string, timeLimitSeconds int, screenDimensions string) (int, error) {
+// RecordScreenInBackground mocks base method
+func (m *MockAdb) RecordScreenInBackground(deviceSerial, filePath, screenDimensions string) (int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RecordScreen", deviceSerial, filePath, timeLimitSeconds, screenDimensions)
+	ret := m.ctrl.Call(m, "RecordScreenInBackground", deviceSerial, filePath, screenDimensions)
 	ret0, _ := ret[0].(int)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// RecordScreen indicates an expected call of RecordScreen
-func (mr *MockAdbMockRecorder) RecordScreen(deviceSerial, filePath, timeLimitSeconds, screenDimensions interface{}) *gomock.Call {
+// RecordScreenInBackground indicates an expected call of RecordScreenInBackground
+func (mr *MockAdbMockRecorder) RecordScreenInBackground(deviceSerial, filePath, screenDimensions interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RecordScreen", reflect.TypeOf((*MockAdb)(nil).RecordScreen), deviceSerial, filePath, timeLimitSeconds, screenDimensions)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RecordScreenInBackground", reflect.TypeOf((*MockAdb)(nil).RecordScreenInBackground), deviceSerial, filePath, screenDimensions)
+}
+
+// RecordScreen mocks base method
+func (m *MockAdb) RecordScreen(deviceSerial, filePath, screenDimensions string, timeLimitSeconds int) command.ExecutionResult {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RecordScreen", deviceSerial, filePath, screenDimensions, timeLimitSeconds)
+	ret0, _ := ret[0].(command.ExecutionResult)
+	return ret0
+}
+
+// RecordScreen indicates an expected call of RecordScreen
+func (mr *MockAdbMockRecorder) RecordScreen(deviceSerial, filePath, screenDimensions, timeLimitSeconds interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RecordScreen", reflect.TypeOf((*MockAdb)(nil).RecordScreen), deviceSerial, filePath, screenDimensions, timeLimitSeconds)
 }
 
 // GetScreenDimensions mocks base method

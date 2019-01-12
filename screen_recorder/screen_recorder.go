@@ -3,10 +3,12 @@ package screen_recorder
 import (
 	"errors"
 	"fmt"
+	"github.com/satori/go.uuid"
 	"github.com/ybonjour/atr/adb"
 	"github.com/ybonjour/atr/devices"
 	"github.com/ybonjour/atr/output"
 	"github.com/ybonjour/atr/test"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"syscall"
@@ -36,6 +38,11 @@ func New(device devices.Device) ScreenRecorder {
 }
 
 func (screenRecorder *screenRecorderImpl) StartRecording(test test.Test) error {
+	errTest := screenRecorder.testScreenRecording(screenRecorder.Device)
+	if errTest != nil {
+		return errTest
+	}
+
 	filepPath := fmt.Sprintf("/sdcard/%v.mp4", test.FullName())
 	device := screenRecorder.Device
 	pid, err := screenRecorder.recordScreenInBackground(device, filepPath)
@@ -49,8 +56,27 @@ func (screenRecorder *screenRecorderImpl) StartRecording(test test.Test) error {
 	return nil
 }
 
+func (screenRecorder *screenRecorderImpl) testScreenRecording(device devices.Device) error {
+	testDurationInSeconds := 1
+	randomFileName := fmt.Sprintf("/sdcard/screen-record-test-%v.mp4", randomText())
+	var result error
+	testResult := screenRecorder.Adb.RecordScreen(device.Serial, randomFileName, device.ScreenDimension.ToString(), testDurationInSeconds)
+	if testResult.Error != nil {
+		result = errors.New(fmt.Sprintf("can not record video on device '%v': %v\n", device.Serial, testResult.Error) +
+			"Some devices might not be able to record at their native display resolution. If you encounter problems with screen recording, try using a lower screen resolution. (https://developer.android.com/studio/command-line/adb#screenrecord)\n" +
+			"You can control the resolution at which atr records the screen in the device definition that you pass in the --device flag. Just pass --<deviceSerial>@<width>x<height> (e.g. --device emulator-5554@720x1440)")
+	}
+
+	resultRemove := screenRecorder.Adb.RemoveFile(device.Serial, randomFileName)
+	if resultRemove.Error != nil {
+		fmt.Printf("Could not remove screen recording testfile '%v' on device '%v': %v\n", randomFileName, device.Serial, resultRemove.Error)
+	}
+
+	return result
+}
+
 func (screenRecorder *screenRecorderImpl) recordScreenInBackground(device devices.Device, filepPath string) (int, error) {
-	return screenRecorder.Adb.RecordScreen(device.Serial, filepPath, 180, device.ScreenDimension.ToString())
+	return screenRecorder.Adb.RecordScreenInBackground(device.Serial, filepPath, device.ScreenDimension.ToString())
 }
 
 func (screenRecorder screenRecorderImpl) StopRecording(test test.Test) error {
@@ -101,4 +127,13 @@ func interruptProcess(pid int) error {
 	}
 
 	return nil
+}
+
+func randomText() string {
+	randomId, err := uuid.NewV4()
+	if err != nil {
+		return fmt.Sprintf("static-%v", rand.Intn(100))
+	}
+
+	return randomId.String()
 }
