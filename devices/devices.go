@@ -77,26 +77,31 @@ func (d devicesImpl) parseConnectedDevices(deviceDefinitions []string, connected
 		tokens := strings.Split(deviceDefinition, "@")
 		var parsedDevice *Device
 		if len(tokens) == 2 {
-			serial := tokens[0]
-			dimension := tokens[1]
-			parsedDimension, err := ParseToScreenDimension(dimension)
-			if err != nil {
-				continue
-			}
-			parsedDevice = &Device{Serial: serial, ScreenDimension: parsedDimension}
+			parsedDevice = d.getDeviceWithManualScreenDimensions(tokens[0], tokens[1])
 		} else if len(tokens) == 1 {
-			serial := tokens[0]
-			width, height, err := d.adb.GetScreenDimensions(serial)
-			if err != nil {
-				continue
-			}
-			parsedDevice = &Device{Serial: serial, ScreenDimension: ScreenDimension{Width: width, Height: height}}
+			parsedDevice = d.getDeviceWithDefaultScreenDimensions(tokens[0])
 		}
 		if parsedDevice != nil && isConnected[parsedDevice.Serial] {
 			parsedDevices = append(parsedDevices, *parsedDevice)
 		}
 	}
 	return parsedDevices
+}
+
+func (d devicesImpl) getDeviceWithManualScreenDimensions(serial string, screenDimensions string) *Device {
+	parsedDimensions, err := ParseToScreenDimension(screenDimensions)
+	if err != nil {
+		return nil
+	}
+	return &Device{Serial: serial, ScreenDimension: parsedDimensions}
+}
+
+func (d devicesImpl) getDeviceWithDefaultScreenDimensions(serial string) *Device {
+	width, height, err := d.adb.GetScreenDimensions(serial)
+	if err != nil {
+		return nil
+	}
+	return &Device{Serial: serial, ScreenDimension: ScreenDimension{Width: width, Height: height}}
 }
 
 func (d devicesImpl) ConnectedDevices(includeDeviceSerials []string) ([]Device, error) {
