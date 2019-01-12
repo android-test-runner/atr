@@ -40,6 +40,7 @@ func ParseToScreenDimension(input string) (ScreenDimension, error) {
 type Devices interface {
 	ConnectedDevices(includeDeviceSerials []string) ([]Device, error)
 	ParseConnectedDevices(deviceDefinitions []string) ([]Device, error)
+	AllConnectedDevices() ([]Device, error)
 }
 
 type devicesImpl struct {
@@ -52,12 +53,24 @@ func New() Devices {
 	}
 }
 
-func (d devicesImpl) ParseConnectedDevices(deviceDefinitions []string) ([]Device, error) {
-	parsedDevices := []Device{}
+func (d devicesImpl) AllConnectedDevices() ([]Device, error) {
 	connectedDeviceSerials, err := d.adb.ConnectedDevices()
 	if err != nil {
 		return nil, err
 	}
+	return d.parseConnectedDevices(connectedDeviceSerials, connectedDeviceSerials), nil
+}
+
+func (d devicesImpl) ParseConnectedDevices(deviceDefinitions []string) ([]Device, error) {
+	connectedDeviceSerials, err := d.adb.ConnectedDevices()
+	if err != nil {
+		return nil, err
+	}
+	return d.parseConnectedDevices(deviceDefinitions, connectedDeviceSerials), nil
+}
+
+func (d devicesImpl) parseConnectedDevices(deviceDefinitions []string, connectedDeviceSerials []string) []Device {
+	parsedDevices := []Device{}
 	isConnected := toMap(connectedDeviceSerials)
 
 	for _, deviceDefinition := range deviceDefinitions {
@@ -83,7 +96,7 @@ func (d devicesImpl) ParseConnectedDevices(deviceDefinitions []string) ([]Device
 			parsedDevices = append(parsedDevices, *parsedDevice)
 		}
 	}
-	return parsedDevices, nil
+	return parsedDevices
 }
 
 func (d devicesImpl) ConnectedDevices(includeDeviceSerials []string) ([]Device, error) {

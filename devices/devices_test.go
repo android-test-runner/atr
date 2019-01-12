@@ -250,6 +250,44 @@ func TestParseDevicesReturnsErrorIfConnectedDevicesCanNotBeRetrieved(t *testing.
 	}
 }
 
+func TestAllConnectedDevices(t *testing.T) {
+	connectedDeviceSerial := "abcd"
+	screenDimension := ScreenDimension{Width: 1024, Height: 768}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	adbMock := mock_adb.NewMockAdb(ctrl)
+	adbMock.EXPECT().ConnectedDevices().Return([]string{connectedDeviceSerial}, nil)
+	adbMock.EXPECT().GetScreenDimensions(connectedDeviceSerial).Return(screenDimension.Width, screenDimension.Height, nil)
+	devices := devicesImpl{adb: adbMock}
+
+	connectedDevices, err := devices.AllConnectedDevices()
+
+	if err != nil {
+		t.Error(fmt.Sprintf("Expected no error but got '%v'", err))
+	}
+
+	expectedDevices := []Device{{Serial: connectedDeviceSerial, ScreenDimension: screenDimension}}
+	if !AreEqual(expectedDevices, connectedDevices) {
+		t.Error(fmt.Sprintf("Expected connected devices to be '%v' but it was '%v'", expectedDevices, connectedDevices))
+	}
+
+}
+
+func TestAllConnectedDevicesReturnsErrorOnFailure(t *testing.T) {
+	expectedError := errors.New("could not get connected devices")
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	adbMock := mock_adb.NewMockAdb(ctrl)
+	adbMock.EXPECT().ConnectedDevices().Return(nil, expectedError)
+	devices := devicesImpl{adb: adbMock}
+
+	_, err := devices.AllConnectedDevices()
+
+	if expectedError != err {
+		t.Error(fmt.Sprintf("Expected error '%v' but got '%v'", expectedError, err))
+	}
+}
+
 func verifyParsedDevicesEmpty(parsedDevices []Device, err error, t *testing.T) {
 	if err != nil {
 		t.Error(fmt.Sprintf("Expected no error but got '%v'", err))
