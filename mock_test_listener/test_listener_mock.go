@@ -6,7 +6,6 @@ package mock_test_listener
 
 import (
 	gomock "github.com/golang/mock/gomock"
-	devices "github.com/ybonjour/atr/devices"
 	result "github.com/ybonjour/atr/result"
 	test "github.com/ybonjour/atr/test"
 	reflect "reflect"
@@ -36,51 +35,51 @@ func (m *MockTestListener) EXPECT() *MockTestListenerMockRecorder {
 }
 
 // BeforeTestSuite mocks base method
-func (m *MockTestListener) BeforeTestSuite(device devices.Device) {
+func (m *MockTestListener) BeforeTestSuite() {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "BeforeTestSuite", device)
+	m.ctrl.Call(m, "BeforeTestSuite")
 }
 
 // BeforeTestSuite indicates an expected call of BeforeTestSuite
-func (mr *MockTestListenerMockRecorder) BeforeTestSuite(device interface{}) *gomock.Call {
+func (mr *MockTestListenerMockRecorder) BeforeTestSuite() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BeforeTestSuite", reflect.TypeOf((*MockTestListener)(nil).BeforeTestSuite), device)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BeforeTestSuite", reflect.TypeOf((*MockTestListener)(nil).BeforeTestSuite))
 }
 
 // AfterTestSuite mocks base method
-func (m *MockTestListener) AfterTestSuite(device devices.Device) {
+func (m *MockTestListener) AfterTestSuite() {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "AfterTestSuite", device)
+	m.ctrl.Call(m, "AfterTestSuite")
 }
 
 // AfterTestSuite indicates an expected call of AfterTestSuite
-func (mr *MockTestListenerMockRecorder) AfterTestSuite(device interface{}) *gomock.Call {
+func (mr *MockTestListenerMockRecorder) AfterTestSuite() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AfterTestSuite", reflect.TypeOf((*MockTestListener)(nil).AfterTestSuite), device)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AfterTestSuite", reflect.TypeOf((*MockTestListener)(nil).AfterTestSuite))
 }
 
 // BeforeTest mocks base method
-func (m *MockTestListener) BeforeTest(test test.Test, device devices.Device) {
+func (m *MockTestListener) BeforeTest(test test.Test) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "BeforeTest", test, device)
+	m.ctrl.Call(m, "BeforeTest", test)
 }
 
 // BeforeTest indicates an expected call of BeforeTest
-func (mr *MockTestListenerMockRecorder) BeforeTest(test, device interface{}) *gomock.Call {
+func (mr *MockTestListenerMockRecorder) BeforeTest(test interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BeforeTest", reflect.TypeOf((*MockTestListener)(nil).BeforeTest), test, device)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BeforeTest", reflect.TypeOf((*MockTestListener)(nil).BeforeTest), test)
 }
 
 // AfterTest mocks base method
-func (m *MockTestListener) AfterTest(r result.Result, device devices.Device) []result.Extra {
+func (m *MockTestListener) AfterTest(r result.Result) []result.Extra {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AfterTest", r, device)
+	ret := m.ctrl.Call(m, "AfterTest", r)
 	ret0, _ := ret[0].([]result.Extra)
 	return ret0
 }
 
 // AfterTest indicates an expected call of AfterTest
-func (mr *MockTestListenerMockRecorder) AfterTest(r, device interface{}) *gomock.Call {
+func (mr *MockTestListenerMockRecorder) AfterTest(r interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AfterTest", reflect.TypeOf((*MockTestListener)(nil).AfterTest), r, device)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AfterTest", reflect.TypeOf((*MockTestListener)(nil).AfterTest), r)
 }

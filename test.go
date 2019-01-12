@@ -137,7 +137,7 @@ func testAction(c *cli.Context) error {
 	}
 	writer := output.NewWriter(c.String("output"))
 
-	testListeners := getTestListeners(c, apkUnderTest, writer)
+	testListeners := []test_listener.TestListener{}
 	testListenersFactory := testListenerFactory{context: c, apk: apkUnderTest, writer: writer}
 	testExecutionError := test_executor.NewExecutor(writer, testListeners, testListenersFactory).Execute(config, configDevices)
 	if testExecutionError != nil {
@@ -145,26 +145,6 @@ func testAction(c *cli.Context) error {
 	}
 
 	return nil
-}
-
-func getTestListeners(c *cli.Context, apk apks.Apk, writer output.Writer) []test_listener.TestListener {
-	var listeners []test_listener.TestListener
-
-	listeners = append(listeners, console.NewTestListener())
-
-	if c.Bool("recordjunit") {
-		listeners = append(listeners, junit_xml.NewTestListener(writer, apk))
-	}
-
-	if c.Bool("recordlogcat") {
-		listeners = append(listeners, logcat.NewTestListener(writer))
-	}
-
-	if c.Bool("recordscreen") {
-		listeners = append(listeners, screen_recorder.NewTestListener(writer))
-	}
-
-	return listeners
 }
 
 type testListenerFactory struct {
@@ -176,18 +156,18 @@ type testListenerFactory struct {
 func (f testListenerFactory) ForDevice(device devices.Device) []test_listener.TestListener {
 	var listeners []test_listener.TestListener
 
-	listeners = append(listeners, console.NewTestListener())
+	listeners = append(listeners, console.NewTestListener(device))
 
 	if f.context.Bool("recordjunit") {
-		listeners = append(listeners, junit_xml.NewTestListener(f.writer, f.apk))
+		listeners = append(listeners, junit_xml.NewTestListener(device, f.writer, f.apk))
 	}
 
 	if f.context.Bool("recordlogcat") {
-		listeners = append(listeners, logcat.NewTestListener(f.writer))
+		listeners = append(listeners, logcat.NewTestListener(device, f.writer))
 	}
 
 	if f.context.Bool("recordscreen") {
-		listeners = append(listeners, screen_recorder.NewTestListener(f.writer))
+		listeners = append(listeners, screen_recorder.NewTestListener(device, f.writer))
 	}
 	return listeners
 }

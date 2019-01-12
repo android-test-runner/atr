@@ -24,16 +24,17 @@ func TestCollectsAndWritesResults(t *testing.T) {
 	writerMock := mock_output.NewMockWriter(ctrl)
 	writerMock.EXPECT().WriteFile(xmlFile, device)
 	listener := testListener{
+		device:    device,
 		formatter: formatterMock,
 		writer:    writerMock,
 		apk:       apk,
-		results:   map[devices.Device][]result.Result{},
+		results:   []result.Result{},
 	}
-	listener.BeforeTestSuite(device)
-	listener.AfterTest(testResult1, device)
-	listener.AfterTest(testResult2, device)
+	listener.BeforeTestSuite()
+	listener.AfterTest(testResult1)
+	listener.AfterTest(testResult2)
 
-	listener.AfterTestSuite(device)
+	listener.AfterTestSuite()
 
 	ctrl.Finish()
 }

@@ -45,13 +45,16 @@ func TestExecute(t *testing.T) {
 	mockWriter := mock_output.NewMockWriter(ctrl)
 	givenDeviceDirectoryCanBeRemoved(device, mockWriter)
 	givenJsonFileCanBeWritten(mockJsonFormatter, mockWriter)
+	mockTestListenerFactory := mock_test_listener.NewMockFactory(ctrl)
+	givenNoTestListeners(device, mockTestListenerFactory)
 	executor := executorImpl{
-		installer:     mockInstaller,
-		adb:           mockAdb,
-		resultParser:  mockResultParser,
-		testListeners: []test_listener.TestListener{},
-		jsonFormatter: mockJsonFormatter,
-		writer:        mockWriter,
+		installer:            mockInstaller,
+		adb:                  mockAdb,
+		resultParser:         mockResultParser,
+		testListeners:        []test_listener.TestListener{},
+		testListenersFactory: mockTestListenerFactory,
+		jsonFormatter:        mockJsonFormatter,
+		writer:               mockWriter,
 	}
 
 	err := executor.Execute(config, []devices.Device{device})
@@ -82,13 +85,16 @@ func TestExecuteMultipleTests(t *testing.T) {
 	mockWriter := mock_output.NewMockWriter(ctrl)
 	givenDeviceDirectoryCanBeRemoved(device, mockWriter)
 	givenJsonFileCanBeWritten(mockJsonFormatter, mockWriter)
+	mockTestListenerFactory := mock_test_listener.NewMockFactory(ctrl)
+	givenNoTestListeners(device, mockTestListenerFactory)
 	executor := executorImpl{
-		installer:     mockInstaller,
-		adb:           mockAdb,
-		resultParser:  mockResultParser,
-		testListeners: []test_listener.TestListener{},
-		jsonFormatter: mockJsonFormatter,
-		writer:        mockWriter,
+		installer:            mockInstaller,
+		adb:                  mockAdb,
+		resultParser:         mockResultParser,
+		testListeners:        []test_listener.TestListener{},
+		testListenersFactory: mockTestListenerFactory,
+		jsonFormatter:        mockJsonFormatter,
+		writer:               mockWriter,
 	}
 
 	err := executor.Execute(config, []devices.Device{device})
@@ -120,13 +126,17 @@ func TestExecuteMultipleDevices(t *testing.T) {
 	givenDeviceDirectoryCanBeRemoved(device1, mockWriter)
 	givenDeviceDirectoryCanBeRemoved(device2, mockWriter)
 	givenJsonFileCanBeWritten(mockJsonFormatter, mockWriter)
+	mockTestListenerFactory := mock_test_listener.NewMockFactory(ctrl)
+	givenNoTestListeners(device1, mockTestListenerFactory)
+	givenNoTestListeners(device2, mockTestListenerFactory)
 	executor := executorImpl{
-		installer:     mockInstaller,
-		adb:           mockAdb,
-		resultParser:  mockResultParser,
-		testListeners: []test_listener.TestListener{},
-		jsonFormatter: mockJsonFormatter,
-		writer:        mockWriter,
+		installer:            mockInstaller,
+		adb:                  mockAdb,
+		resultParser:         mockResultParser,
+		testListeners:        []test_listener.TestListener{},
+		testListenersFactory: mockTestListenerFactory,
+		jsonFormatter:        mockJsonFormatter,
+		writer:               mockWriter,
 	}
 
 	err := executor.Execute(config, []devices.Device{device1, device2})
@@ -157,17 +167,20 @@ func TestExecuteCallsTestListener(t *testing.T) {
 	givenDeviceDirectoryCanBeRemoved(device, mockWriter)
 	givenJsonFileCanBeWritten(mockJsonFormatter, mockWriter)
 	testListener := mock_test_listener.NewMockTestListener(ctrl)
-	testListener.EXPECT().BeforeTestSuite(device)
-	testListener.EXPECT().BeforeTest(targetTest, device)
-	testListener.EXPECT().AfterTest(testResult, device)
-	testListener.EXPECT().AfterTestSuite(device)
+	testListener.EXPECT().BeforeTestSuite()
+	testListener.EXPECT().BeforeTest(targetTest)
+	testListener.EXPECT().AfterTest(testResult)
+	testListener.EXPECT().AfterTestSuite()
+	testListenerFactory := mock_test_listener.NewMockFactory(ctrl)
+	testListenerFactory.EXPECT().ForDevice(device).Return([]test_listener.TestListener{testListener})
 	executor := executorImpl{
-		installer:     mockInstaller,
-		adb:           mockAdb,
-		resultParser:  mockResultParser,
-		testListeners: []test_listener.TestListener{testListener},
-		jsonFormatter: mockJsonFormatter,
-		writer:        mockWriter,
+		installer:            mockInstaller,
+		adb:                  mockAdb,
+		resultParser:         mockResultParser,
+		testListeners:        []test_listener.TestListener{testListener},
+		testListenersFactory: testListenerFactory,
+		jsonFormatter:        mockJsonFormatter,
+		writer:               mockWriter,
 	}
 
 	err := executor.Execute(config, []devices.Device{device})
@@ -175,6 +188,10 @@ func TestExecuteCallsTestListener(t *testing.T) {
 	if err != nil {
 		t.Error(fmt.Sprintf("Expected no error but got '%v'", err))
 	}
+}
+
+func givenNoTestListeners(device devices.Device, testListenerFactory *mock_test_listener.MockFactory) {
+	testListenerFactory.EXPECT().ForDevice(device).Return([]test_listener.TestListener{})
 }
 
 func givenDeviceDirectoryCanBeRemoved(device devices.Device, mockWriter *mock_output.MockWriter) {

@@ -3,7 +3,6 @@ package screen_recorder
 import (
 	"fmt"
 	"github.com/golang/mock/gomock"
-	"github.com/ybonjour/atr/devices"
 	"github.com/ybonjour/atr/mock_output"
 	"github.com/ybonjour/atr/mock_screen_recorder"
 	"github.com/ybonjour/atr/result"
@@ -13,15 +12,12 @@ import (
 
 func TestBeforeTestStartsScreenRecording(t *testing.T) {
 	targetTest := test.Test{}
-	device := devices.Device{Serial: "abcd"}
 	ctrl := gomock.NewController(t)
 	screenRecorderMock := mock_screen_recorder.NewMockScreenRecorder(ctrl)
 	screenRecorderMock.EXPECT().StartRecording(targetTest).Return(nil)
+	listener := testListener{screenRecorder: screenRecorderMock}
 
-	listener := testListener{
-		screenRecorder: map[devices.Device]ScreenRecorder{device: screenRecorderMock},
-	}
-	listener.BeforeTest(targetTest, device)
+	listener.BeforeTest(targetTest)
 
 	ctrl.Finish()
 }
@@ -29,7 +25,6 @@ func TestBeforeTestStartsScreenRecording(t *testing.T) {
 func TestAfterTestStopsScreenRecordingAndSavesForFailedResult(t *testing.T) {
 	targetTest := test.Test{}
 	testResult := result.Result{Test: targetTest, Status: result.Failed}
-	device := devices.Device{Serial: "abcd"}
 	ctrl := gomock.NewController(t)
 	writer := mock_output.NewMockWriter(ctrl)
 	screenRecorderMock := mock_screen_recorder.NewMockScreenRecorder(ctrl)
@@ -38,9 +33,9 @@ func TestAfterTestStopsScreenRecordingAndSavesForFailedResult(t *testing.T) {
 	screenRecorderMock.EXPECT().RemoveRecording(targetTest)
 	listener := testListener{
 		writer:         writer,
-		screenRecorder: map[devices.Device]ScreenRecorder{device: screenRecorderMock},
+		screenRecorder: screenRecorderMock,
 	}
-	listener.AfterTest(testResult, device)
+	listener.AfterTest(testResult)
 
 	ctrl.Finish()
 }
@@ -48,7 +43,6 @@ func TestAfterTestStopsScreenRecordingAndSavesForFailedResult(t *testing.T) {
 func TestAfterTestStopsScreenRecordingForPassedResult(t *testing.T) {
 	targetTest := test.Test{}
 	testResult := result.Result{Test: targetTest, Status: result.Passed}
-	device := devices.Device{Serial: "abcd"}
 	ctrl := gomock.NewController(t)
 	writer := mock_output.NewMockWriter(ctrl)
 	screenRecorderMock := mock_screen_recorder.NewMockScreenRecorder(ctrl)
@@ -57,9 +51,9 @@ func TestAfterTestStopsScreenRecordingForPassedResult(t *testing.T) {
 	screenRecorderMock.EXPECT().RemoveRecording(targetTest)
 	listener := testListener{
 		writer:         writer,
-		screenRecorder: map[devices.Device]ScreenRecorder{device: screenRecorderMock},
+		screenRecorder: screenRecorderMock,
 	}
-	listener.AfterTest(testResult, device)
+	listener.AfterTest(testResult)
 
 	ctrl.Finish()
 }
@@ -67,7 +61,6 @@ func TestAfterTestStopsScreenRecordingForPassedResult(t *testing.T) {
 func TestAfterTestReturnsScreenRecordingfileExtra(t *testing.T) {
 	targetTest := test.Test{Class: "TestClass", Method: "testMethod"}
 	testResult := result.Result{Test: targetTest, Status: result.Failed}
-	device := devices.Device{Serial: "abcd"}
 	filePath := "filepath"
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -78,9 +71,9 @@ func TestAfterTestReturnsScreenRecordingfileExtra(t *testing.T) {
 	screenRecorderMock.EXPECT().RemoveRecording(targetTest)
 	listener := testListener{
 		writer:         writer,
-		screenRecorder: map[devices.Device]ScreenRecorder{device: screenRecorderMock},
+		screenRecorder: screenRecorderMock,
 	}
-	extras := listener.AfterTest(testResult, device)
+	extras := listener.AfterTest(testResult)
 
 	if len(extras) != 1 {
 		t.Error(fmt.Sprintf("Expected 1 extra but got %v", len(extras)))
