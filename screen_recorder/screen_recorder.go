@@ -37,7 +37,8 @@ func New(device devices.Device) ScreenRecorder {
 
 func (screenRecorder *screenRecorderImpl) StartRecording(test test.Test) error {
 	filepPath := fmt.Sprintf("/sdcard/%v.mp4", test.FullName())
-	pid, err := screenRecorder.Adb.RecordScreen(screenRecorder.Device.Serial, filepPath)
+	device := screenRecorder.Device
+	pid, err := screenRecorder.recordScreenInBackground(device, filepPath)
 	if err != nil {
 		return err
 	}
@@ -46,6 +47,10 @@ func (screenRecorder *screenRecorderImpl) StartRecording(test test.Test) error {
 	screenRecorder.Test = test
 
 	return nil
+}
+
+func (screenRecorder *screenRecorderImpl) recordScreenInBackground(device devices.Device, filepPath string) (int, error) {
+	return screenRecorder.Adb.RecordScreen(device.Serial, filepPath, 180, device.ScreenDimension.ToString())
 }
 
 func (screenRecorder screenRecorderImpl) StopRecording(test test.Test) error {

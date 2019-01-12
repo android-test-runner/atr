@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/ybonjour/atr/command"
 	"os/exec"
+	"strconv"
 )
 
 type Adb interface {
@@ -15,7 +16,7 @@ type Adb interface {
 	ExecuteTest(packageName string, testRunner string, test string, deviceSerial string) (string, error)
 	ClearLogcat(deviceSerial string) command.ExecutionResult
 	GetLogcat(deviceSerial string) (string, error)
-	RecordScreen(deviceSerial string, filePath string) (int, error)
+	RecordScreen(deviceSerial string, filePath string, timeLimitSeconds int, screenDimensions string) (int, error)
 	GetScreenDimensions(deviceSerial string) (int, int, error)
 	PullFile(deviceSerial string, filePathOnDevice string, filePathLocal string) command.ExecutionResult
 	RemoveFile(deviceSerial string, filePathOnDevice string) command.ExecutionResult
@@ -98,13 +99,8 @@ func (adb adbImpl) GetLogcat(deviceSerial string) (string, error) {
 	return result.StdOut, result.Error
 }
 
-func (adb adbImpl) RecordScreen(deviceSerial string, filePath string) (int, error) {
-	width, height, err := adb.GetScreenDimensions(deviceSerial)
-	if err != nil {
-		return 0, err
-	}
-	dimensions := fmt.Sprintf("%vx%v", width, height)
-	return adb.commandExecutor.ExecuteInBackground(exec.Command("adb", "-s", deviceSerial, "shell", "screenrecord", "--size", dimensions, filePath))
+func (adb adbImpl) RecordScreen(deviceSerial string, filePath string, timeLimitSeconds int, screenDimensions string) (int, error) {
+	return adb.commandExecutor.ExecuteInBackground(exec.Command("adb", "-s", deviceSerial, "shell", "screenrecord", "--time-limit", strconv.Itoa(timeLimitSeconds), "--size", screenDimensions, filePath))
 }
 
 func (adb adbImpl) GetScreenDimensions(deviceSerial string) (int, int, error) {
