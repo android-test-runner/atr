@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/ybonjour/atr/apks"
 	"github.com/ybonjour/atr/devices"
+	"github.com/ybonjour/atr/logging"
 	"github.com/ybonjour/atr/output"
 	"github.com/ybonjour/atr/result"
 	"github.com/ybonjour/atr/test"
@@ -13,8 +14,9 @@ import (
 type testListener struct {
 	device    devices.Device
 	formatter Formatter
-	writer    output.Writer
 	apk       apks.Apk
+	writer    output.Writer
+	logger    logging.Logger
 	results   []result.Result
 }
 
@@ -24,6 +26,7 @@ func NewTestListener(device devices.Device, writer output.Writer, apk apks.Apk) 
 		formatter: NewFormatter(),
 		apk:       apk,
 		writer:    writer,
+		logger:    logging.NewForDevice(device),
 		results:   []result.Result{},
 	}
 }
@@ -38,13 +41,16 @@ func (listener *testListener) AfterTest(r result.Result) []result.Extra {
 }
 
 func (listener *testListener) AfterTestSuite() {
+	listener.logger.Debug(fmt.Sprintf("Save xml junit results for %v tests", len(listener.results)))
 	file, errFormat := listener.formatter.Format(listener.results, listener.apk)
 	if errFormat != nil {
-		fmt.Printf("Could not format xml junit results for device '%v': '%v'", listener.device, errFormat)
+		listener.logger.Error("Could not format xml junit results", errFormat)
 		return
 	}
 	filePath, errWrite := listener.writer.WriteFile(file, listener.device)
 	if errWrite != nil {
-		fmt.Printf("Could not write xml junit report to file '%v': '%v'", filePath, errWrite)
+		listener.logger.Error("Could not write xml junit results to file", errWrite)
+	} else {
+		listener.logger.Debug(fmt.Sprintf("Successfully saved xml junit reports to file %v", filePath))
 	}
 }
