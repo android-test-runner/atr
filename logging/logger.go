@@ -1,6 +1,9 @@
 package logging
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/ybonjour/atr/test"
+)
 
 type Logger interface {
 	Debug(message string)
@@ -35,4 +38,8 @@ func (logger loggerImpl) log(message string, level LogLevel) {
 	if level >= globalLogLevel {
 		fmt.Printf("%v\n", message)
 	}
+}
+
+func TestPrefix(message string, test test.Test) string {
+	return fmt.Sprintf("%v: %v", test.FullName(), message)
 }
