@@ -138,7 +138,8 @@ func testAction(c *cli.Context) error {
 	writer := output.NewWriter(c.String("output"))
 
 	testListeners := getTestListeners(c, apkUnderTest, writer)
-	testExecutionError := test_executor.NewExecutor(writer, testListeners).Execute(config, configDevices)
+	testListenersFactory := testListenerFactory{context: c, apk: apkUnderTest, writer: writer}
+	testExecutionError := test_executor.NewExecutor(writer, testListeners, testListenersFactory).Execute(config, configDevices)
 	if testExecutionError != nil {
 		return cli.NewExitError(fmt.Sprintf("Test execution errored:\n %v", testExecutionError), 1)
 	}
@@ -163,6 +164,31 @@ func getTestListeners(c *cli.Context, apk apks.Apk, writer output.Writer) []test
 		listeners = append(listeners, screen_recorder.NewTestListener(writer))
 	}
 
+	return listeners
+}
+
+type testListenerFactory struct {
+	context *cli.Context
+	apk     apks.Apk
+	writer  output.Writer
+}
+
+func (f testListenerFactory) ForDevice(device devices.Device) []test_listener.TestListener {
+	var listeners []test_listener.TestListener
+
+	listeners = append(listeners, console.NewTestListener())
+
+	if f.context.Bool("recordjunit") {
+		listeners = append(listeners, junit_xml.NewTestListener(f.writer, f.apk))
+	}
+
+	if f.context.Bool("recordlogcat") {
+		listeners = append(listeners, logcat.NewTestListener(f.writer))
+	}
+
+	if f.context.Bool("recordscreen") {
+		listeners = append(listeners, screen_recorder.NewTestListener(f.writer))
+	}
 	return listeners
 }
 
