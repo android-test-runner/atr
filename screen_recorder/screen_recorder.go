@@ -68,11 +68,11 @@ func (screenRecorder *screenRecorderImpl) testScreenRecording(device devices.Dev
 	}
 
 	resultRemove := screenRecorder.Adb.RemoveFile(device.Serial, randomFileName)
-	if resultRemove.Error != nil {
-		fmt.Printf("Could not remove screen recording testfile '%v' on device '%v': %v\n", randomFileName, device.Serial, resultRemove.Error)
+	if result != nil {
+		return result
 	}
 
-	return result
+	return resultRemove.Error
 }
 
 func (screenRecorder *screenRecorderImpl) recordScreenInBackground(device devices.Device, filepPath string) (int, error) {

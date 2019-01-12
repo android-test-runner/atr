@@ -3,6 +3,7 @@ package screen_recorder
 import (
 	"fmt"
 	"github.com/golang/mock/gomock"
+	"github.com/ybonjour/atr/mock_logging"
 	"github.com/ybonjour/atr/mock_output"
 	"github.com/ybonjour/atr/mock_screen_recorder"
 	"github.com/ybonjour/atr/result"
@@ -15,7 +16,9 @@ func TestBeforeTestStartsScreenRecording(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	screenRecorderMock := mock_screen_recorder.NewMockScreenRecorder(ctrl)
 	screenRecorderMock.EXPECT().StartRecording(targetTest).Return(nil)
-	listener := testListener{screenRecorder: screenRecorderMock}
+	loggerMock := mock_logging.NewMockLogger(ctrl)
+	allowLogging(loggerMock)
+	listener := testListener{screenRecorder: screenRecorderMock, logger: loggerMock}
 
 	listener.BeforeTest(targetTest)
 
@@ -31,9 +34,12 @@ func TestAfterTestStopsScreenRecordingAndSavesForFailedResult(t *testing.T) {
 	screenRecorderMock.EXPECT().StopRecording(targetTest).Return(nil)
 	screenRecorderMock.EXPECT().SaveResult(targetTest, writer).Return("", nil)
 	screenRecorderMock.EXPECT().RemoveRecording(targetTest)
+	loggerMock := mock_logging.NewMockLogger(ctrl)
+	allowLogging(loggerMock)
 	listener := testListener{
 		writer:         writer,
 		screenRecorder: screenRecorderMock,
+		logger:         loggerMock,
 	}
 	listener.AfterTest(testResult)
 
@@ -49,9 +55,12 @@ func TestAfterTestStopsScreenRecordingForPassedResult(t *testing.T) {
 	screenRecorderMock.EXPECT().StopRecording(targetTest).Return(nil)
 	screenRecorderMock.EXPECT().SaveResult(targetTest, writer).Return("", nil).Times(0)
 	screenRecorderMock.EXPECT().RemoveRecording(targetTest)
+	loggerMock := mock_logging.NewMockLogger(ctrl)
+	allowLogging(loggerMock)
 	listener := testListener{
 		writer:         writer,
 		screenRecorder: screenRecorderMock,
+		logger:         loggerMock,
 	}
 	listener.AfterTest(testResult)
 
@@ -69,9 +78,12 @@ func TestAfterTestReturnsScreenRecordingfileExtra(t *testing.T) {
 	screenRecorderMock.EXPECT().StopRecording(targetTest).Return(nil)
 	screenRecorderMock.EXPECT().SaveResult(targetTest, writer).Return(filePath, nil)
 	screenRecorderMock.EXPECT().RemoveRecording(targetTest)
+	loggerMock := mock_logging.NewMockLogger(ctrl)
+	allowLogging(loggerMock)
 	listener := testListener{
 		writer:         writer,
 		screenRecorder: screenRecorderMock,
+		logger:         loggerMock,
 	}
 	extras := listener.AfterTest(testResult)
 
@@ -83,4 +95,9 @@ func TestAfterTestReturnsScreenRecordingfileExtra(t *testing.T) {
 	if expectedExtras != extras[0] {
 		t.Error(fmt.Sprintf("Expected extra '%v' but got '%v'", expectedExtras, extras[0]))
 	}
+}
+
+func allowLogging(loggerMock *mock_logging.MockLogger) {
+	loggerMock.EXPECT().Debug(gomock.Any()).AnyTimes()
+	loggerMock.EXPECT().Error(gomock.Any(), gomock.Any()).AnyTimes()
 }
