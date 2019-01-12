@@ -158,13 +158,13 @@ func getTestListeners(c *cli.Context, apk apks.Apk, writer output.Writer) []test
 }
 
 func getDevices(c *cli.Context) ([]devices.Device, error) {
-	deviceFlag := c.StringSlice("device")
-	// ensure no filter (=> all connected devices) if no devices provided
-	var d []string
-	if len(deviceFlag) > 0 {
-		d = deviceFlag
+	deviceDefinitions := c.StringSlice("device")
+	d := devices.New()
+	if len(deviceDefinitions) > 0 {
+		return d.ParseConnectedDevices(deviceDefinitions)
+	} else {
+		return d.AllConnectedDevices()
 	}
-	return devices.New().ConnectedDevices(d)
 }
 
 func allTests(c *cli.Context) ([]test.Test, error) {
