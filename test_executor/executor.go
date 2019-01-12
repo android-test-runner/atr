@@ -31,21 +31,16 @@ type executorImpl struct {
 	installer            Installer
 	resultParser         result.Parser
 	adb                  adb.Adb
-	testListeners        []test_listener.TestListener
 	testListenersFactory test_listener.Factory
 	jsonFormatter        result.JsonFormatter
 	writer               output.Writer
 }
 
-func NewExecutor(
-	writer output.Writer,
-	testListeners []test_listener.TestListener,
-	testListenersFactory test_listener.Factory) Executor {
+func NewExecutor(writer output.Writer, testListenersFactory test_listener.Factory) Executor {
 	return executorImpl{
 		installer:            NewInstaller(),
 		resultParser:         result.NewParser(),
 		adb:                  adb.New(),
-		testListeners:        testListeners,
 		testListenersFactory: testListenersFactory,
 		jsonFormatter:        result.NewJsonFormatter(),
 		writer:               writer,

@@ -137,9 +137,8 @@ func testAction(c *cli.Context) error {
 	}
 	writer := output.NewWriter(c.String("output"))
 
-	testListeners := []test_listener.TestListener{}
 	testListenersFactory := testListenerFactory{context: c, apk: apkUnderTest, writer: writer}
-	testExecutionError := test_executor.NewExecutor(writer, testListeners, testListenersFactory).Execute(config, configDevices)
+	testExecutionError := test_executor.NewExecutor(writer, testListenersFactory).Execute(config, configDevices)
 	if testExecutionError != nil {
 		return cli.NewExitError(fmt.Sprintf("Test execution errored:\n %v", testExecutionError), 1)
 	}
