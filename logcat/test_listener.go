@@ -46,7 +46,7 @@ func (listener *testListener) AfterTest(r result.Result) []result.Extra {
 	listener.logger.Debug(logging.TestPrefix("Stop logcat recording", r.Test))
 	errStopLogcat := listener.logcat.StopRecording(r.Test)
 	if errStopLogcat != nil {
-		listener.logger.Error(logging.TestPrefix("Coud not stop logcatrecording", r.Test), errStopLogcat)
+		listener.logger.Error(logging.TestPrefix("Could not stop logcat recording", r.Test), errStopLogcat)
 	} else {
 		listener.logger.Debug(logging.TestPrefix("Successfully stopped logcat recording", r.Test))
 	}
