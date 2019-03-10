@@ -85,12 +85,10 @@ func readYaml(c *cli.Context) error {
 
 	err := altsrc.InitInputSourceWithContext(flags, altsrc.NewYamlSourceFromFlagFunc("load"))(c)
 	if err != nil {
-		// Print a meaningful error message,
-		// because urfave/cli will not print an error message if the Before function fails.
 		errorMessage := fmt.Sprintf("Could not read YAML configuration file '%v': \n%v\n", c.String("load"), err)
-		fmt.Print(console.Color(errorMessage, console.Red))
+		return cli.NewExitError(errorMessage, 1)
 	}
-	return err
+	return nil
 }
 
 func testAction(c *cli.Context) error {
