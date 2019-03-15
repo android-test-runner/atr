@@ -33,6 +33,7 @@ type executorImpl struct {
 	adb                  adb.Adb
 	testListenersFactory test_listener.Factory
 	jsonFormatter        result.JsonFormatter
+	htmlFormatter        result.HtmlFormatter
 	writer               output.Writer
 }
 
@@ -43,6 +44,7 @@ func NewExecutor(writer output.Writer, testListenersFactory test_listener.Factor
 		adb:                  adb.New(),
 		testListenersFactory: testListenersFactory,
 		jsonFormatter:        result.NewJsonFormatter(),
+		htmlFormatter:        result.NewHtmlFormatter(),
 		writer:               writer,
 	}
 }
@@ -86,11 +88,27 @@ func (executor executorImpl) Execute(config Config, targetDevices []devices.Devi
 		fmt.Printf("Could not write results.json: '%v'", errJson)
 	}
 
+	errHtml := executor.storeResultsAsHtml(resultsByDevice)
+	if errHtml != nil {
+		fmt.Printf("Could not write results.html: '%v'", errHtml)
+	}
+
 	return allErrors
 }
 
 func (executor executorImpl) storeResultsAsJson(resultsByDevice map[devices.Device]result.TestResults) error {
 	file, errFormat := executor.jsonFormatter.FormatResults(resultsByDevice)
+	if errFormat != nil {
+		return errFormat
+	}
+
+	_, errWrite := executor.writer.WriteFileToRoot(file)
+
+	return errWrite
+}
+
+func (executor executorImpl) storeResultsAsHtml(resultsByDevice map[devices.Device]result.TestResults) error {
+	file, errFormat := executor.htmlFormatter.FormatResults(resultsByDevice)
 	if errFormat != nil {
 		return errFormat
 	}
