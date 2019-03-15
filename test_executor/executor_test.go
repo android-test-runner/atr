@@ -42,9 +42,11 @@ func TestExecute(t *testing.T) {
 	mockResultParser := mock_result.NewMockParser(ctrl)
 	mockResultParser.EXPECT().ParseFromOutput(gomock.Eq(targetTest), gomock.Eq(nil), gomock.Eq(testOutput), gomock.Any()).Return(testResult)
 	mockJsonFormatter := mock_result.NewMockJsonFormatter(ctrl)
+	mockHtmlFormatter := mock_result.NewMockHtmlFormatter(ctrl)
 	mockWriter := mock_output.NewMockWriter(ctrl)
 	givenDeviceDirectoryCanBeRemoved(device, mockWriter)
 	givenJsonFileCanBeWritten(mockJsonFormatter, mockWriter)
+	givenHtmlFileCanBeWritten(mockHtmlFormatter, mockWriter)
 	mockTestListenerFactory := mock_test_listener.NewMockFactory(ctrl)
 	givenNoTestListeners(device, mockTestListenerFactory)
 	executor := executorImpl{
@@ -53,6 +55,7 @@ func TestExecute(t *testing.T) {
 		resultParser:         mockResultParser,
 		testListenersFactory: mockTestListenerFactory,
 		jsonFormatter:        mockJsonFormatter,
+		htmlFormatter:        mockHtmlFormatter,
 		writer:               mockWriter,
 	}
 
@@ -81,9 +84,11 @@ func TestExecuteMultipleTests(t *testing.T) {
 	givenTestOnDeviceReturns(test1, device, testResult1, mockAdb, mockResultParser)
 	givenTestOnDeviceReturns(test2, device, testResult2, mockAdb, mockResultParser)
 	mockJsonFormatter := mock_result.NewMockJsonFormatter(ctrl)
+	mockHtmlFormatter := mock_result.NewMockHtmlFormatter(ctrl)
 	mockWriter := mock_output.NewMockWriter(ctrl)
 	givenDeviceDirectoryCanBeRemoved(device, mockWriter)
 	givenJsonFileCanBeWritten(mockJsonFormatter, mockWriter)
+	givenHtmlFileCanBeWritten(mockHtmlFormatter, mockWriter)
 	mockTestListenerFactory := mock_test_listener.NewMockFactory(ctrl)
 	givenNoTestListeners(device, mockTestListenerFactory)
 	executor := executorImpl{
@@ -92,6 +97,7 @@ func TestExecuteMultipleTests(t *testing.T) {
 		resultParser:         mockResultParser,
 		testListenersFactory: mockTestListenerFactory,
 		jsonFormatter:        mockJsonFormatter,
+		htmlFormatter:        mockHtmlFormatter,
 		writer:               mockWriter,
 	}
 
@@ -120,10 +126,12 @@ func TestExecuteMultipleDevices(t *testing.T) {
 	givenTestOnDeviceReturns(targetTest, device1, testResult1, mockAdb, mockResultParser)
 	givenTestOnDeviceReturns(targetTest, device2, testResult2, mockAdb, mockResultParser)
 	mockJsonFormatter := mock_result.NewMockJsonFormatter(ctrl)
+	mockHtmlFormatter := mock_result.NewMockHtmlFormatter(ctrl)
 	mockWriter := mock_output.NewMockWriter(ctrl)
 	givenDeviceDirectoryCanBeRemoved(device1, mockWriter)
 	givenDeviceDirectoryCanBeRemoved(device2, mockWriter)
 	givenJsonFileCanBeWritten(mockJsonFormatter, mockWriter)
+	givenHtmlFileCanBeWritten(mockHtmlFormatter, mockWriter)
 	mockTestListenerFactory := mock_test_listener.NewMockFactory(ctrl)
 	givenNoTestListeners(device1, mockTestListenerFactory)
 	givenNoTestListeners(device2, mockTestListenerFactory)
@@ -133,6 +141,7 @@ func TestExecuteMultipleDevices(t *testing.T) {
 		resultParser:         mockResultParser,
 		testListenersFactory: mockTestListenerFactory,
 		jsonFormatter:        mockJsonFormatter,
+		htmlFormatter:        mockHtmlFormatter,
 		writer:               mockWriter,
 	}
 
@@ -160,9 +169,11 @@ func TestExecuteCallsTestListener(t *testing.T) {
 	mockResultParser := mock_result.NewMockParser(ctrl)
 	givenTestOnDeviceReturns(targetTest, device, testResult, mockAdb, mockResultParser)
 	mockJsonFormatter := mock_result.NewMockJsonFormatter(ctrl)
+	mockHtmlFormatter := mock_result.NewMockHtmlFormatter(ctrl)
 	mockWriter := mock_output.NewMockWriter(ctrl)
 	givenDeviceDirectoryCanBeRemoved(device, mockWriter)
 	givenJsonFileCanBeWritten(mockJsonFormatter, mockWriter)
+	givenHtmlFileCanBeWritten(mockHtmlFormatter, mockWriter)
 	testListener := mock_test_listener.NewMockTestListener(ctrl)
 	testListener.EXPECT().BeforeTestSuite()
 	testListener.EXPECT().BeforeTest(targetTest)
@@ -176,6 +187,7 @@ func TestExecuteCallsTestListener(t *testing.T) {
 		resultParser:         mockResultParser,
 		testListenersFactory: testListenerFactory,
 		jsonFormatter:        mockJsonFormatter,
+		htmlFormatter:        mockHtmlFormatter,
 		writer:               mockWriter,
 	}
 
@@ -209,6 +221,12 @@ func givenTestOnDeviceReturns(t test.Test, d devices.Device, r result.Result, mo
 		EXPECT().
 		ParseFromOutput(gomock.Eq(t), gomock.Eq(nil), gomock.Eq(testOutput), gomock.Any()).
 		Return(r)
+}
+
+func givenHtmlFileCanBeWritten(mockHtmlFormatter *mock_result.MockHtmlFormatter, mockWriter *mock_output.MockWriter) {
+	f := files.File{}
+	mockHtmlFormatter.EXPECT().FormatResults(gomock.Any()).Return(f, nil)
+	mockWriter.EXPECT().WriteFileToRoot(f).Return("", nil)
 }
 
 func givenJsonFileCanBeWritten(mockJsonFormatter *mock_result.MockJsonFormatter, mockWriter *mock_output.MockWriter) {
