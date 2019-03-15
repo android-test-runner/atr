@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/android-test-runner/atr/adb"
 	"github.com/android-test-runner/atr/devices"
+	"github.com/android-test-runner/atr/files"
 	"github.com/android-test-runner/atr/output"
 	"github.com/android-test-runner/atr/test"
 	"github.com/satori/go.uuid"
@@ -105,14 +106,16 @@ func (screenRecorder *screenRecorderImpl) SaveResult(test test.Test, writer outp
 		return "", directoryErr
 	}
 
-	localFile := filepath.Join(writer.ToAbsolute(deviceDirectory), fmt.Sprintf("%v.mp4", test.FullName()))
+	localFileName := fmt.Sprintf("%v.mp4", files.EscapeFileName(test.FullName()))
+	relativeLocalFile := filepath.Join(deviceDirectory, localFileName)
+	localFile := filepath.Join(writer.ToAbsolute(deviceDirectory), localFileName)
 
 	// Give screen recorder some time to properly write the video file
 	time.Sleep(2 * time.Second)
 
 	r := screenRecorder.Adb.PullFile(screenRecorder.Device.Serial, screenRecorder.filePath, localFile)
 
-	return deviceDirectory, r.Error
+	return relativeLocalFile, r.Error
 }
 
 func interruptProcess(pid int) error {

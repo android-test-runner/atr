@@ -27,8 +27,8 @@ func NewWriter(rootDirectory string) Writer {
 }
 
 func (writer writerImpl) WriteFileToRoot(file files.File) (string, error) {
-	path := writer.ToAbsolute(file.Name)
-	return file.Name, writer.files.WriteFile(path, file.Content)
+	path := writer.ToAbsolute(file.EscapedName())
+	return file.EscapedName(), writer.files.WriteFile(path, file.Content)
 }
 
 func (writer writerImpl) WriteFile(file files.File, device devices.Device) (string, error) {
@@ -48,7 +48,7 @@ func (writer writerImpl) MakeDeviceDirectory(device devices.Device) (string, err
 }
 
 func (writer writerImpl) relativePath(device devices.Device, file files.File) string {
-	return filepath.Join(device.Serial, file.Name)
+	return filepath.Join(device.Serial, file.EscapedName())
 }
 
 func (writer writerImpl) ToAbsolute(path string) string {
