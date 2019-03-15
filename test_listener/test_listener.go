@@ -1,8 +1,8 @@
 package test_listener
 
 import (
-	"github.com/ybonjour/atr/result"
-	"github.com/ybonjour/atr/test"
+	"github.com/android-test-runner/atr/result"
+	"github.com/android-test-runner/atr/test"
 )
 
 type TestListener interface {

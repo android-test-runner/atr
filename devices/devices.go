@@ -3,7 +3,7 @@ package devices
 import (
 	"errors"
 	"fmt"
-	"github.com/ybonjour/atr/adb"
+	"github.com/android-test-runner/atr/adb"
 	"regexp"
 	"strconv"
 	"strings"

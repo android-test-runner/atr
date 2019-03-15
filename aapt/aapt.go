@@ -1,7 +1,7 @@
 package aapt
 
 import (
-	"github.com/ybonjour/atr/command"
+	"github.com/android-test-runner/atr/command"
 	"os/exec"
 )
 

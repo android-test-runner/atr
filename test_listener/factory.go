@@ -1,7 +1,7 @@
 package test_listener
 
 import (
-	"github.com/ybonjour/atr/devices"
+	"github.com/android-test-runner/atr/devices"
 )
 
 type Factory interface {

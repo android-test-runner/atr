@@ -3,8 +3,8 @@ package result
 import (
 	"errors"
 	"fmt"
-	"github.com/ybonjour/atr/devices"
-	"github.com/ybonjour/atr/test"
+	"github.com/android-test-runner/atr/devices"
+	"github.com/android-test-runner/atr/test"
 	"strings"
 	"testing"
 	"time"

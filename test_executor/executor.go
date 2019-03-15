@@ -2,14 +2,14 @@ package test_executor
 
 import (
 	"fmt"
+	"github.com/android-test-runner/atr/adb"
+	"github.com/android-test-runner/atr/apks"
+	"github.com/android-test-runner/atr/devices"
+	"github.com/android-test-runner/atr/output"
+	"github.com/android-test-runner/atr/result"
+	"github.com/android-test-runner/atr/test"
+	"github.com/android-test-runner/atr/test_listener"
 	"github.com/hashicorp/go-multierror"
-	"github.com/ybonjour/atr/adb"
-	"github.com/ybonjour/atr/apks"
-	"github.com/ybonjour/atr/devices"
-	"github.com/ybonjour/atr/output"
-	"github.com/ybonjour/atr/result"
-	"github.com/ybonjour/atr/test"
-	"github.com/ybonjour/atr/test_listener"
 	"sync"
 	"time"
 )

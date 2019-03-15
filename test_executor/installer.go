@@ -2,9 +2,9 @@ package test_executor
 
 import (
 	"fmt"
-	"github.com/ybonjour/atr/adb"
-	"github.com/ybonjour/atr/apks"
-	"github.com/ybonjour/atr/devices"
+	"github.com/android-test-runner/atr/adb"
+	"github.com/android-test-runner/atr/apks"
+	"github.com/android-test-runner/atr/devices"
 )
 
 type Installer interface {

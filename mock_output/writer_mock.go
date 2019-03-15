@@ -5,9 +5,9 @@
 package mock_output
 
 import (
+	devices "github.com/android-test-runner/atr/devices"
+	files "github.com/android-test-runner/atr/files"
 	gomock "github.com/golang/mock/gomock"
-	devices "github.com/ybonjour/atr/devices"
-	files "github.com/ybonjour/atr/files"
 	reflect "reflect"
 )
 

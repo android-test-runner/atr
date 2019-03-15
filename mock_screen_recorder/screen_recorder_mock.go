@@ -5,9 +5,9 @@
 package mock_screen_recorder
 
 import (
+	output "github.com/android-test-runner/atr/output"
+	test "github.com/android-test-runner/atr/test"
 	gomock "github.com/golang/mock/gomock"
-	output "github.com/ybonjour/atr/output"
-	test "github.com/ybonjour/atr/test"
 	reflect "reflect"
 )
 

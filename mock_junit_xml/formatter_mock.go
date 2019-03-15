@@ -5,10 +5,10 @@
 package mock_junit_xml
 
 import (
+	apks "github.com/android-test-runner/atr/apks"
+	files "github.com/android-test-runner/atr/files"
+	result "github.com/android-test-runner/atr/result"
 	gomock "github.com/golang/mock/gomock"
-	apks "github.com/ybonjour/atr/apks"
-	files "github.com/ybonjour/atr/files"
-	result "github.com/ybonjour/atr/result"
 	reflect "reflect"
 )
 

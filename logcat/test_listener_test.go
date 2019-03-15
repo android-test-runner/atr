@@ -2,12 +2,12 @@ package logcat
 
 import (
 	"fmt"
+	"github.com/android-test-runner/atr/mock_logcat"
+	"github.com/android-test-runner/atr/mock_logging"
+	"github.com/android-test-runner/atr/mock_output"
+	"github.com/android-test-runner/atr/result"
+	"github.com/android-test-runner/atr/test"
 	"github.com/golang/mock/gomock"
-	"github.com/ybonjour/atr/mock_logcat"
-	"github.com/ybonjour/atr/mock_logging"
-	"github.com/ybonjour/atr/mock_output"
-	"github.com/ybonjour/atr/result"
-	"github.com/ybonjour/atr/test"
 	"testing"
 )
 

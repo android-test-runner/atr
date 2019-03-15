@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/ybonjour/atr/aapt"
-	"github.com/ybonjour/atr/adb"
-	"github.com/ybonjour/atr/console"
+	"github.com/android-test-runner/atr/aapt"
+	"github.com/android-test-runner/atr/adb"
+	"github.com/android-test-runner/atr/console"
 	"gopkg.in/urfave/cli.v1"
 	"strings"
 )

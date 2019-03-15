@@ -2,7 +2,7 @@ package adb
 
 import (
 	"fmt"
-	"github.com/ybonjour/atr/command"
+	"github.com/android-test-runner/atr/command"
 	"os/exec"
 	"strconv"
 )

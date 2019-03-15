@@ -3,8 +3,8 @@ package devices
 import (
 	"errors"
 	"fmt"
+	"github.com/android-test-runner/atr/mock_adb"
 	"github.com/golang/mock/gomock"
-	"github.com/ybonjour/atr/mock_adb"
 	"testing"
 )
 

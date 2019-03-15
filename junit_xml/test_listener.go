@@ -2,13 +2,13 @@ package junit_xml
 
 import (
 	"fmt"
-	"github.com/ybonjour/atr/apks"
-	"github.com/ybonjour/atr/devices"
-	"github.com/ybonjour/atr/logging"
-	"github.com/ybonjour/atr/output"
-	"github.com/ybonjour/atr/result"
-	"github.com/ybonjour/atr/test"
-	"github.com/ybonjour/atr/test_listener"
+	"github.com/android-test-runner/atr/apks"
+	"github.com/android-test-runner/atr/devices"
+	"github.com/android-test-runner/atr/logging"
+	"github.com/android-test-runner/atr/output"
+	"github.com/android-test-runner/atr/result"
+	"github.com/android-test-runner/atr/test"
+	"github.com/android-test-runner/atr/test_listener"
 )
 
 type testListener struct {

@@ -3,8 +3,8 @@ package result
 import (
 	"errors"
 	"fmt"
+	"github.com/android-test-runner/atr/devices"
 	"github.com/hashicorp/go-multierror"
-	"github.com/ybonjour/atr/devices"
 )
 
 type TestResults struct {

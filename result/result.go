@@ -1,7 +1,7 @@
 package result
 
 import (
-	"github.com/ybonjour/atr/test"
+	"github.com/android-test-runner/atr/test"
 	"time"
 )
 

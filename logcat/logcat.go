@@ -3,11 +3,11 @@ package logcat
 import (
 	"errors"
 	"fmt"
-	"github.com/ybonjour/atr/adb"
-	"github.com/ybonjour/atr/devices"
-	"github.com/ybonjour/atr/files"
-	"github.com/ybonjour/atr/output"
-	"github.com/ybonjour/atr/test"
+	"github.com/android-test-runner/atr/adb"
+	"github.com/android-test-runner/atr/devices"
+	"github.com/android-test-runner/atr/files"
+	"github.com/android-test-runner/atr/output"
+	"github.com/android-test-runner/atr/test"
 )
 
 type Logcat interface {

@@ -1,7 +1,7 @@
 package test
 
 import (
-	"github.com/ybonjour/atr/files"
+	"github.com/android-test-runner/atr/files"
 	"strings"
 )
 

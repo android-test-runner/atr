@@ -2,10 +2,10 @@ package output
 
 import (
 	"fmt"
+	"github.com/android-test-runner/atr/devices"
+	"github.com/android-test-runner/atr/files"
+	"github.com/android-test-runner/atr/mock_files"
 	"github.com/golang/mock/gomock"
-	"github.com/ybonjour/atr/devices"
-	"github.com/ybonjour/atr/files"
-	"github.com/ybonjour/atr/mock_files"
 	"testing"
 )
 

@@ -5,9 +5,9 @@
 package mock_test_executor
 
 import (
+	apks "github.com/android-test-runner/atr/apks"
+	devices "github.com/android-test-runner/atr/devices"
 	gomock "github.com/golang/mock/gomock"
-	apks "github.com/ybonjour/atr/apks"
-	devices "github.com/ybonjour/atr/devices"
 	reflect "reflect"
 )
 

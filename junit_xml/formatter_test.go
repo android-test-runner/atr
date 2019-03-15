@@ -2,9 +2,9 @@ package junit_xml
 
 import (
 	"fmt"
-	"github.com/ybonjour/atr/apks"
-	"github.com/ybonjour/atr/result"
-	"github.com/ybonjour/atr/test"
+	"github.com/android-test-runner/atr/apks"
+	"github.com/android-test-runner/atr/result"
+	"github.com/android-test-runner/atr/test"
 	"strings"
 	"testing"
 	"time"

@@ -2,9 +2,9 @@ package result
 
 import (
 	"encoding/json"
-	"github.com/ybonjour/atr/devices"
-	"github.com/ybonjour/atr/files"
-	"github.com/ybonjour/atr/test"
+	"github.com/android-test-runner/atr/devices"
+	"github.com/android-test-runner/atr/files"
+	"github.com/android-test-runner/atr/test"
 )
 
 type testJson struct {

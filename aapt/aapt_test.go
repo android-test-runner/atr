@@ -3,10 +3,10 @@ package aapt
 import (
 	"errors"
 	"fmt"
+	"github.com/android-test-runner/atr/command"
+	"github.com/android-test-runner/atr/mock_aapt"
+	"github.com/android-test-runner/atr/mock_command"
 	"github.com/golang/mock/gomock"
-	"github.com/ybonjour/atr/command"
-	"github.com/ybonjour/atr/mock_aapt"
-	"github.com/ybonjour/atr/mock_command"
 	"testing"
 )
 

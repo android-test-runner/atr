@@ -3,8 +3,8 @@ package apks
 import (
 	"errors"
 	"fmt"
-	"github.com/ybonjour/atr/aapt"
-	"github.com/ybonjour/atr/files"
+	"github.com/android-test-runner/atr/aapt"
+	"github.com/android-test-runner/atr/files"
 	"strings"
 )
 

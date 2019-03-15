@@ -1,8 +1,8 @@
 package output
 
 import (
-	"github.com/ybonjour/atr/devices"
-	"github.com/ybonjour/atr/files"
+	"github.com/android-test-runner/atr/devices"
+	"github.com/android-test-runner/atr/files"
 	"path/filepath"
 )
 

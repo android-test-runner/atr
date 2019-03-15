@@ -3,11 +3,11 @@ package test_executor
 import (
 	"errors"
 	"fmt"
+	"github.com/android-test-runner/atr/apks"
+	"github.com/android-test-runner/atr/command"
+	"github.com/android-test-runner/atr/devices"
+	"github.com/android-test-runner/atr/mock_adb"
 	"github.com/golang/mock/gomock"
-	"github.com/ybonjour/atr/apks"
-	"github.com/ybonjour/atr/command"
-	"github.com/ybonjour/atr/devices"
-	"github.com/ybonjour/atr/mock_adb"
 	"testing"
 )
 

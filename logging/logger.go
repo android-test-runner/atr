@@ -2,7 +2,7 @@ package logging
 
 import (
 	"fmt"
-	"github.com/ybonjour/atr/test"
+	"github.com/android-test-runner/atr/test"
 )
 
 type Logger interface {

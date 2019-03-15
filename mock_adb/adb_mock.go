@@ -5,8 +5,8 @@
 package mock_adb
 
 import (
+	command "github.com/android-test-runner/atr/command"
 	gomock "github.com/golang/mock/gomock"
-	command "github.com/ybonjour/atr/command"
 	reflect "reflect"
 )
 

@@ -3,9 +3,9 @@ package junit_xml
 import (
 	"encoding/xml"
 	"fmt"
-	"github.com/ybonjour/atr/apks"
-	"github.com/ybonjour/atr/files"
-	"github.com/ybonjour/atr/result"
+	"github.com/android-test-runner/atr/apks"
+	"github.com/android-test-runner/atr/files"
+	"github.com/android-test-runner/atr/result"
 )
 
 type Formatter interface {

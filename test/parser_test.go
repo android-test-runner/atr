@@ -3,8 +3,8 @@ package test
 import (
 	"errors"
 	"fmt"
+	"github.com/android-test-runner/atr/mock_files"
 	"github.com/golang/mock/gomock"
-	"github.com/ybonjour/atr/mock_files"
 	"testing"
 )
 

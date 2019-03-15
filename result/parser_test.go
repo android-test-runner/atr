@@ -3,7 +3,7 @@ package result
 import (
 	"errors"
 	"fmt"
-	"github.com/ybonjour/atr/test"
+	"github.com/android-test-runner/atr/test"
 	"testing"
 	"time"
 )

@@ -1,15 +1,15 @@
 package junit_xml
 
 import (
+	"github.com/android-test-runner/atr/apks"
+	"github.com/android-test-runner/atr/devices"
+	"github.com/android-test-runner/atr/files"
+	"github.com/android-test-runner/atr/mock_junit_xml"
+	"github.com/android-test-runner/atr/mock_logging"
+	"github.com/android-test-runner/atr/mock_output"
+	"github.com/android-test-runner/atr/result"
+	"github.com/android-test-runner/atr/test"
 	"github.com/golang/mock/gomock"
-	"github.com/ybonjour/atr/apks"
-	"github.com/ybonjour/atr/devices"
-	"github.com/ybonjour/atr/files"
-	"github.com/ybonjour/atr/mock_junit_xml"
-	"github.com/ybonjour/atr/mock_logging"
-	"github.com/ybonjour/atr/mock_output"
-	"github.com/ybonjour/atr/result"
-	"github.com/ybonjour/atr/test"
 	"testing"
 )
 

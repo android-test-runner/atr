@@ -5,9 +5,9 @@
 package mock_test_listener
 
 import (
+	devices "github.com/android-test-runner/atr/devices"
+	test_listener "github.com/android-test-runner/atr/test_listener"
 	gomock "github.com/golang/mock/gomock"
-	devices "github.com/ybonjour/atr/devices"
-	test_listener "github.com/ybonjour/atr/test_listener"
 	reflect "reflect"
 )
 

@@ -2,7 +2,7 @@ package logging
 
 import (
 	"fmt"
-	"github.com/ybonjour/atr/devices"
+	"github.com/android-test-runner/atr/devices"
 )
 
 type deviceLogger struct {
