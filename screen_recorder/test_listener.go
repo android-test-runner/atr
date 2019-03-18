@@ -55,7 +55,7 @@ func (listener *testListener) AfterTest(r result.Result) []result.Extra {
 			listener.logger.Error(logging.TestPrefix("Could not save screen recording to file", r.Test), errSave)
 		} else {
 			listener.logger.Debug(logging.TestPrefix(fmt.Sprintf("Successfully saved screen recording to file %v", filePath), r.Test))
-			extras = append(extras, result.Extra{Name: "Screen Recording", Value: filePath, Type: result.File})
+			extras = append(extras, result.Extra{Name: "Screen Recording", Value: filePath, Type: result.Video})
 		}
 	}
 

@@ -44,7 +44,8 @@ type Extra struct {
 type ExtraType string
 
 const (
-	File ExtraType = "file"
+	File  ExtraType = "file"
+	Video ExtraType = "video"
 )
 
 func (result Result) IsFailure() bool {

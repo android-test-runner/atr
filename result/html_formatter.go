@@ -19,6 +19,10 @@ p.title {
 	margin: 0px;
 	padding: 5px;
 }
+video {
+	width: 400px;
+	padding: 5px;
+}
 ul.testResults {
 	list-style-type:none;
 	padding-left: 0;
@@ -61,6 +65,12 @@ const htmlTemplate = `
 				<li class="testResults">
 				<p class="title {{ $result.Status }}">{{ $result.TestName }}: {{$result.Status}}</p>
 				<pre>{{ $result.Output }}</pre>
+				{{ if $result.Video }}
+					<video controls>
+						<source src="{{$result.Video}}" type="video/mp4" />
+						Your browser does not support the video tag.
+					</video>
+				{{ end }}
 				<ul class="extras">
 					{{ range $extra := $result.Extras }}
 						<li><a href="{{ $extra.Link }}">{{ $extra.Name }}</a></li>
@@ -88,6 +98,7 @@ type resultHtml struct {
 	TestName string
 	Status   string
 	Output   string
+	Video    string
 	Extras   []extraHtml
 }
 
@@ -126,7 +137,7 @@ func (formatter htmlFormatterImpl) FormatResults(resultsByDevice map[devices.Dev
 	}
 
 	cssFile := files.File{
-		Name: cssFileName,
+		Name:    cssFileName,
 		Content: cssTemplate,
 	}
 
@@ -154,9 +165,12 @@ func (formatter htmlFormatterImpl) toHtmlOutput(resultsByDevice map[devices.Devi
 
 func toHtmlResult(result Result) resultHtml {
 	htmlExtras := []extraHtml{}
+	video := ""
 	for _, extra := range result.Extras {
 		if extra.Type == File {
 			htmlExtras = append(htmlExtras, toHtmlExtra(extra))
+		} else if extra.Type == Video {
+			video = extra.Value
 		}
 	}
 
@@ -164,6 +178,7 @@ func toHtmlResult(result Result) resultHtml {
 		TestName: result.Test.FullName(),
 		Status:   result.Status.toString(),
 		Output:   result.Output,
+		Video:    video,
 		Extras:   htmlExtras,
 	}
 }
