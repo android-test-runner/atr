@@ -64,7 +64,9 @@ const htmlTemplate = `
 			{{ range $result := $testResult.Results }}
 				<li class="testResults">
 				<p class="title {{ $result.Status }}">{{ $result.TestName }}: {{$result.Status}}</p>
-				<pre>{{ $result.Output }}</pre>
+				{{ if $result.Output }}
+					<pre>{{ $result.Output }}</pre>
+				{{ end }}
 				{{ if $result.Video }}
 					<video controls>
 						<source src="{{$result.Video}}" type="video/mp4" />
@@ -174,10 +176,15 @@ func toHtmlResult(result Result) resultHtml {
 		}
 	}
 
+	output := ""
+	if result.IsFailure() {
+		output = result.Output
+	}
+
 	return resultHtml{
 		TestName: result.Test.FullName(),
 		Status:   result.Status.toString(),
-		Output:   result.Output,
+		Output:   output,
 		Video:    video,
 		Extras:   htmlExtras,
 	}
