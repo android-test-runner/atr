@@ -5,6 +5,7 @@ import (
 	"github.com/android-test-runner/atr/devices"
 	"github.com/android-test-runner/atr/files"
 	"html/template"
+	"sort"
 )
 
 const cssTemplate = `
@@ -97,11 +98,12 @@ type resultsForDeviceHtml struct {
 }
 
 type resultHtml struct {
-	TestName string
-	Status   string
-	Output   string
-	Video    string
-	Extras   []extraHtml
+	TestName  string
+	Status    string
+	IsFailure bool
+	Output    string
+	Video     string
+	Extras    []extraHtml
 }
 
 type extraHtml struct {
@@ -153,6 +155,7 @@ func (formatter htmlFormatterImpl) toHtmlOutput(resultsByDevice map[devices.Devi
 		for _, result := range testResults.Results {
 			resultsHtml = append(resultsHtml, toHtmlResult(result))
 		}
+		sortResultHtmlsByStatus(resultsHtml)
 
 		resultsAndDevice := resultsForDeviceHtml{
 			DeviceName: device.Serial,
@@ -182,11 +185,12 @@ func toHtmlResult(result Result) resultHtml {
 	}
 
 	return resultHtml{
-		TestName: result.Test.FullName(),
-		Status:   result.Status.toString(),
-		Output:   output,
-		Video:    video,
-		Extras:   htmlExtras,
+		TestName:  result.Test.FullName(),
+		Status:    result.Status.toString(),
+		IsFailure: result.IsFailure(),
+		Output:    output,
+		Video:     video,
+		Extras:    htmlExtras,
 	}
 }
 
@@ -194,5 +198,24 @@ func toHtmlExtra(extra Extra) extraHtml {
 	return extraHtml{
 		Name: extra.Name,
 		Link: extra.Value,
+	}
+}
+
+type ByStatus []resultHtml
+
+func (s ByStatus) Len() int           { return len(s) }
+func (s ByStatus) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
+func (s ByStatus) Less(i, j int) bool { return toSortNumber(s[i]) < toSortNumber(s[j]) }
+
+func sortResultHtmlsByStatus(resultHtmls []resultHtml) {
+	sort.Sort(ByStatus(resultHtmls))
+}
+
+func toSortNumber(result resultHtml) int {
+	// A failed test result shall be before a successful one
+	if result.IsFailure {
+		return 0
+	} else {
+		return 1
 	}
 }
