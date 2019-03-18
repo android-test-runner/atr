@@ -108,14 +108,19 @@ func (executor executorImpl) storeResultsAsJson(resultsByDevice map[devices.Devi
 }
 
 func (executor executorImpl) storeResultsAsHtml(resultsByDevice map[devices.Device]result.TestResults) error {
-	file, errFormat := executor.htmlFormatter.FormatResults(resultsByDevice)
+	files, errFormat := executor.htmlFormatter.FormatResults(resultsByDevice)
 	if errFormat != nil {
 		return errFormat
 	}
 
-	_, errWrite := executor.writer.WriteFileToRoot(file)
+	for _, file := range files {
+		_, errWrite := executor.writer.WriteFileToRoot(file)
+		if errWrite != nil {
+			return errWrite
+		}
+	}
 
-	return errWrite
+	return nil
 }
 
 func (executor executorImpl) executeOnDevice(config Config, device devices.Device) ([]result.Result, error) {

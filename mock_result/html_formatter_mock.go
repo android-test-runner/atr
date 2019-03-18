@@ -36,10 +36,10 @@ func (m *MockHtmlFormatter) EXPECT() *MockHtmlFormatterMockRecorder {
 }
 
 // FormatResults mocks base method
-func (m *MockHtmlFormatter) FormatResults(arg0 map[devices.Device]result.TestResults) (files.File, error) {
+func (m *MockHtmlFormatter) FormatResults(arg0 map[devices.Device]result.TestResults) ([]files.File, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FormatResults", arg0)
-	ret0, _ := ret[0].(files.File)
+	ret0, _ := ret[0].([]files.File)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

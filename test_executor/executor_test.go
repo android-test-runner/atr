@@ -225,7 +225,7 @@ func givenTestOnDeviceReturns(t test.Test, d devices.Device, r result.Result, mo
 
 func givenHtmlFileCanBeWritten(mockHtmlFormatter *mock_result.MockHtmlFormatter, mockWriter *mock_output.MockWriter) {
 	f := files.File{}
-	mockHtmlFormatter.EXPECT().FormatResults(gomock.Any()).Return(f, nil)
+	mockHtmlFormatter.EXPECT().FormatResults(gomock.Any()).Return([]files.File{f}, nil)
 	mockWriter.EXPECT().WriteFileToRoot(f).Return("", nil)
 }
 

@@ -7,45 +7,51 @@ import (
 	"html/template"
 )
 
+const cssTemplate = `
+* {
+	font-family: Arial;
+}
+pre {
+	font-family: monospace;
+	padding: 5px;
+}
+p.title {
+	margin: 0px;
+	padding: 5px;
+}
+ul.testResults {
+	list-style-type:none;
+	padding-left: 0;
+}
+li.testResults {
+	border: 1px solid black;
+}
+ul.extras {
+	padding-bottom: 5px;
+}
+.Passed {
+	background-color: green;
+	color: white;
+}
+.Failed {
+	background-color: red;
+	color: white;
+}
+.Errored {
+	background-color: red;
+	color: white;
+}
+.Skipped {
+	background-color: yellow;
+}
+`
+
 const htmlTemplate = `
 <!DOCTYPE html>
 <html>
 	<head>
 		<title>ATR Results</title>
-		<style type="text/css">
-			* {
-				font-family: Arial;
-			}
-			pre {
-				font-family: monospace;
-			}
-			p.title {
-				margin: 0px;
-				padding: 5px;
-			}
-			ul.testResults {
-				list-style-type:none;
-				padding-left: 0;
-			}
-			li.testResults {
-				border: 1px solid black;
-			}
-			.Passed {
-				background-color: green;
-				color: white;
-			}
-			.Failed {
-				background-color: red;
-				color: white;
-			}
-			.Errored {
-				background-color: red;
-				color: white;
-			}
-			.Skipped {
-				background-color: yellow;
-			}
-		</style>
+		<link href="{{ .ResultsCss }}" rel="stylesheet" />
 	</head>
 	<body>
 		{{ range $testResult := .Results }}
@@ -69,7 +75,8 @@ const htmlTemplate = `
 `
 
 type outputHtml struct {
-	Results []resultsForDeviceHtml
+	Results    []resultsForDeviceHtml
+	ResultsCss string
 }
 
 type resultsForDeviceHtml struct {
@@ -90,7 +97,7 @@ type extraHtml struct {
 }
 
 type HtmlFormatter interface {
-	FormatResults(map[devices.Device]TestResults) (files.File, error)
+	FormatResults(map[devices.Device]TestResults) ([]files.File, error)
 }
 
 type htmlFormatterImpl struct{}
@@ -99,28 +106,34 @@ func NewHtmlFormatter() HtmlFormatter {
 	return htmlFormatterImpl{}
 }
 
-func (formatter htmlFormatterImpl) FormatResults(resultsByDevice map[devices.Device]TestResults) (files.File, error) {
+func (formatter htmlFormatterImpl) FormatResults(resultsByDevice map[devices.Device]TestResults) ([]files.File, error) {
 	parsedTemplate, templateError := template.New("html").Parse(htmlTemplate)
 	if templateError != nil {
-		return files.File{}, templateError
+		return []files.File{}, templateError
 	}
 
+	cssFileName := "results.css"
 	var content bytes.Buffer
-	htmlOutput := formatter.toHtmlOutput(resultsByDevice)
+	htmlOutput := formatter.toHtmlOutput(resultsByDevice, cssFileName)
 	templateExecutionError := parsedTemplate.Execute(&content, htmlOutput)
 	if templateExecutionError != nil {
-		return files.File{}, templateExecutionError
+		return []files.File{}, templateExecutionError
 	}
 
-	file := files.File{
+	htmlFile := files.File{
 		Name:    "results.html",
 		Content: content.String(),
 	}
 
-	return file, nil
+	cssFile := files.File{
+		Name: cssFileName,
+		Content: cssTemplate,
+	}
+
+	return []files.File{htmlFile, cssFile}, nil
 }
 
-func (formatter htmlFormatterImpl) toHtmlOutput(resultsByDevice map[devices.Device]TestResults) outputHtml {
+func (formatter htmlFormatterImpl) toHtmlOutput(resultsByDevice map[devices.Device]TestResults, cssFileName string) outputHtml {
 	resultsForDeviceHtmls := []resultsForDeviceHtml{}
 	for device, testResults := range resultsByDevice {
 		resultsHtml := []resultHtml{}
@@ -136,7 +149,7 @@ func (formatter htmlFormatterImpl) toHtmlOutput(resultsByDevice map[devices.Devi
 		resultsForDeviceHtmls = append(resultsForDeviceHtmls, resultsAndDevice)
 	}
 
-	return outputHtml{Results: resultsForDeviceHtmls}
+	return outputHtml{Results: resultsForDeviceHtmls, ResultsCss: cssFileName}
 }
 
 func toHtmlResult(result Result) resultHtml {
