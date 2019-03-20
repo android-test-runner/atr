@@ -14,11 +14,9 @@ const cssTemplate = `
 }
 pre {
 	font-family: monospace;
-	padding: 5px;
 }
 p.title {
 	margin: 0px;
-	padding: 5px;
 	font-weight: bold;
 }
 video {
@@ -28,6 +26,9 @@ video {
 ul.testResults {
 	list-style-type:none;
 	padding-left: 0;
+}
+li.testResult {
+	padding-left: 5px;
 }
 ul.extras {
 	padding-bottom: 5px;
@@ -91,12 +92,13 @@ const htmlTemplate = `
 			<h1><a id="{{ $testResult.DeviceName }}"/>{{ $testResult.DeviceName }}</h1>
 			<ul class="testResults">
 			{{ range $result := $testResult.Results }}
-				<li class="testResults {{ $result.Status }}">
+				<li class="testResult {{ $result.Status }}">
 				<p class="title">{{ $result.TestName }}: {{$result.Status}}</p>
 				{{ if $result.Output }}
 					<pre>{{ $result.Output }}</pre>
 				{{ end }}
 				{{ if $result.Video }}
+					<a href="{{$result.Video}}">Video</a></br>
 					<video controls>
 						<source src="{{$result.Video}}" type="video/mp4" />
 						Your browser does not support the video tag.
