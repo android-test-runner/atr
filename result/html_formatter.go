@@ -32,13 +32,24 @@ ul.testResults {
 ul.extras {
 	padding-bottom: 5px;
 }
+.overviewCount {
+	font-weight: bold;
+	display: inline;
+}
+
 .Passed {
 	border-left: 5px solid green;
 	border-bottom: 1px solid green;
 }
+.numPassed {
+	color: green;
+}
 .Failed {
 	border-left: 5px solid red;
 	border-bottom: 1px solid red;
+}
+.numFailed {
+	color: red;
 }
 .Errored {
 	border-left: 5px solid red;
@@ -47,6 +58,9 @@ ul.extras {
 .Skipped {
 	border-left: 5px solid yellow;
 	border-bottom: 1px solid yellow;
+}
+.numSkipped {
+	color: orange;
 }
 `
 
@@ -58,8 +72,23 @@ const htmlTemplate = `
 		<link href="{{ .ResultsCss }}" rel="stylesheet" />
 	</head>
 	<body>
+		<h1>Overview</h1>
+		<ul>
 		{{ range $testResult := .Results }}
-			<h1>{{ $testResult.DeviceName }}</h1>
+			<li><a href="#{{ $testResult.DeviceName }}">{{ $testResult.DeviceName }}</a>: 
+				{{ if $testResult.NumFailed }}
+					<p class="overviewCount numFailed">{{ $testResult.NumFailed }} Failed</p>, 
+				{{ end }}
+				{{ if $testResult.NumSkipped }}
+					<p class="overviewCount numSkipped">{{ $testResult.NumSkipped }} Skipped</p>,
+				{{ end }}
+				<p class="overviewCount numPassed">{{ $testResult.NumPassed }} Passed</p> 
+			</li>
+		{{ end }}
+		</ul>
+
+		{{ range $testResult := .Results }}
+			<h1><a id="{{ $testResult.DeviceName }}"/>{{ $testResult.DeviceName }}</h1>
 			<ul class="testResults">
 			{{ range $result := $testResult.Results }}
 				<li class="testResults {{ $result.Status }}">
@@ -94,6 +123,9 @@ type outputHtml struct {
 type resultsForDeviceHtml struct {
 	DeviceName string
 	Results    []resultHtml
+	NumFailed  int
+	NumPassed  int
+	NumSkipped int
 }
 
 type resultHtml struct {
@@ -151,7 +183,17 @@ func (formatter htmlFormatterImpl) toHtmlOutput(resultsByDevice map[devices.Devi
 	resultsForDeviceHtmls := []resultsForDeviceHtml{}
 	for device, testResults := range resultsByDevice {
 		resultsHtml := []resultHtml{}
+		numFailed := 0
+		numPassed := 0
+		numSkipped := 0
 		for _, result := range testResults.Results {
+			if result.IsFailure() {
+				numFailed += 1
+			} else if result.IsSkipped() {
+				numSkipped += 1
+			} else {
+				numPassed += 1
+			}
 			resultsHtml = append(resultsHtml, toHtmlResult(result))
 		}
 		sortResultHtmlsByStatus(resultsHtml)
@@ -159,6 +201,9 @@ func (formatter htmlFormatterImpl) toHtmlOutput(resultsByDevice map[devices.Devi
 		resultsAndDevice := resultsForDeviceHtml{
 			DeviceName: device.Serial,
 			Results:    resultsHtml,
+			NumFailed:  numFailed,
+			NumPassed:  numPassed,
+			NumSkipped: numSkipped,
 		}
 
 		resultsForDeviceHtmls = append(resultsForDeviceHtmls, resultsAndDevice)

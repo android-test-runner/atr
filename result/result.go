@@ -52,6 +52,10 @@ func (result Result) IsFailure() bool {
 	return result.Status == Failed || result.Status == Errored
 }
 
+func (result Result) IsSkipped() bool {
+	return result.Status == Skipped
+}
+
 type Status int
 
 const (
