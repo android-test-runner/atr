@@ -19,6 +19,7 @@ pre {
 p.title {
 	margin: 0px;
 	padding: 5px;
+	font-weight: bold;
 }
 video {
 	width: 400px;
@@ -28,26 +29,24 @@ ul.testResults {
 	list-style-type:none;
 	padding-left: 0;
 }
-li.testResults {
-	border: 1px solid black;
-}
 ul.extras {
 	padding-bottom: 5px;
 }
 .Passed {
-	background-color: green;
-	color: white;
+	border-left: 5px solid green;
+	border-bottom: 1px solid green;
 }
 .Failed {
-	background-color: red;
-	color: white;
+	border-left: 5px solid red;
+	border-bottom: 1px solid red;
 }
 .Errored {
-	background-color: red;
-	color: white;
+	border-left: 5px solid red;
+	border-bottom: 1px solid red;
 }
 .Skipped {
-	background-color: yellow;
+	border-left: 5px solid yellow;
+	border-bottom: 1px solid yellow;
 }
 `
 
@@ -63,8 +62,8 @@ const htmlTemplate = `
 			<h1>{{ $testResult.DeviceName }}</h1>
 			<ul class="testResults">
 			{{ range $result := $testResult.Results }}
-				<li class="testResults">
-				<p class="title {{ $result.Status }}">{{ $result.TestName }}: {{$result.Status}}</p>
+				<li class="testResults {{ $result.Status }}">
+				<p class="title">{{ $result.TestName }}: {{$result.Status}}</p>
 				{{ if $result.Output }}
 					<pre>{{ $result.Output }}</pre>
 				{{ end }}
