@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/android-test-runner/atr/apks"
 	"github.com/android-test-runner/atr/devices"
-	"github.com/android-test-runner/atr/files"
 	"github.com/android-test-runner/atr/mock_adb"
 	"github.com/android-test-runner/atr/mock_output"
 	"github.com/android-test-runner/atr/mock_result"
@@ -241,16 +240,4 @@ func givenTestOnDeviceReturns(t test.Test, d devices.Device, r result.Result, mo
 		EXPECT().
 		ParseFromOutput(gomock.Eq(t), gomock.Eq(nil), gomock.Eq(testOutput), gomock.Any()).
 		Return(r)
-}
-
-func givenHtmlFileCanBeWritten(mockHtmlFormatter *mock_result.MockHtmlFormatter, mockWriter *mock_output.MockWriter) {
-	f := files.File{}
-	mockHtmlFormatter.EXPECT().FormatResults(gomock.Any()).Return([]files.File{f}, nil)
-	mockWriter.EXPECT().WriteFileToRoot(f).Return("", nil)
-}
-
-func givenJsonFileCanBeWritten(mockJsonFormatter *mock_result.MockJsonFormatter, mockWriter *mock_output.MockWriter) {
-	f := files.File{}
-	mockJsonFormatter.EXPECT().FormatResults(gomock.Any()).Return([]files.File{f}, nil)
-	mockWriter.EXPECT().WriteFileToRoot(f).Return("", nil)
 }
