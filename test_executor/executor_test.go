@@ -41,12 +41,8 @@ func TestExecute(t *testing.T) {
 	mockAdb.EXPECT().DisableAnimations(device.Serial).Return(nil)
 	mockResultParser := mock_result.NewMockParser(ctrl)
 	mockResultParser.EXPECT().ParseFromOutput(gomock.Eq(targetTest), gomock.Eq(nil), gomock.Eq(testOutput), gomock.Any()).Return(testResult)
-	mockJsonFormatter := mock_result.NewMockJsonFormatter(ctrl)
-	mockHtmlFormatter := mock_result.NewMockHtmlFormatter(ctrl)
 	mockWriter := mock_output.NewMockWriter(ctrl)
 	givenDeviceDirectoryCanBeRemoved(device, mockWriter)
-	givenJsonFileCanBeWritten(mockJsonFormatter, mockWriter)
-	givenHtmlFileCanBeWritten(mockHtmlFormatter, mockWriter)
 	mockTestListenerFactory := mock_test_listener.NewMockFactory(ctrl)
 	givenNoTestListeners(device, mockTestListenerFactory)
 	executor := executorImpl{
@@ -54,7 +50,7 @@ func TestExecute(t *testing.T) {
 		adb:                  mockAdb,
 		resultParser:         mockResultParser,
 		testListenersFactory: mockTestListenerFactory,
-		formatters:           []result.Formatter{mockJsonFormatter, mockHtmlFormatter},
+		formatters:           []result.Formatter{},
 		writer:               mockWriter,
 	}
 
@@ -82,12 +78,8 @@ func TestExecuteMultipleTests(t *testing.T) {
 	givenAllApksInstalledSuccessfully(mockInstaller, 1)
 	givenTestOnDeviceReturns(test1, device, testResult1, mockAdb, mockResultParser)
 	givenTestOnDeviceReturns(test2, device, testResult2, mockAdb, mockResultParser)
-	mockJsonFormatter := mock_result.NewMockJsonFormatter(ctrl)
-	mockHtmlFormatter := mock_result.NewMockHtmlFormatter(ctrl)
 	mockWriter := mock_output.NewMockWriter(ctrl)
 	givenDeviceDirectoryCanBeRemoved(device, mockWriter)
-	givenJsonFileCanBeWritten(mockJsonFormatter, mockWriter)
-	givenHtmlFileCanBeWritten(mockHtmlFormatter, mockWriter)
 	mockTestListenerFactory := mock_test_listener.NewMockFactory(ctrl)
 	givenNoTestListeners(device, mockTestListenerFactory)
 	executor := executorImpl{
@@ -95,7 +87,7 @@ func TestExecuteMultipleTests(t *testing.T) {
 		adb:                  mockAdb,
 		resultParser:         mockResultParser,
 		testListenersFactory: mockTestListenerFactory,
-		formatters:           []result.Formatter{mockJsonFormatter, mockHtmlFormatter},
+		formatters:           []result.Formatter{},
 		writer:               mockWriter,
 	}
 
@@ -123,13 +115,9 @@ func TestExecuteMultipleDevices(t *testing.T) {
 	givenAllApksInstalledSuccessfully(mockInstaller, 2)
 	givenTestOnDeviceReturns(targetTest, device1, testResult1, mockAdb, mockResultParser)
 	givenTestOnDeviceReturns(targetTest, device2, testResult2, mockAdb, mockResultParser)
-	mockJsonFormatter := mock_result.NewMockJsonFormatter(ctrl)
-	mockHtmlFormatter := mock_result.NewMockHtmlFormatter(ctrl)
 	mockWriter := mock_output.NewMockWriter(ctrl)
 	givenDeviceDirectoryCanBeRemoved(device1, mockWriter)
 	givenDeviceDirectoryCanBeRemoved(device2, mockWriter)
-	givenJsonFileCanBeWritten(mockJsonFormatter, mockWriter)
-	givenHtmlFileCanBeWritten(mockHtmlFormatter, mockWriter)
 	mockTestListenerFactory := mock_test_listener.NewMockFactory(ctrl)
 	givenNoTestListeners(device1, mockTestListenerFactory)
 	givenNoTestListeners(device2, mockTestListenerFactory)
@@ -138,7 +126,7 @@ func TestExecuteMultipleDevices(t *testing.T) {
 		adb:                  mockAdb,
 		resultParser:         mockResultParser,
 		testListenersFactory: mockTestListenerFactory,
-		formatters:           []result.Formatter{mockJsonFormatter, mockHtmlFormatter},
+		formatters:           []result.Formatter{},
 		writer:               mockWriter,
 	}
 
@@ -165,12 +153,8 @@ func TestExecuteCallsTestListener(t *testing.T) {
 	mockAdb := mock_adb.NewMockAdb(ctrl)
 	mockResultParser := mock_result.NewMockParser(ctrl)
 	givenTestOnDeviceReturns(targetTest, device, testResult, mockAdb, mockResultParser)
-	mockJsonFormatter := mock_result.NewMockJsonFormatter(ctrl)
-	mockHtmlFormatter := mock_result.NewMockHtmlFormatter(ctrl)
 	mockWriter := mock_output.NewMockWriter(ctrl)
 	givenDeviceDirectoryCanBeRemoved(device, mockWriter)
-	givenJsonFileCanBeWritten(mockJsonFormatter, mockWriter)
-	givenHtmlFileCanBeWritten(mockHtmlFormatter, mockWriter)
 	testListener := mock_test_listener.NewMockTestListener(ctrl)
 	testListener.EXPECT().BeforeTestSuite()
 	testListener.EXPECT().BeforeTest(targetTest)
@@ -183,7 +167,47 @@ func TestExecuteCallsTestListener(t *testing.T) {
 		adb:                  mockAdb,
 		resultParser:         mockResultParser,
 		testListenersFactory: testListenerFactory,
-		formatters:           []result.Formatter{mockJsonFormatter, mockHtmlFormatter},
+		formatters:           []result.Formatter{},
+		writer:               mockWriter,
+	}
+
+	err := executor.Execute(config, []devices.Device{device})
+
+	if err != nil {
+		t.Error(fmt.Sprintf("Expected no error but got '%v'", err))
+	}
+}
+
+func TestExecuteCallFormatsAndWritesResults(t *testing.T) {
+	targetTest := test.Test{Class: "TestClass", Method: "testMethod"}
+	config := Config{
+		TestApk:    apks.Apk{PackageName: "testPackageName"},
+		Tests:      []test.Test{targetTest},
+		TestRunner: "testRunner",
+	}
+	testResult := result.Result{}
+	device := devices.Device{Serial: "abcd"}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockInstaller := mock_test_executor.NewMockInstaller(ctrl)
+	givenAllApksInstalledSuccessfully(mockInstaller, 1)
+	mockAdb := mock_adb.NewMockAdb(ctrl)
+	mockResultParser := mock_result.NewMockParser(ctrl)
+	givenTestOnDeviceReturns(targetTest, device, testResult, mockAdb, mockResultParser)
+	mockWriter := mock_output.NewMockWriter(ctrl)
+	givenDeviceDirectoryCanBeRemoved(device, mockWriter)
+	mockTestListenerFactory := mock_test_listener.NewMockFactory(ctrl)
+	givenNoTestListeners(device, mockTestListenerFactory)
+	mockFormatter := mock_result.NewMockFormatter(ctrl)
+	expectedResults := make(map[devices.Device]result.TestResults)
+	expectedResults[device] = result.TestResults{Device: device, Results: []result.Result{testResult}, SetupError: nil}
+	mockFormatter.EXPECT().FormatResults(expectedResults)
+	executor := executorImpl{
+		installer:            mockInstaller,
+		adb:                  mockAdb,
+		resultParser:         mockResultParser,
+		testListenersFactory: mockTestListenerFactory,
+		formatters:           []result.Formatter{mockFormatter},
 		writer:               mockWriter,
 	}
 
