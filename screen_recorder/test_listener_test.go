@@ -91,7 +91,7 @@ func TestAfterTestReturnsScreenRecordingfileExtra(t *testing.T) {
 		t.Error(fmt.Sprintf("Expected 1 extra but got %v", len(extras)))
 		return
 	}
-	expectedExtras := result.Extra{Name: "Screen Recording", Value: filePath, Type: result.File}
+	expectedExtras := result.Extra{Name: "Screen Recording", Value: filePath, Type: result.Video}
 	if expectedExtras != extras[0] {
 		t.Error(fmt.Sprintf("Expected extra '%v' but got '%v'", expectedExtras, extras[0]))
 	}

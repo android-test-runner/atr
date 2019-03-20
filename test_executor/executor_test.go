@@ -231,6 +231,6 @@ func givenHtmlFileCanBeWritten(mockHtmlFormatter *mock_result.MockHtmlFormatter,
 
 func givenJsonFileCanBeWritten(mockJsonFormatter *mock_result.MockJsonFormatter, mockWriter *mock_output.MockWriter) {
 	f := files.File{}
-	mockJsonFormatter.EXPECT().FormatResults(gomock.Any()).Return(f, nil)
+	mockJsonFormatter.EXPECT().FormatResults(gomock.Any()).Return([]files.File{f}, nil)
 	mockWriter.EXPECT().WriteFileToRoot(f).Return("", nil)
 }

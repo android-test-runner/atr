@@ -32,7 +32,7 @@ type testResultsJson struct {
 }
 
 type JsonFormatter interface {
-	FormatResults(map[devices.Device]TestResults) (files.File, error)
+	FormatResults(map[devices.Device]TestResults) ([]files.File, error)
 }
 
 type jsonFormatterImpl struct{}
@@ -41,14 +41,14 @@ func NewJsonFormatter() JsonFormatter {
 	return jsonFormatterImpl{}
 }
 
-func (parser jsonFormatterImpl) FormatResults(resultsByDevice map[devices.Device]TestResults) (files.File, error) {
+func (parser jsonFormatterImpl) FormatResults(resultsByDevice map[devices.Device]TestResults) ([]files.File, error) {
 	output, err := parser.parseResultsToString(resultsByDevice)
 	file := files.File{
 		Name:    "results.json",
 		Content: output,
 	}
 
-	return file, err
+	return []files.File{file}, err
 }
 
 func (jsonFormatterImpl) parseResultsToString(resultsByDevice map[devices.Device]TestResults) (string, error) {
