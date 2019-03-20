@@ -32,6 +32,7 @@ type executorImpl struct {
 	resultParser         result.Parser
 	adb                  adb.Adb
 	testListenersFactory test_listener.Factory
+	formatters           []result.Formatter
 	jsonFormatter        result.JsonFormatter
 	htmlFormatter        result.HtmlFormatter
 	writer               output.Writer
@@ -43,8 +44,7 @@ func NewExecutor(writer output.Writer, testListenersFactory test_listener.Factor
 		resultParser:         result.NewParser(),
 		adb:                  adb.New(),
 		testListenersFactory: testListenersFactory,
-		jsonFormatter:        result.NewJsonFormatter(),
-		htmlFormatter:        result.NewHtmlFormatter(),
+		formatters:           []result.Formatter{result.NewJsonFormatter(), result.NewHtmlFormatter()},
 		writer:               writer,
 	}
 }
@@ -83,37 +83,18 @@ func (executor executorImpl) Execute(config Config, targetDevices []devices.Devi
 		resultsByDevice[results.Device] = results
 	}
 
-	errJson := executor.storeResultsAsJson(resultsByDevice)
-	if errJson != nil {
-		fmt.Printf("Could not write results.json: '%v'", errJson)
-	}
-
-	errHtml := executor.storeResultsAsHtml(resultsByDevice)
-	if errHtml != nil {
-		fmt.Printf("Could not write results.html: '%v'", errHtml)
+	for _, formatter := range executor.formatters {
+		errFormat := executor.storeFormattedResults(formatter, resultsByDevice)
+		if errFormat != nil {
+			fmt.Printf("Could not write formatted result: '%v'", errFormat)
+		}
 	}
 
 	return allErrors
 }
 
-func (executor executorImpl) storeResultsAsJson(resultsByDevice map[devices.Device]result.TestResults) error {
-	files, errFormat := executor.jsonFormatter.FormatResults(resultsByDevice)
-	if errFormat != nil {
-		return errFormat
-	}
-
-	for _, file := range files {
-		_, errWrite := executor.writer.WriteFileToRoot(file)
-		if errWrite != nil {
-			return errWrite
-		}
-	}
-
-	return nil
-}
-
-func (executor executorImpl) storeResultsAsHtml(resultsByDevice map[devices.Device]result.TestResults) error {
-	files, errFormat := executor.htmlFormatter.FormatResults(resultsByDevice)
+func (executor executorImpl) storeFormattedResults(formatter result.Formatter, resultsByDevice map[devices.Device]result.TestResults) error {
+	files, errFormat := formatter.FormatResults(resultsByDevice)
 	if errFormat != nil {
 		return errFormat
 	}

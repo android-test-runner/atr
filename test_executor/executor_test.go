@@ -54,8 +54,7 @@ func TestExecute(t *testing.T) {
 		adb:                  mockAdb,
 		resultParser:         mockResultParser,
 		testListenersFactory: mockTestListenerFactory,
-		jsonFormatter:        mockJsonFormatter,
-		htmlFormatter:        mockHtmlFormatter,
+		formatters:           []result.Formatter{mockJsonFormatter, mockHtmlFormatter},
 		writer:               mockWriter,
 	}
 
@@ -96,8 +95,7 @@ func TestExecuteMultipleTests(t *testing.T) {
 		adb:                  mockAdb,
 		resultParser:         mockResultParser,
 		testListenersFactory: mockTestListenerFactory,
-		jsonFormatter:        mockJsonFormatter,
-		htmlFormatter:        mockHtmlFormatter,
+		formatters:           []result.Formatter{mockJsonFormatter, mockHtmlFormatter},
 		writer:               mockWriter,
 	}
 
@@ -140,8 +138,7 @@ func TestExecuteMultipleDevices(t *testing.T) {
 		adb:                  mockAdb,
 		resultParser:         mockResultParser,
 		testListenersFactory: mockTestListenerFactory,
-		jsonFormatter:        mockJsonFormatter,
-		htmlFormatter:        mockHtmlFormatter,
+		formatters:           []result.Formatter{mockJsonFormatter, mockHtmlFormatter},
 		writer:               mockWriter,
 	}
 
@@ -186,8 +183,7 @@ func TestExecuteCallsTestListener(t *testing.T) {
 		adb:                  mockAdb,
 		resultParser:         mockResultParser,
 		testListenersFactory: testListenerFactory,
-		jsonFormatter:        mockJsonFormatter,
-		htmlFormatter:        mockHtmlFormatter,
+		formatters:           []result.Formatter{mockJsonFormatter, mockHtmlFormatter},
 		writer:               mockWriter,
 	}
 
