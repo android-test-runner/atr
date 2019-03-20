@@ -217,6 +217,16 @@ func TestExecuteCallFormatsAndWritesResults(t *testing.T) {
 	}
 }
 
+func TestExecuteReturnsErrorWhenNoDevicesProvided(t *testing.T) {
+	executor := executorImpl{}
+
+	err := executor.Execute(Config{}, []devices.Device{})
+
+	if err == nil {
+		t.Error("Expected an error but did not get one")
+	}
+}
+
 func givenNoTestListeners(device devices.Device, testListenerFactory *mock_test_listener.MockFactory) {
 	testListenerFactory.EXPECT().ForDevice(device).Return([]test_listener.TestListener{})
 }

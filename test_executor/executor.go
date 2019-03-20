@@ -1,6 +1,7 @@
 package test_executor
 
 import (
+	"errors"
 	"fmt"
 	"github.com/android-test-runner/atr/adb"
 	"github.com/android-test-runner/atr/apks"
@@ -50,6 +51,9 @@ func NewExecutor(writer output.Writer, testListenersFactory test_listener.Factor
 }
 
 func (executor executorImpl) Execute(config Config, targetDevices []devices.Device) error {
+	if len(targetDevices) == 0 {
+		return errors.New("no devices provided")
+	}
 	resultsChannel := make(chan result.TestResults, len(targetDevices))
 
 	var wg sync.WaitGroup
