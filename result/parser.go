@@ -37,11 +37,11 @@ func getStatus(output string, err error) Status {
 	// This is needed because the am process does not fail if the test fails.
 	lines := strings.Split(output, "\n")
 	for _, line := range lines {
-		regexSkipped := regexp.MustCompile(`^OK \(0 tests\)$`)
+		regexSkipped := regexp.MustCompile(`^\s*OK \(0 tests\)\s*$`)
 		if regexSkipped.MatchString(line) {
 			return Skipped
 		}
-		regexOk := regexp.MustCompile(`^OK \(1 test\)$`)
+		regexOk := regexp.MustCompile(`^\s*OK \(1 test\)\s*$`)
 		if regexOk.MatchString(line) {
 			return Passed
 		}

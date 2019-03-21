@@ -47,6 +47,33 @@ func TestResultFromOutputPassedWithMultilineOutput(t *testing.T) {
 	}
 }
 
+func TestResultFromOutputPassedWithWhitespaceCharacters(t *testing.T) {
+	testForResult := test.Test{Class: "TestClass", Method: "testMethod"}
+	okOutput := "  OK (1 test) \n"
+	var duration time.Duration = 42
+
+	result := NewParser().ParseFromOutput(testForResult, nil, okOutput, duration)
+
+	expected := Result{Test: testForResult, Status: Passed, Output: okOutput, Duration: duration}
+	if !expected.equals(result) {
+		t.Error(fmt.Sprintf("Test result is %v instead of %v", result, expected))
+	}
+}
+
+func TestResultFromOutputSkippedWithWhitespaceCharacters(t *testing.T) {
+	testForResult := test.Test{Class: "TestClass", Method: "testMethod"}
+	skippedOutput := "  OK (0 tests) \n"
+	var duration time.Duration = 42
+
+	result := NewParser().ParseFromOutput(testForResult, nil, skippedOutput, duration)
+
+	expected := Result{Test: testForResult, Status: Skipped, Output: skippedOutput, Duration: duration}
+	if !expected.equals(result) {
+		t.Error(fmt.Sprintf("Test result is %v instead of %v", result, expected))
+	}
+}
+
+
 func TestResultFromOutputErrored(t *testing.T) {
 	testForResult := test.Test{Class: "TestClass", Method: "testMethod"}
 	err := errors.New("some error")
