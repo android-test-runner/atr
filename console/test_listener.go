@@ -28,6 +28,8 @@ func (listener *testListener) AfterTest(r result.Result) []result.Extra {
 	var resultOutput string
 	if r.IsFailure() {
 		resultOutput = Color("FAILED", Red)
+	} else if r.IsSkipped() {
+		resultOutput = Color("SKIPPED", Yellow)
 	} else {
 		resultOutput = Color("PASSED", Green)
 	}
