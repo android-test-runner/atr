@@ -39,6 +39,7 @@ type testsuite struct {
 	NumErrors   int        `xml:"errors,attr"`
 	NumSkipped  int        `xml:"skipped,attr"`
 	Time        string     `xml:"time,attr"`
+	Timestamp   string     `xml:"timestamp,attr"`
 	TestCases   []testcase `xml:"testcase"`
 }
 
@@ -81,6 +82,9 @@ func (formatterImpl) Format(results []result.Result, apk apks.Apk) (files.File, 
 		NumErrors:   numErrors,
 		NumSkipped:  numSkipped,
 		Time:        fmt.Sprintf(durationFormat, totalTime),
+		// Temporary fix to make test-store happy. It needs to be decided whether
+		// to add this field here or to make test-store not depend on it.
+		Timestamp:   "1970-01-01T00:00:00",
 	}
 
 	output, err := xml.MarshalIndent(testSuite, "", "    ")
